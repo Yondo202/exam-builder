@@ -1,0 +1,9 @@
+export { default as Empty } from './empty.svg?react';
+export { default as Loading } from './loading.svg?react';
+export { default as Delete } from './delete.svg?react';
+export { default as Dashboard } from './dashb.svg?react';
+export { default as Users } from './users.svg?react';
+export { default as Plan } from './plan.svg?react';
+export { default as Group } from './group.svg?react';
+export { default as Report } from './report.svg?react';
+export { default as TavanbogdLogo } from './TavanbogdLogo.svg?react';

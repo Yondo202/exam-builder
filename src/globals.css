@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+   :root {
+      --card-bg: 0 0% 100%;
+      --body-bg: 214 23% 94%;
+      --hover-bg: 210 40% 96.1%;
+      /* --primary: 221.2 83.2% 53.3%; */
+      /* --primary: 198.44 93.2% 59.61%; */
+      --primary: 198.63 88.66% 48.43%;
+      --primary: 198.63 88.66% 48.43%;
+      --text: 222.2 84% 4.9%;
+      --border: 205.57 96.83% 87.65%;
+      --muted-bg: 210 40% 96.1%;
+      --muted-text: 215.4 16.3% 46.9%;
+      --muted-border: 214.3 31.8% 91.4%;
+
+      --ring: 221.2 83.2% 53.3%; /*box shadow toi border*/
+   }
+   .dark {
+      /* --card-bg: 222.2 84% 4.9%; */
+      --card-bg: 217.24 32.58% 17.45%;
+      /* --body-bg: 240 10% 3.92%; */
+      --body-bg: 222.22 47.37% 11.18%;
+      /* --hover-bg: 217.2 32.6% 17.5%; */
+      --hover-bg: 215.29 25% 26.67%;
+      /* --primary: 221.2 83.2% 53.3%; */
+      --primary: 198.44 93.2% 59.61%;
+      /* --text: 210 40% 98%; */
+      --text: 214.29 31.82% 91.37%;
+      /* --border: 217.2 40.6% 24.5%; */
+      --border: 217.2 40.43% 33.34%;
+      /* --muted-bg: 217.2 32.6% 17.5%; */
+      --muted-bg: 215.29 33.75% 22.09%;
+      /* --muted-bg: 215.29 36% 13.26% */
+      /* --muted-text: 215 20.2% 65.1%; */
+      --muted-text: 215 20.22% 65.1%;
+      /* --muted-border: 217.2 32.6% 17.5%; */
+      --muted-border: 0deg 0% 100% / 10.2%;
+
+      --ring: 224.3 76.3% 48%;
+   }
+}
+
+@layer base {
+   *,
+   *::before,
+   *::after {
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+   }
+   :root {
+      scroll-behavior: smooth;
+      --radius: 0.5rem;
+      --danger-color: 3.06 82.2% 62.55%;
+   }
+   html {
+      @apply font-sans scroll-smooth;
+   }
+   * {
+      @apply border-muted-border;
+   }
+   body {
+      @apply bg-body-bg text-xs2 text-text; /* font-sans  */
+   }
+   .one_line {
+      @apply max-w-full truncate;
+   }
+   .wrapper {
+      @apply rounded-lg border bg-card-bg border-muted-border;
+   }
+
+   .dialog-footer {
+      @apply sticky bottom-0 left-0 bg-card-bg py-4 flex justify-end w-full;
+   }
+
+   .bg-box-parent {
+      @apply fixed inset-0 z-[-1] bg-transparent h-screen w-screen;
+      background-image: linear-gradient(hsl(var(--body-bg)), hsl(var(--body-bg)));
+   }
+   .menu-svg {
+      @apply fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-primary;
+   }
+
+   .bg-box {
+      @apply w-full h-full;
+      background-size: 50px 50px;
+      background-image: linear-gradient(
+            0deg,
+            transparent 24%,
+            hsl(var(--muted-bg) / 40%) 25%,
+            hsl(var(--muted-bg) / 40%) 26%,
+            transparent 27%,
+            transparent 74%,
+            hsl(var(--muted-bg) / 40%) 75%,
+            hsl(var(--muted-bg) / 40%) 76%,
+            transparent 77%,
+            transparent
+         ),
+         linear-gradient(
+            90deg,
+            transparent 24%,
+            hsl(var(--muted-bg) / 40%) 25%,
+            hsl(var(--muted-bg) / 40%) 26%,
+            transparent 27%,
+            transparent 74%,
+            hsl(var(--muted-bg) / 40%) 75%,
+            hsl(var(--muted-bg) / 40%) 76%,
+            transparent 77%,
+            transparent
+         );
+   }
+}

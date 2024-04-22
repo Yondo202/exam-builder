@@ -1,0 +1,32 @@
+#check-group {
+   animation: 0.52s ease-in-out 0.33s check-group;
+   transform-origin: center;
+}
+
+#check-group #check {
+   animation: 0.44s forwards check;
+   stroke-dasharray: 0, 75px;
+   stroke-linecap: round;
+   stroke-linejoin: round;
+}
+
+@keyframes check {
+   from {
+      stroke-dasharray: 0, 75px;
+   }
+   to {
+      stroke-dasharray: 75px, 75px;
+   }
+}
+
+@keyframes check-group {
+   from {
+      transform: scale(1);
+   }
+   50% {
+      transform: scale(1.1);
+   }
+   to {
+      transform: scale(1);
+   }
+}
