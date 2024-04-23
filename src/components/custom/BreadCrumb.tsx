@@ -5,9 +5,9 @@ import { IoHomeOutline } from 'react-icons/io5';
 import { LiaSlashSolid } from 'react-icons/lia';
 
 export type TBreadCrumb = {
-   title: string; // daraa enum aas av
+   label: string; // daraa enum aas av
    isActive?: boolean; // daraa enum aas av
-   toLink: string;
+   to: string;
 };
 
 type TBreadCrumbProps = {
@@ -34,8 +34,8 @@ const BreadCrumb = ({ pathList }: TBreadCrumbProps) => {
                return (
                   <React.Fragment key={index}>
                      <BreadcrumbItem>
-                        <Link to={item.toLink} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-normal` : ``}`}>
-                           {item.title}
+                        <Link to={item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-normal` : ``}`}>
+                           {item.label}
                         </Link>
                      </BreadcrumbItem>
                      {index !== pathList.length - 1 && (

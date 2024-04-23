@@ -3,6 +3,7 @@ export { default as DataTable } from './DataTable';
 export { default as Header } from './Header';
 export { default as CkEditor } from './CkEditor';
 export { default as Dialog } from './Dialog';
+export { default as AnimatedTabs } from './AnimatedTabs';
 export { default as Tooltip } from './Tooltip';
 export { default as DeleteContent } from './DeleteContent';
 export { Skeleton } from '../ui/skeleton';

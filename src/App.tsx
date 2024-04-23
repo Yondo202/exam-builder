@@ -2,7 +2,6 @@ import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } 
 import PrivateRoute from '@/lib/core/PrivateRoute';
 import SignIn from '@/pages/SignIn';
 import { Empty } from '@/assets/richsvg';
-
 import RouteStore from '@/lib/core/RouteStore';
 // import useTheme from '@/hooks/useTheme';
 
@@ -11,7 +10,17 @@ const router = createBrowserRouter(
       <>
          <Route path="/" element={<PrivateRoute toSign />}>
             {RouteStore.map((Item, index) => {
-               return <Route key={index} path={Item.to} element={Item.component ? <Item.component /> : <div>{Item.label}</div>} />;
+               return Item.subMenu ? (
+                  <Route key={index} path={Item.to}>
+                     {Item.subMenu?.map((childE, index) => {
+                        return (
+                           <Route key={index} path={childE.to} element={childE.component ? <childE.component breadcrumbs={[{ ...childE, isActive: true }]} /> : <div>{childE.label}</div>} />
+                        );
+                     })}
+                  </Route>
+               ) : (
+                  <Route key={index} path={Item.to} element={Item.component ? <Item.component breadcrumbs={[{ ...Item, isActive: true }]} /> : <div>{Item.label}</div>} />
+               );
             })}
          </Route>
 
