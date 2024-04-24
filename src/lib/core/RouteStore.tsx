@@ -4,32 +4,32 @@ import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 
 type TRouteStore = {
    to: string;
-   icon?: JSX.Element;
+   icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
    label: string;
    component?: ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => JSX.Element;
 };
 
 // type TRouteOmit = Omit<TRouteStore, 'subMenu'>[] & { subMenu?: TRouteStore[] };
-export type TRouteOmit = TRouteStore & { subMenu?: TRouteStore[] };
+export type TRouteOmit = TRouteStore & { subMenu?: Omit<TRouteStore, 'icon'>[] };
 
 const RouteStore: TRouteOmit[] = [
    {
       label: 'Хянах самбар',
       to: '/',
-      icon: <Dashboard className="menu-svg" />,
+      icon: Dashboard,
    },
    {
       to: '/groups',
-      icon: <Group className="menu-svg" />,
+      icon: Group,
       label: 'Бүлэг',
       subMenu: [
-         { to: '', label: 'Бүлэг', component: Groups },
-         { to: 'group123', label: 'Бүлэг222222', component: Groups },
+         { to: '', label: 'Шалгалтууд', component: Groups },
+         { to: 'group123', label: 'Бүлэгийн жагсаалт', component: Groups },
       ],
    },
-   { to: '/exams', icon: <Plan className="menu-svg" />, label: 'Шалгалт' },
-   { to: '/report', icon: <Report className="menu-svg" />, label: 'Тайлан' },
-   { to: '/users', icon: <Users className="menu-svg" />, label: 'Хэрэглэгчид' },
+   { to: '/exams', icon: Plan, label: 'Шалгалт' },
+   { to: '/report', icon: Report, label: 'Тайлан' },
+   { to: '/users', icon: Users, label: 'Хэрэглэгчид' },
 
    // subMenu: [
    //    { name: 'Веб сайт', path: '', Component: WebMainAction },

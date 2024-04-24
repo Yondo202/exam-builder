@@ -80,9 +80,9 @@
       @apply fixed inset-0 z-[-1] bg-transparent h-screen w-screen;
       background-image: linear-gradient(hsl(var(--body-bg)), hsl(var(--body-bg)));
    }
-   .menu-svg {
+   /* .menu-svg {
       @apply fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-primary;
-   }
+   } */
 
    .bg-box {
       @apply w-full h-full;
