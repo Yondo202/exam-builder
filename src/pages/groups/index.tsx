@@ -2,9 +2,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { useState } from 'react';
-import { DataTable, BreadCrumb, AnimatedTabs } from '@/components/custom';
+import { DataTable, BreadCrumb, AnimatedTabs, Drawer, Button, TextInput } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
+import { useForm } from 'react-hook-form';
 
 export type TGroup = {
    userId: number;
@@ -26,12 +27,38 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       <div>
          <BreadCrumb pathList={breadcrumbs} />
          <AnimatedTabs items={groupAsset} activeKey={current} onChange={(e) => setCurrent(e)} />
-         <DataTable data={data} columns={columnDef} isLoading={isLoading} />
+         <DataTable
+            data={data}
+            columns={columnDef}
+            isLoading={isLoading}
+            headAction={
+               <Drawer title="Үндсэн бүлэг нэмэх" content={<GroupAction />}>
+                  <Button size="sm" className="rounded-full" variant="outline">
+                     Бүлэг нэмэх
+                  </Button>
+               </Drawer>
+            }
+         />
       </div>
    );
 };
 
 export default Groups;
+
+const GroupAction = () => {
+   const { control, handleSubmit } = useForm({ defaultValues: { name: '' } });
+   const onSubmit = (data: object) => {
+      console.log(data, '=-=>data');
+   };
+   return (
+      <form onSubmit={handleSubmit(onSubmit)}>
+         <TextInput label="Бүлэгийн нэр оруулах" placeholder="Бүлэгийн нэр оруулах" name="name" control={control} rules={{ required: 'Бүлэгийн нэр оруулна уу' }} />
+         <div className="flex justify-end w-full pt-8">
+            <Button type="submit">Хадгалах</Button>
+         </div>
+      </form>
+   );
+};
 
 const columnDef: ColumnDef<TGroup>[] = [
    {

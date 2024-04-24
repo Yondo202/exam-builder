@@ -22,7 +22,7 @@ const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, c
                };
                return (
                   <>
-                     <FloatingLabelInput {...inputProps} placeholder="" variant={fieldState?.error ? `error` : 'default'} />
+                     <FloatingLabelInput {...inputProps} placeholder={floatLabel === false ? props.placeholder : ``} variant={fieldState?.error ? `error` : 'default'} />
                      <ErrorMessage error={fieldState?.error} />
                   </>
                );

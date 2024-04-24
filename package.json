@@ -39,6 +39,7 @@
       "sonner": "^1.4.3",
       "tailwind-merge": "^2.2.2",
       "tailwindcss-animate": "^1.0.7",
+      "vaul": "^0.9.0",
       "vite-plugin-commonjs": "^0.10.1",
       "vite-plugin-svgr": "^4.2.0",
       "zustand": "^4.5.2"

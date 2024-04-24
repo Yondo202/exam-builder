@@ -1,4 +1,4 @@
-import { Dashboard, Users, Plan, Group, Report } from '@/assets/svg';
+import { Users, Plan, Leaderboard, Group, Document, Factcheck } from '@/assets/svg';
 import Groups from '@/pages/groups';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 
@@ -9,35 +9,51 @@ type TRouteStore = {
    component?: ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => JSX.Element;
 };
 
-// type TRouteOmit = Omit<TRouteStore, 'subMenu'>[] & { subMenu?: TRouteStore[] };
 export type TRouteOmit = TRouteStore & { subMenu?: Omit<TRouteStore, 'icon'>[] };
 
 const RouteStore: TRouteOmit[] = [
    {
       label: 'Хянах самбар',
       to: '/',
-      icon: Dashboard,
+      icon: Leaderboard,
    },
    {
       to: '/groups',
       icon: Group,
       label: 'Бүлэг',
+      component: Groups,
+   },
+   { to: '/questions', icon: Factcheck, label: 'Асуултын сан' },
+   {
+      to: '/exams',
+      icon: Plan,
+      label: 'Шалгалт',
       subMenu: [
          { to: '', label: 'Шалгалтууд', component: Groups },
-         { to: 'group123', label: 'Бүлэгийн жагсаалт', component: Groups },
+         { to: 'tocheck', label: 'Засах шалгалтууд', component: Groups },
+         { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],
    },
-   { to: '/exams', icon: Plan, label: 'Шалгалт' },
-   { to: '/report', icon: Report, label: 'Тайлан' },
-   { to: '/users', icon: Users, label: 'Хэрэглэгчид' },
+   { to: '/report', icon: Document, label: 'Тайлан' },
+   {
+      to: '/users',
+      icon: Users,
+      label: 'Хэрэглэгч',
+      subMenu: [
+         { to: '', label: 'Хэрэглэгчид', component: Groups },
+         { to: 'company', label: 'Компани', component: Groups },
+      ],
+   },
 
+   // {
+   //    to: '/groups',
+   //    icon: Group,
+   //    label: 'Бүлэг',
    // subMenu: [
-   //    { name: 'Веб сайт', path: '', Component: WebMainAction },
-   //    { name: 'Хуудас удирдах', path: 'webpages', Component: Pages },
-   //    // { name: 'Мэдэгдэл илгээх', path: 'inapp', Component: InApp },
-   //    { name: 'Хэрэглэгчид', path: 'storeuser', Component: StoreUser },
-   //    // { name: 'Web Builder', push: true, path: '_playground', pushLink: `https://www.builder.siro.mn` },
+   //    { to: '', label: 'Шалгалтууд', component: Groups },
+   //    { to: 'group123', label: 'Бүлэгийн жагсаалт', component: Groups },
    // ],
+   // },
 ];
 
 export default RouteStore;
