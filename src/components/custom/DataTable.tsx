@@ -159,7 +159,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                      <PopoverTrigger asChild>
                         <Button variant="outline" size="icon" className="ml-auto rounded-full">
                            {/* Харагдац <ChevronDownIcon className="ml-2 h-4 w-4" /> */}
-                           <PiPath className="text-primary" />
+                           <PiPath className="text-secondary" />
                         </Button>
                      </PopoverTrigger>
 
@@ -248,7 +248,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                                     onClick={() => (cell.column.id !== 'actions' ? rowAction?.({ type: 'edit', data: row.original, isOpen: true }) : null)}
                                     // style={size !== colSize ? { width: size, maxWidth: size } : {}}
                                     style={{ width: size, maxWidth: size }}
-                                    className={`one_line ${cell.column.id === 'actions' ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-hover-bg` : ``}`}
+                                    className={`one_line ${cell.column.id === 'actions' ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-primary/5` : ``}`}
                                  >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                  </TableCell>

@@ -1,11 +1,14 @@
 import { Users, Plan, Leaderboard, Group, Document, Factcheck } from '@/assets/svg';
 import Groups from '@/pages/groups';
+import Questions from '@/pages/questions';
+import QuestionAction from '@/pages/questions/Action';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 
 type TRouteStore = {
    to: string;
-   icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+   icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
    label: string;
+   isHide?: boolean;
    component?: ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => JSX.Element;
 };
 
@@ -23,7 +26,8 @@ const RouteStore: TRouteOmit[] = [
       label: 'Бүлэг',
       component: Groups,
    },
-   { to: '/questions', icon: Factcheck, label: 'Асуултын сан' },
+   { to: '/questions', icon: Factcheck, label: 'Асуултын сан', component: Questions },
+   { to: '/questions/:typeid', label: 'Асуултын сан', component: QuestionAction, isHide: true },
    {
       to: '/exams',
       icon: Plan,

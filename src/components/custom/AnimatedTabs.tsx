@@ -27,7 +27,7 @@ const AnimatedTabs = ({ items, activeKey, onChange, className }: TTabs) => {
          })}
          <div
             style={{ width: `${activeBorder.width}px`, left: `${activeBorder.offsetLeft}px` }}
-            className={cn('absolute bottom-0 h-[2px] rounded-t-sm bg-primary transition-all duration-200')}
+            className={cn('absolute bottom-0 h-[2px] rounded-t-sm bg-secondary transition-all duration-200')}
          />
       </div>
    );
@@ -62,7 +62,7 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => 
          //  className={`tab_item ${item.disabled ? `disabled` : ``} ${activeKey === item.key ? `active_tab` : ``}`}
          className={cn(
             'leading-[48px] text-muted-text font-medium select-none flex justify-center rounded-sm',
-            activeKey === item.key ? 'text-primary' : '',
+            activeKey === item.key ? 'text-secondary' : '',
             item?.disabled ? `disabled:opacity-50` : ``
          )}
       >

@@ -2,8 +2,16 @@ import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } 
 import PrivateRoute from '@/lib/core/PrivateRoute';
 import SignIn from '@/pages/SignIn';
 import { Empty } from '@/assets/richsvg';
-import RouteStore from '@/lib/core/RouteStore';
+import RouteStore, { TRouteOmit } from '@/lib/core/RouteStore';
 // import useTheme from '@/hooks/useTheme';
+
+const converSome = (Item: TRouteOmit) => {
+   if (!Item.isHide) {
+      return Item;
+   }
+
+   return { ...Item, to: Item.to.replace('/:typeid', '') };
+};
 
 const router = createBrowserRouter(
    createRoutesFromElements(
@@ -19,7 +27,7 @@ const router = createBrowserRouter(
                      })}
                   </Route>
                ) : (
-                  <Route key={index} path={Item.to} element={Item.component ? <Item.component breadcrumbs={[{ ...Item, isActive: true }]} /> : <div>{Item.label}</div>} />
+                  <Route key={index} path={Item.to} element={Item.component ? <Item.component breadcrumbs={[{ ...converSome(Item), isActive: true }]} /> : <div>{Item.label}</div>} />
                );
             })}
          </Route>

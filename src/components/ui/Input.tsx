@@ -5,7 +5,7 @@ import Label from '@/components/ui/Label';
 import { ValidationRule } from 'react-hook-form';
 
 const InputVariants = cva(
-   `flex w-full rounded-md border py-1.5 bg-card-bg hover:bg-hover-bg focus:hover:bg-card-bg text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-text/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-50`,
+   `flex w-full rounded-md border py-1.5 bg-card-bg hover:bg-hover-bg focus:hover:bg-card-bg text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-text/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-50`,
    {
       variants: {
          variant: {
@@ -30,14 +30,12 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>,
    isLoading?: boolean;
 }
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+// export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, variant = 'default', sizes = 'default', ...props }, ref) => {
    return <input type={type} className={cn(InputVariants({ variant, sizes, className }))} ref={ref} {...props} />;
 });
 Input.displayName = 'Input';
-
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
 const FloatingInput = React.forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
    return <Input placeholder=" " className={cn('peer', className)} ref={ref} {...props} />;

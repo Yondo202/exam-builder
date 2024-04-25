@@ -32,12 +32,13 @@ const LeftMenu = () => {
          )}
       >
          <ActionButton isHide={isHide} setHide={setHide} />
+
          <div>
             <div className="p-3 py-5">
                <TavanbogdLogo className="w-18 max-w-full" />
             </div>
             <div className="flex flex-col gap-0 pt-6">
-               {RouteStore.map((Element, index) => {
+               {RouteStore?.filter((item) => !item.isHide).map((Element, index) => {
                   return <NavLinkComponent key={index} isHide={isHide} Element={Element} />;
                })}
             </div>
@@ -108,8 +109,8 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                      // end={false}
                   >
                      <div className="flex items-center gap-3">
-                        <Element.icon className="fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-primary" />
-                        {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-primary">{Element.label}</span>}
+                        {Element.icon && <Element.icon className="fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-secondary" />}
+                        {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-secondary">{Element.label}</span>}
                      </div>
 
                      {!isHide && Element.subMenu ? <IoIosArrowForward className="w-4 h-4 duration-300 transition-all group-[.active]:rotate-90" /> : null}

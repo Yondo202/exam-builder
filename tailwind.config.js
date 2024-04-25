@@ -23,6 +23,7 @@ module.exports = {
         "body-bg": "hsl(var(--body-bg))",
         "hover-bg": "hsl(var(--hover-bg))",
         "primary": "hsl(var(--primary))",
+        "secondary": "hsl(var(--secondary))",
         "text": "hsl(var(--text))",
         "border": "hsl(var(--border))",
         "muted-bg": "hsl(var(--muted-bg))",

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { IoHomeOutline } from 'react-icons/io5';
 import { LiaSlashSolid } from 'react-icons/lia';
 
@@ -15,6 +16,7 @@ type TBreadCrumbProps = {
 };
 
 const BreadCrumb = ({ pathList }: TBreadCrumbProps) => {
+   const location = useLocation();
    if (pathList.length === 0) {
       return null;
    }
@@ -34,7 +36,7 @@ const BreadCrumb = ({ pathList }: TBreadCrumbProps) => {
                return (
                   <React.Fragment key={index}>
                      <BreadcrumbItem>
-                        <Link to={item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-normal` : ``}`}>
+                        <Link to={item.to === '#' ? location.pathname + location.search : item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-normal` : ``}`}>
                            {item.label}
                         </Link>
                      </BreadcrumbItem>

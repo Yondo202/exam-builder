@@ -6,6 +6,7 @@ import { DataTable, BreadCrumb, AnimatedTabs, Drawer, Button, TextInput } from '
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { useForm } from 'react-hook-form';
+import { MdOutlineAdd } from "react-icons/md";
 
 export type TGroup = {
    userId: number;
@@ -32,9 +33,9 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             columns={columnDef}
             isLoading={isLoading}
             headAction={
-               <Drawer title="Үндсэн бүлэг нэмэх" content={<GroupAction />}>
+               <Drawer title="Үндсэн бүлэг нэмэх" content={<GroupAction />} className="py-10">
                   <Button size="sm" className="rounded-full" variant="outline">
-                     Бүлэг нэмэх
+                     <MdOutlineAdd /> {current === 'main_group' ? ` Бүлэг нэмэх` : `Дэд бүлэг нэмэх`}
                   </Button>
                </Drawer>
             }
@@ -52,7 +53,7 @@ const GroupAction = () => {
    };
    return (
       <form onSubmit={handleSubmit(onSubmit)}>
-         <TextInput label="Бүлэгийн нэр оруулах" placeholder="Бүлэгийн нэр оруулах" name="name" control={control} rules={{ required: 'Бүлэгийн нэр оруулна уу' }} />
+         <TextInput autoFocus label="Бүлэгийн нэр оруулах" placeholder="Бүлэгийн нэр оруулах" name="name" control={control} rules={{ required: 'Бүлэгийн нэр оруулна уу' }} />
          <div className="flex justify-end w-full pt-8">
             <Button type="submit">Хадгалах</Button>
          </div>

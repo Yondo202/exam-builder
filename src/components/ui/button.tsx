@@ -18,14 +18,14 @@ export const buttonVariants = cva(
         destructive:
           "bg-hover-bg/20 border border-danger-color/30 text-danger-color hover:bg-hover-bg",
         outline:
-          "border border-border bg-card-bg text-primary hover:bg-slate-100 hover:bg-hover-bg",
+          "border border-border bg-card-bg text-secondary hover:bg-slate-100 hover:bg-hover-bg",
         secondary:
           "bg-slate-100 text-slate-900 hover:bg-slate-100/80 dark:bg-slate-800 dark:text-slate-50 dark:hover:bg-slate-800/80",
         ghost: "hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-slate-50",
         link: "text-slate-900 underline-offset-4 hover:underline dark:text-slate-50",
       },
       size: {
-        default: "h-9 px-4 py-2",
+        default: "h-8 px-4 py-2",
         sm: "h-7 px-3 text-xs",
         lg: "h-10 px-8",
         icon: "h-7 w-7 text-base",
