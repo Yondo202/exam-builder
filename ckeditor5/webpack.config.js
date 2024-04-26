@@ -16,7 +16,7 @@ const TerserWebpackPlugin = require( 'terser-webpack-plugin' );
 module.exports = {
 	devtool: 'source-map',
 	performance: { hints: false },
-
+	
 	entry: path.resolve( __dirname, 'src', 'ckeditor.ts' ),
 
 	output: {
@@ -60,6 +60,7 @@ module.exports = {
 	resolve: {
 		extensions: [ '.ts', '.js', '.json' ]
 	},
+					
 
 	module: {
 		rules: [ {
@@ -70,7 +71,8 @@ module.exports = {
 			use: 'ts-loader'
 		}, {
 			test: /\.css$/,
-			use: [ {
+			use: [
+			{
 				loader: 'style-loader',
 				options: {
 					injectType: 'singletonStyleTag',
@@ -78,9 +80,11 @@ module.exports = {
 						'data-cke': true
 					}
 				}
-			}, {
+			}, 
+			{
 				loader: 'css-loader'
-			}, {
+			}, 
+			{
 				loader: 'postcss-loader',
 				options: {
 					postcssOptions: styles.getPostCssConfig( {
@@ -90,7 +94,8 @@ module.exports = {
 						minify: true
 					} )
 				}
-			} ]
+			} 
+		]
 		} ]
 	}
 };

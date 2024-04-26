@@ -9,9 +9,10 @@ type TDrawerCustom = {
    children: ReactNode;
    content: ReactNode;
    className?: string;
+   titleClassName?: string;
 };
 
-const DrawerComponent = ({ title, children, content, description, className }: TDrawerCustom) => {
+const DrawerComponent = ({ title, children, content, description, className, titleClassName }: TDrawerCustom) => {
    return (
       <Drawer>
          {children && <DrawerTrigger asChild>{children}</DrawerTrigger>}
@@ -19,7 +20,7 @@ const DrawerComponent = ({ title, children, content, description, className }: T
             <DrawerOverlay />
             <DrawerContent>
                <div className={cn('mx-auto w-full max-w-md', className)}>
-                  <DrawerHeader className="pt-8 pb-6">
+                  <DrawerHeader className={cn('pt-8 pb-6', titleClassName)}>
                      <DrawerTitle>{title}</DrawerTitle>
                      {description && <DrawerDescription>{description}</DrawerDescription>}
                   </DrawerHeader>

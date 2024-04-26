@@ -141,7 +141,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
    return (
       <div className="w-full">
          <div className="wrapper overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-6">
+            <div className="flex items-center justify-between px-4 py-5">
                <FloatingLabelInput
                   // label="Нэрээр хайх..."
                   // value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}

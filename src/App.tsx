@@ -22,7 +22,11 @@ const router = createBrowserRouter(
                   <Route key={index} path={Item.to}>
                      {Item.subMenu?.map((childE, index) => {
                         return (
-                           <Route key={index} path={childE.to} element={childE.component ? <childE.component breadcrumbs={[{ ...childE, isActive: true }]} /> : <div>{childE.label}</div>} />
+                           <Route
+                              key={index}
+                              path={childE.to}
+                              element={childE.component ? <childE.component breadcrumbs={[{ ...converSome(childE), isActive: true }]} /> : <div>{childE.label}</div>}
+                           />
                         );
                      })}
                   </Route>

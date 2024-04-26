@@ -9,8 +9,10 @@ const CkEditorComponent = () => {
       // <Suspense fallback={<Loading load={true} />}>
       <div className="ckeditor">
          <CKEditor
+            
             editor={CustomEditor}
             data={value}
+            config={{  }}
             // onReady={(editor) => {
             //    console.log(editor, "============>")
             //    // editor.ui.view.editable.element.style.minHeight = '500px';

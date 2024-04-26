@@ -159,7 +159,7 @@ const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?:
 
    return (
       <>
-         {Element.subMenu?.map((item, index) => {
+         {Element.subMenu?.filter(el=>!el.isHide).map((item, index) => {
             return (
                <NavLink
                   key={index}

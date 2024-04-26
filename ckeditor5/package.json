@@ -12,8 +12,7 @@
     "@ckeditor/ckeditor5-basic-styles": "41.3.1",
     "@ckeditor/ckeditor5-editor-classic": "41.3.1",
     "@ckeditor/ckeditor5-essentials": "41.3.1",
-    "@ckeditor/ckeditor5-font": "41.3.1",
-    "@ckeditor/ckeditor5-heading": "41.3.1",
+    "@ckeditor/ckeditor5-font": "^41.3.1",
     "@ckeditor/ckeditor5-image": "41.3.1",
     "@ckeditor/ckeditor5-indent": "41.3.1",
     "@ckeditor/ckeditor5-link": "41.3.1",
@@ -21,7 +20,8 @@
     "@ckeditor/ckeditor5-paragraph": "41.3.1",
     "@ckeditor/ckeditor5-paste-from-office": "41.3.1",
     "@ckeditor/ckeditor5-table": "41.3.1",
-    "@ckeditor/ckeditor5-undo": "41.3.1"
+    "@ckeditor/ckeditor5-undo": "41.3.1",
+    "@ckeditor/ckeditor5-upload": "^41.3.1"
   },
   "devDependencies": {
     "@ckeditor/ckeditor5-core": "41.3.1",

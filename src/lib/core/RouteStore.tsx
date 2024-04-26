@@ -1,6 +1,8 @@
 import { Users, Plan, Leaderboard, Group, Document, Factcheck } from '@/assets/svg';
 import Groups from '@/pages/groups';
 import Questions from '@/pages/questions';
+import Exams from '@/pages/exams';
+import ExamAction from '@/pages/exams/Action';
 import QuestionAction from '@/pages/questions/Action';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 
@@ -33,7 +35,8 @@ const RouteStore: TRouteOmit[] = [
       icon: Plan,
       label: 'Шалгалт',
       subMenu: [
-         { to: '', label: 'Шалгалтууд', component: Groups },
+         { to: '', label: 'Шалгалтууд', component: Exams },
+         { to: '/exams/:typeid', label: 'Шалгалтууд', component: ExamAction, isHide: true },
          { to: 'tocheck', label: 'Засах шалгалтууд', component: Groups },
          { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],

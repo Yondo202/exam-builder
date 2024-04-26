@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { IoHomeOutline } from 'react-icons/io5';
 import { LiaSlashSolid } from 'react-icons/lia';
+import { cn } from '@/lib/utils';
 
 export type TBreadCrumb = {
    label: string; // daraa enum aas av
@@ -13,16 +14,17 @@ export type TBreadCrumb = {
 
 type TBreadCrumbProps = {
    pathList: TBreadCrumb[];
+   className?: string;
 };
 
-const BreadCrumb = ({ pathList }: TBreadCrumbProps) => {
+const BreadCrumb = ({ pathList, className }: TBreadCrumbProps) => {
    const location = useLocation();
    if (pathList.length === 0) {
       return null;
    }
 
    return (
-      <Breadcrumb className="py-4">
+      <Breadcrumb className={cn('py-4', className)}>
          <BreadcrumbList>
             <BreadcrumbItem>
                <Link to="/">
@@ -36,7 +38,7 @@ const BreadCrumb = ({ pathList }: TBreadCrumbProps) => {
                return (
                   <React.Fragment key={index}>
                      <BreadcrumbItem>
-                        <Link to={item.to === '#' ? location.pathname + location.search : item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-normal` : ``}`}>
+                        <Link to={item.to === '#' ? location.pathname + location.search : item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-medium` : ``}`}>
                            {item.label}
                         </Link>
                      </BreadcrumbItem>
