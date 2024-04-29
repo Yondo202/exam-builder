@@ -15,8 +15,10 @@ const ControlTextArea = <TFieldValues extends FieldValues>({ control, className 
             render={({ field, fieldState }) => {
                return (
                   <>
-                     <Label htmlFor={field.name}>{props.label}</Label>
-                     <Textarea id={field.name} {...field} {...props} />
+                     <Label htmlFor={field.name}>
+                        {props.label} {rules?.required && <span className="text-danger-color">*</span>}
+                     </Label>
+                     <Textarea id={field.name} {...field} {...props} className={fieldState?.error ? `border-danger-color focus:border-danger-color focus-visible:ring-danger-color` : ``} />
                      <ErrorMessage error={fieldState?.error} />
                   </>
                );

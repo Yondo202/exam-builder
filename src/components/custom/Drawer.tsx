@@ -24,7 +24,7 @@ const DrawerComponent = ({ title, children, content, description, className, tit
                      <DrawerTitle>{title}</DrawerTitle>
                      {description && <DrawerDescription>{description}</DrawerDescription>}
                   </DrawerHeader>
-                  <DrawerFooter className="py-6 pb-14">{content}</DrawerFooter>
+                  <DrawerFooter className="py-6 pb-14 max-h-[75dvh] overflow-y-auto">{content}</DrawerFooter>
                </div>
             </DrawerContent>
          </DrawerPortal>

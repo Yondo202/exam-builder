@@ -7,6 +7,7 @@ export { default as CkEditor } from './CkEditor';
 export { default as Dialog } from './Dialog';
 export { default as AnimatedTabs } from './AnimatedTabs';
 export { default as Tooltip } from './Tooltip';
+export { DatePicker } from './DatePicker';
 export { default as Drawer } from './Drawer';
 export { default as DeleteContent } from './DeleteContent';
 export { Skeleton } from '../ui/skeleton';

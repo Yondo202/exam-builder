@@ -27,8 +27,8 @@ const LeftMenu = () => {
    return (
       <div
          className={cn(
-            'relative h-lvh duration-300 transition-all flex flex-col justify-between border-r border-border text-sm text-muted-text bg-card-bg',
-            isHide ? `w-[58px]` : `w-[240px]`
+            'relative h-lvh duration-300 transition-all flex flex-col justify-between border-r border-muted-border text-sm text-muted-text bg-card-bg',
+            isHide ? `w-[58px]` : `w-[255px]`
          )}
       >
          <ActionButton isHide={isHide} setHide={setHide} />
@@ -37,7 +37,7 @@ const LeftMenu = () => {
             <div className="p-3 py-5">
                <TavanbogdLogo className="w-18 max-w-full" />
             </div>
-            <div className="flex flex-col gap-0 pt-6">
+            <div className={cn("flex flex-col gap-0 pt-6", isHide ? `px-1.5 items-center justify-center` : `px-3`)}>
                {RouteStore?.filter((item) => !item.isHide).map((Element, index) => {
                   return <NavLinkComponent key={index} isHide={isHide} Element={Element} />;
                })}
@@ -90,7 +90,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
       <Tooltip content={Element.label} isDisable={!isHide}>
          <div
             className={cn(`grid transition-all overflow-hidden`)}
-            style={{ gridTemplateRows: `auto ${isActive && Element.subMenu && !isHide ? `${subHeight * Element.subMenu.length + 16}px` : '0px'}` }}
+            style={{ gridTemplateRows: `auto ${isActive && Element.subMenu && !isHide ? `${subHeight * Element.subMenu.filter(el=>!el.isHide).length}px` : '0px'}` }}
          >
             <HidedPopover
                pathname={pathname}
@@ -98,10 +98,10 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                trigger={({ to }) => (
                   <Link
                      className={cn(
-                        'group relative grid grid-cols-[1fr_auto] items-center p-3 mb-2 text-xs2 border-l-2 hover:bg-primary/5 ',
-                        isHide && `justify-center`,
+                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 text-xs2 hover:bg-primary/5 rounded-md',
+                        isHide ? `justify-center` : ``,
                         (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to))
-                           ? `active border-l-primary bg-primary/10 hover:bg-primary/10`
+                           ? `active bg-primary hover:bg-primary`
                            : ' border-transparent'
                      )}
                      to={to}
@@ -109,18 +109,18 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                      // end={false}
                   >
                      <div className="flex items-center gap-3">
-                        {Element.icon && <Element.icon className="fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-secondary" />}
-                        {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-secondary">{Element.label}</span>}
+                        {Element.icon && <Element.icon className="fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
+                        {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-[#FFF]">{Element.label}</span>}
                      </div>
 
-                     {!isHide && Element.subMenu ? <IoIosArrowForward className="w-4 h-4 duration-300 transition-all group-[.active]:rotate-90" /> : null}
+                     {!isHide && Element.subMenu ? <IoIosArrowForward className="w-3.5 h-3.5 duration-300 transition-all group-[.active]:text-[#FFF] group-[.active]:rotate-90" /> : null}
                   </Link>
                )}
                Element={Element}
             />
 
             {!isHide && Element.subMenu && (
-               <div className={cn('bg-primary/10 p-3 pl- py-4 flex flex-col overflow-hidden border-l-2 border-l-primary', isActive && `-translate-y-2`)}>
+               <div className={cn('bg-primary/10 p-3 py-4 pl-6 flex flex-col overflow-hidden', isActive && `-translate-y-2`)}>
                   <SubMenuComponent Element={Element} />
                </div>
             )}
@@ -183,14 +183,14 @@ const ActionButton = ({ isHide, setHide }: { isHide: boolean; setHide: (conditio
          <div className="group cursor-pointer flex h-6 w-6 flex-col items-center" onClick={() => setHide(!isHide)}>
             <div
                className={cn(
-                  'h-3 w-1 rounded-t-full bg-hover-bg transition-all group-hover:rounded-full group-hover:translate-y-[1.5px] group-hover:bg-primary',
+                  'h-3 w-1 rounded-t-full bg-primary transition-all group-hover:rounded-full group-hover:translate-y-[1.5px] group-hover:bg-primary',
                   isHide ? `rounded-full -rotate-[15deg] translate-y-[1.5px]` : `group-hover:rotate-[15deg]`
                )}
             />
 
             <div
                className={cn(
-                  'h-3 w-1 rounded-b-full bg-hover-bg transition-all group-hover:rounded-full group-hover:-translate-y-[1.5px] group-hover:bg-primary',
+                  'h-3 w-1 rounded-b-full bg-primary transition-all group-hover:rounded-full group-hover:-translate-y-[1.5px] group-hover:bg-primary',
                   isHide ? `rounded-full rotate-[15deg] -translate-y-[1.5px]` : `group-hover:-rotate-[15deg]`
                )}
             />

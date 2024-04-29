@@ -7,5 +7,6 @@ export { default as Users } from './users.svg?react';
 export { default as Plan } from './plan.svg?react';
 export { default as Document } from './document.svg?react';
 export { default as Factcheck } from './factcheck.svg?react';
+export { default as DateSvg } from './date.svg?react';
 export { default as Leaderboard } from './leaderboard.svg?react';
 export { default as TavanbogdLogo } from './TavanbogdLogo.svg?react';

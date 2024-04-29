@@ -28,7 +28,7 @@ const DrawerContent = React.forwardRef<React.ElementRef<typeof DrawerPrimitive.C
             className={cn('fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto flex-col rounded-t-[10px] border bg-card-bg', className)}
             {...props}
          >
-            <div className="mx-auto mt-4 h-2 w-[100px] cursor-grabbing rounded-full bg-muted-bg hover:bg-hover-bg" />
+            <div className="mx-auto mt-4 h-2 w-[100px] cursor-grabbing rounded-full bg-primary/10 hover:bg-primary/20 dark:bg-muted-bg dark:hover:bg-hover-bg" />
             {children}
          </DrawerPrimitive.Content>
       </DrawerPortal>

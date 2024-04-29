@@ -11,10 +11,11 @@
       --primary: 211.43 75.3% 49.22%;
       --secondary: 211.43 75.3% 49.22%;
       --text: 222.2 84% 4.9%;
-      --border: 205.57 96.83% 87.65%;
+      --border: 206 37% 75%;
+      /* --border: 205.57 96.83% 87.65%; */
       --muted-bg: 210 40% 96.1%;
       --muted-text: 215.4 16.3% 46.9%;
-      --muted-border: 214.3 31.8% 91.4%;
+      --muted-border: 214.3 33% 87%;
 
       --ring: 221.2 83.2% 53.3%; /*box shadow toi border*/
    }
@@ -35,7 +36,8 @@
       /* --text: 210 40% 98%; */
       --text: 214.29 31.82% 91.37%;
       /* --border: 217.2 40.6% 24.5%; */
-      --border: 217.2 40.43% 33.34%;
+      /* --border: 217.2 40.43% 33.34%; */
+      --border: 217.2deg 39% 46%;
       /* --muted-bg: 217.2 32.6% 17.5%; */
       --muted-bg: 215.29 33.75% 22.09%;
       /* --muted-bg: 215.29 36% 13.26% */
@@ -78,7 +80,7 @@
       @apply max-w-full truncate;
    }
    .wrapper {
-      @apply rounded-lg border bg-card-bg border-muted-border;
+      @apply rounded-lg border bg-card-bg border-muted-border shadow-md shadow-muted-text/10;
    }
 
    .dialog-footer {
