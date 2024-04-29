@@ -9,7 +9,7 @@ import { useEffect, useState, useRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { IoIosArrowForward } from 'react-icons/io';
 
-const subHeight = 50;
+const subHeight = 45;
 
 const LeftMenu = () => {
    const [isHide, setIsHide] = useState(false);
@@ -27,8 +27,8 @@ const LeftMenu = () => {
    return (
       <div
          className={cn(
-            'relative h-lvh duration-300 transition-all flex flex-col justify-between border-r border-muted-border text-sm text-muted-text bg-card-bg',
-            isHide ? `w-[58px]` : `w-[255px]`
+            'relative h-lvh duration-300 transition-all flex flex-col justify-between border-r border-muted-border text-muted-text bg-card-bg shadow-[0px_0px_12px_-8px] shadow-muted-text',
+            isHide ? `w-[58px]` : `w-[260px]`
          )}
       >
          <ActionButton isHide={isHide} setHide={setHide} />
@@ -37,7 +37,7 @@ const LeftMenu = () => {
             <div className="p-3 py-5">
                <TavanbogdLogo className="w-18 max-w-full" />
             </div>
-            <div className={cn("flex flex-col gap-0 pt-6", isHide ? `px-1.5 items-center justify-center` : `px-3`)}>
+            <div className={cn('flex flex-col gap-0 pt-6', isHide ? `px-1.5 items-center justify-center` : `px-3`)}>
                {RouteStore?.filter((item) => !item.isHide).map((Element, index) => {
                   return <NavLinkComponent key={index} isHide={isHide} Element={Element} />;
                })}
@@ -90,7 +90,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
       <Tooltip content={Element.label} isDisable={!isHide}>
          <div
             className={cn(`grid transition-all overflow-hidden`)}
-            style={{ gridTemplateRows: `auto ${isActive && Element.subMenu && !isHide ? `${subHeight * Element.subMenu.filter(el=>!el.isHide).length}px` : '0px'}` }}
+            style={{ gridTemplateRows: `auto ${isActive && Element.subMenu && !isHide ? `${subHeight * Element.subMenu.filter((el) => !el.isHide).length + 32}px` : '0px'}` }}
          >
             <HidedPopover
                pathname={pathname}
@@ -98,18 +98,16 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                trigger={({ to }) => (
                   <Link
                      className={cn(
-                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 text-xs2 hover:bg-primary/5 rounded-md',
+                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 text-sm hover:bg-primary/5 rounded-md',
                         isHide ? `justify-center` : ``,
-                        (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to))
-                           ? `active bg-primary hover:bg-primary`
-                           : ' border-transparent'
+                        (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to)) ? `active bg-primary hover:bg-primary` : ' border-transparent'
                      )}
                      to={to}
                      ref={navRef}
                      // end={false}
                   >
                      <div className="flex items-center gap-3">
-                        {Element.icon && <Element.icon className="fill-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
+                        {Element.icon && <Element.icon className="w-6 h-6 fill-muted-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
                         {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-[#FFF]">{Element.label}</span>}
                      </div>
 
@@ -157,24 +155,22 @@ const HidedPopover = ({ isActive, trigger, Element, pathname }: THidePop) => {
 const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?: () => void }) => {
    const { typeid } = useParams();
 
-   return (
-      <>
-         {Element.subMenu?.filter(el=>!el.isHide).map((item, index) => {
-            return (
-               <NavLink
-                  key={index}
-                  className={({ isActive }) => cn(`w-full flex items-center px-3 text-xs rounded-sm hover:bg-primary/5 ${isActive ? `text-text font-medium` : 'text-muted-text'}`)}
-                  style={{ height: `${subHeight}px` }}
-                  to={`${Element.to}${item.to ? `/${item.to}` : ``}`}
-                  end={item.to === '' ? (typeid ? false : true) : false}
-                  onClick={onClose}
-               >
-                  {item.label}
-               </NavLink>
-            );
-         })}
-      </>
-   );
+   return Element.subMenu
+      ?.filter((el) => !el.isHide)
+      .map((item, index) => {
+         return (
+            <NavLink
+               key={index}
+               className={({ isActive }) => cn(`w-full flex items-center px-3 text-xs2 rounded-sm hover:bg-primary/5 ${isActive ? `text-text font-medium` : 'text-muted-text'}`)}
+               style={{ height: `${subHeight}px`, lineHeight:  `${subHeight}px` }}
+               to={`${Element.to}${item.to ? `/${item.to}` : ``}`}
+               end={item.to === '' ? (typeid ? false : true) : false}
+               onClick={onClose}
+            >
+               {item.label}
+            </NavLink>
+         );
+      });
 };
 
 const ActionButton = ({ isHide, setHide }: { isHide: boolean; setHide: (condition: boolean) => void }) => {

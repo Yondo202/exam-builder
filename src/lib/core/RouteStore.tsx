@@ -38,7 +38,7 @@ const RouteStore: TRouteOmit[] = [
          { to: '', label: 'Шалгалтууд', component: Exams },
          { to: '/exams/:typeid', label: 'Шалгалтууд', component: ExamAction, isHide: true },
          { to: 'tocheck', label: 'Засах шалгалтууд', component: Groups },
-         { to: 'result', label: 'Засах шалгалтууд', component: Groups },
+         // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],
    },
    { to: '/report', icon: Document, label: 'Тайлан' },
