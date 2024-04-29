@@ -107,7 +107,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                      // end={false}
                   >
                      <div className="flex items-center gap-3">
-                        {Element.icon && <Element.icon className="w-6 h-6 fill-muted-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
+                        {Element.icon && <Element.icon className="w-[25px] h-[25px] fill-muted-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
                         {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-[#FFF]">{Element.label}</span>}
                      </div>
 
