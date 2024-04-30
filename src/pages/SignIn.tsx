@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 import { TextInput, Button } from '@/components/custom';
 // import BackgroundBeams from '@/utils/lib/BgBeams'
+import { TavanbogdLogo } from '@/assets/svg';
 import { AiOutlineUser } from 'react-icons/ai';
 import { IoKeyOutline } from 'react-icons/io5';
 
@@ -34,34 +35,35 @@ export default function SignIn() {
    // }
 
    return (
-      <div className="flex flex-col gap-6 p-40 pt-32">
-         {/* <img className="w-24" src="/siro.svg" /> */}
-         <form onSubmit={handleSubmit(onSubmit)}>
-            {/* <ModeToggle /> */}
-            <div className="w-96 rounded-md bg-card-bg p-6 pb-12 shadow-sm border">
-               <div className="mb-10 flex border-b text-base font-normal">
-                  <div className="h-full border-b border-primary pb-2.5">Нэвтрэх</div>
-               </div>
-               <TextInput beforeAddon={<AiOutlineUser />} sizes="lg" className="mb-6" control={control} label="Нэвтрэх нэр" name="username" rules={{ required: 'Нэвтрэх нэр' }} />
-               <TextInput
-                  beforeAddon={<IoKeyOutline />}
-                  sizes="lg"
-                  className="mb-6"
-                  autoComplete="on"
-                  type="password"
-                  control={control}
-                  name="password"
-                  label="Нууц үг."
-                  rules={{ required: 'Нууц үг' }}
-               />
-               <Button isLoading={loading} type="submit" className="mt-4 w-full">
-                  Нэвтрэх &rarr;
-               </Button>
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full h-[100dvh] flex justify-center items-start pt-24">
+         {/* <TavanbogdLogo />  */}
+         {/* <ModeToggle /> */}
+         <div className="w-[502px] rounded-lg bg-card-bg p-[48px_56px] shadow-md border">
+            <div className="flex justify-center pb-10">
+               <TavanbogdLogo className="w-28 h-auto" />{' '}
             </div>
-         </form>
+            <div className="mb-10 flex border-b text-xl font-medium">
+               <div className="h-full border-b-2 border-primary pb-2.5">Нэвтрэх</div>
+            </div>
+            <TextInput beforeAddon={<AiOutlineUser />} sizes="lg" className="mb-8" control={control} label="Нэвтрэх нэр" name="username" rules={{ required: 'Нэвтрэх нэр' }} />
+            <TextInput
+               beforeAddon={<IoKeyOutline />}
+               sizes="lg"
+               className="mb-8"
+               autoComplete="on"
+               type="password"
+               control={control}
+               name="password"
+               label="Нууц үг."
+               rules={{ required: 'Нууц үг' }}
+            />
+            <Button size="lg" isLoading={loading} type="submit" className="mt-2 w-full">
+               Нэвтрэх &rarr;
+            </Button>
+         </div>
          {/* <div className="bg-box-parent">
             <div className="bg-box" />
          </div> */}
-      </div>
+      </form>
    );
 }
