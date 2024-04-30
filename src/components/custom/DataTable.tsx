@@ -146,8 +146,8 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                   // label="Нэрээр хайх..."
                   // value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
                   // onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-                  beforeAddon={<BiSearchAlt />}
-                  className="w-60 rounded-full"
+                  beforeAddon={<BiSearchAlt className='text-lg' />}
+                  className="w-64 rounded-full"
                   sizes="sm"
                   value={globalFilter ?? ''}
                   onChange={(e) => setGlobalFilter(String(e.target.value))}
@@ -219,7 +219,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                                  }}
                                  className={header.column.getCanSort() ? `hover:bg-hover-bg ${header.column.getIsSorted() ? `bg-hover-bg` : ``}` : ``}
                               >
-                                 <div className={`relative text-xs font-medium ${header.column.getCanSort() ? `cursor-pointer` : ``}`}>
+                                 <div className={`relative text-sm ${header.column.getCanSort() ? `cursor-pointer` : ``}`}>
                                     {/* {header.column.getCanSort() && !header.column.getIsSorted() && <TwoSideArrow />} */}
                                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                     <div className="absolute right-px top-2/4 -translate-y-2/4">
@@ -319,7 +319,6 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                                  : (table.getState().pagination?.pageIndex < 5 ? '' : table.getState().pagination?.pageIndex ?? '').toString()
                            }
                            onValueChange={(e) => {
-                              console.log(e, 'event');
                               table.setPageIndex(Number(e));
                            }}
                         >

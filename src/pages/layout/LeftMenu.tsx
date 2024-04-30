@@ -98,7 +98,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                trigger={({ to }) => (
                   <Link
                      className={cn(
-                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 text-sm hover:bg-primary/5 rounded-md',
+                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 hover:bg-primary/5 rounded-md',
                         isHide ? `justify-center` : ``,
                         (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to)) ? `active bg-primary hover:bg-primary` : ' border-transparent'
                      )}
@@ -108,10 +108,12 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                   >
                      <div className="flex items-center gap-3">
                         {Element.icon && <Element.icon className="w-[25px] h-[25px] fill-muted-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
-                        {!isHide && <span className="animate-scale z-10 group-[.active]:relative group-[.active]:font-medium group-[.active]:text-[#FFF]">{Element.label}</span>}
+                        {!isHide && <span className="animate-scale z-10 font-normal group-[.active]:relative group-[.active]:font-normal group-[.active]:text-[#FFF]">{Element.label}</span>}
                      </div>
 
-                     {!isHide && Element.subMenu ? <IoIosArrowForward className="w-3.5 h-3.5 duration-300 transition-all group-[.active]:text-[#FFF] group-[.active]:rotate-90" /> : null}
+                     {!isHide && Element.subMenu ? (
+                        <IoIosArrowForward className="w-3.5 h-3.5 mr-1 duration-300 transition-all group-[.active]:text-[#FFF] group-[.active]:rotate-90" />
+                     ) : null}
                   </Link>
                )}
                Element={Element}
@@ -162,7 +164,7 @@ const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?:
             <NavLink
                key={index}
                className={({ isActive }) => cn(`w-full flex items-center px-3 text-xs2 rounded-sm hover:bg-primary/5 ${isActive ? `text-text font-medium` : 'text-muted-text'}`)}
-               style={{ height: `${subHeight}px`, lineHeight:  `${subHeight}px` }}
+               style={{ height: `${subHeight}px`, lineHeight: `${subHeight}px` }}
                to={`${Element.to}${item.to ? `/${item.to}` : ``}`}
                end={item.to === '' ? (typeid ? false : true) : false}
                onClick={onClose}

@@ -29,7 +29,7 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             action={
                <Popover>
                   <PopoverTrigger asChild>
-                     <Button className="rounded-full">
+                     <Button>
                         <MdOutlineAdd className='text-base' /> Асуумж нэмэх <FiChevronDown />
                      </Button>
                   </PopoverTrigger>
