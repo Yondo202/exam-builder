@@ -1,43 +1,55 @@
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
 import { TextInput, Button } from '@/components/custom';
 // import BackgroundBeams from '@/utils/lib/BgBeams'
 import { TavanbogdLogo } from '@/assets/svg';
 import { AiOutlineUser } from 'react-icons/ai';
 import { IoKeyOutline } from 'react-icons/io5';
+import { useCookies } from 'react-cookie';
+import { useMutation } from '@tanstack/react-query';
+import { request } from '@/lib/core/request';
 
-type Tinitial = {
+type TUserResponse = {
+   data: {
+      access_token: string;
+   };
+};
+
+type TUser = {
    username: string;
    password: string;
+} & TUserResponse;
+
+const setDate = () => {
+   const d = new Date();
+   d.setTime(d.getTime() + 4 * 24 * 60 * 60 * 1000); // 4 day
+   return d;
 };
 
 export default function SignIn() {
-   const [loading, setLoading] = useState(false);
-   // const { handleSignIn } = useAuthCore();
-   const { control, handleSubmit } = useForm<Tinitial>({ mode: 'onChange', defaultValues: { username: '', password: '' } });
+   const [, setCookie] = useCookies();
+   const { control, handleSubmit, setError } = useForm<TUser>({ mode: 'onChange', defaultValues: { username: '', password: '' } });
 
-   const onSubmit = async (data: Tinitial) => {
-      console.log(data, '------>');
-      setLoading(true);
-      setTimeout(() => setLoading(false), 3000);
+   const { mutate, isPending } = useMutation({
+      mutationFn: (body: TUser) => request<TUser>({ method: 'post', url: 'auth/login', body: body }),
+      onSuccess: (resdata) => {
+         setCookie('access_token', resdata?.data.access_token, {
+            path: '/',
+            expires: setDate(),
+            domain: import.meta.env.VITE_DOMAIN,
+            sameSite: 'lax',
+         });
+      },
+      onError: () => {
+         setError('password', { message: 'Нэвтрэх нэр эсвэл нууц үг буруу байна' });
+      },
+   });
+
+   const onSubmit = async (data: TUser) => {
+      mutate(data);
    };
-
-   // const blocker = useBlocker(({ currentLocation, nextLocation }) => currentLocation.pathname !== nextLocation.pathname); // value !== '' &&
-   // console.log(blocker, '--------------->blocker');
-   // if (blocker.state === 'blocked') {
-   //    return (
-   //       <div>
-   //          <p>Are you sure you want to leave?</p>
-   //          <button onClick={() => blocker.proceed()}>Proceed</button>
-   //          <button onClick={() => blocker.reset()}>Cancel</button>
-   //       </div>
-   //    );
-   // }
 
    return (
       <form onSubmit={handleSubmit(onSubmit)} className="w-full h-[100dvh] flex justify-center items-start pt-24">
-         {/* <TavanbogdLogo />  */}
-         {/* <ModeToggle /> */}
          <div className="w-[502px] rounded-lg bg-card-bg p-[48px_56px] shadow-md border">
             <div className="flex justify-center pb-10">
                <TavanbogdLogo className="w-28 h-auto" />{' '}
@@ -57,13 +69,10 @@ export default function SignIn() {
                label="Нууц үг."
                rules={{ required: 'Нууц үг' }}
             />
-            <Button size="lg" isLoading={loading} type="submit" className="mt-2 w-full">
+            <Button size="lg" isLoading={isPending} type="submit" className="mt-2 w-full">
                Нэвтрэх &rarr;
             </Button>
          </div>
-         {/* <div className="bg-box-parent">
-            <div className="bg-box" />
-         </div> */}
       </form>
    );
 }

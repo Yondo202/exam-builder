@@ -8,10 +8,12 @@ import { CiLogout } from 'react-icons/ci';
 import { useEffect, useState, useRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { IoIosArrowForward } from 'react-icons/io';
+import { useCookies } from 'react-cookie';
 
 const subHeight = 45;
 
 const LeftMenu = () => {
+   const [, , removeCookie] = useCookies(['access_token']);
    const [isHide, setIsHide] = useState(false);
 
    useEffect(() => {
@@ -60,7 +62,8 @@ const LeftMenu = () => {
                </PopoverTrigger>
                <PopoverContent align="end" side="right" sideOffset={25}>
                   <div className="mb-6 text-base text-muted-text">Та гарахдаа итгэлтэй байна уу?</div>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full" onClick={() => removeCookie('access_token')}>
+                     {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}
                      <CiLogout /> Гарах
                   </Button>
                </PopoverContent>
@@ -89,7 +92,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
    return (
       <Tooltip content={Element.label} isDisable={!isHide}>
          <div
-            className={cn(`grid transition-all overflow-hidden`)}
+            className={cn(`grid transition-all overflow-hidden rounded-md`, isHide ? `p-0` : `p-1`, isActive && withChild ? `bg-primary/10` : ``)}
             style={{ gridTemplateRows: `auto ${isActive && Element.subMenu && !isHide ? `${subHeight * Element.subMenu.filter((el) => !el.isHide).length + 32}px` : '0px'}` }}
          >
             <HidedPopover
@@ -107,8 +110,8 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                      // end={false}
                   >
                      <div className="flex items-center gap-3">
-                        {Element.icon && <Element.icon className="w-[25px] h-[25px] fill-muted-text group-[.active]:relative group-[.active]:z-10 group-[.active]:fill-[#FFF]" />}
-                        {!isHide && <span className="animate-scale z-10 font-normal group-[.active]:relative group-[.active]:font-normal group-[.active]:text-[#FFF]">{Element.label}</span>}
+                        {Element.icon && <Element.icon className="w-[26px] h-[26px] fill-muted-text group-[.active]:fill-[#FFF]" />}
+                        {!isHide && <span className="group-[.active]:text-[#FFF]">{Element.label}</span>}
                      </div>
 
                      {!isHide && Element.subMenu ? (
@@ -120,7 +123,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
             />
 
             {!isHide && Element.subMenu && (
-               <div className={cn('bg-primary/10 p-3 py-4 pl-6 flex flex-col overflow-hidden', isActive && `-translate-y-2`)}>
+               <div className={cn(' p-3 py-4 pl-5 flex flex-col overflow-hidden', isActive && `-translate-y-2`)}>
                   <SubMenuComponent Element={Element} />
                </div>
             )}

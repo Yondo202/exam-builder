@@ -3,6 +3,8 @@ import PrivateRoute from '@/lib/core/PrivateRoute';
 import SignIn from '@/pages/SignIn';
 import { Empty } from '@/assets/richsvg';
 import RouteStore, { TRouteOmit } from '@/lib/core/RouteStore';
+import { CookiesProvider } from 'react-cookie';
+
 // import useTheme from '@/hooks/useTheme';
 
 const converSome = (Item: TRouteOmit) => {
@@ -54,7 +56,11 @@ const router = createBrowserRouter(
 );
 
 function App() {
-   return <RouterProvider router={router} />;
+   return (
+      <CookiesProvider>
+         <RouterProvider router={router} />
+      </CookiesProvider>
+   );
 }
 
 export default App;
