@@ -66,7 +66,7 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => 
             item?.disabled ? `disabled:opacity-50` : ``
          )}
       >
-         <div ref={elementRef} className="px-2 hover:bg-hover-bg rounded-t-sm">
+         <div ref={elementRef} className="px-2 hover:bg-hover-bg/50 rounded-t-sm">
             {item?.labelRender ?? item.label}
          </div>
       </button>

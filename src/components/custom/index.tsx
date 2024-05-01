@@ -20,6 +20,6 @@ export { default as MultipleSelector, type MultipleSelectorRef } from './MultiSe
 export { default as Loading, MainSectorSkeleton } from '@/components/custom/Loading';
 // export { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 export { Checkbox } from '@/components/ui/checkbox';
-export { default as SelectInput } from './SelectInput';
+export { default as SelectInput, type TOption } from './SelectInput';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 // export { default as CheckBox } from './CheckBox'

@@ -3,7 +3,7 @@ import SignedInRoot from '@/pages/layout/SignedInRoot';
 // import Loading from '../@components/Loading';
 
 const PrivateRoute = ({ toSign }:{ toSign?:boolean }) => {
-  const auth = { isAuthenticated:false }
+  const auth = { isAuthenticated:true }
 
 //   if(auth.isLoading) return <Loading load={true} />
   // to sign buruu ajillaj bn

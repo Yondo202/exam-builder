@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { TControllerProps } from '@/lib/sharedTypes';
 import { useId } from 'react';
 
-type TOption = {
+export type TOption = {
    label: string;
    value: string;
 };
@@ -29,7 +29,9 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
             render={({ fieldState, field }) => {
                return (
                   <>
-                     <Label htmlFor={id}>{label}</Label>
+                     <Label htmlFor={id}>
+                        {label} {rules?.required && <span className="text-danger-color">*</span>}
+                     </Label>
                      <Select
                         // defaultValue={defaultPageSize.toString()}
                         // onValueChange={(e) => {

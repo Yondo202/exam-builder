@@ -28,7 +28,7 @@ export const getJwt = () => {
 export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody }: TRequest<T>) => {
    //    const reqAsset = { headers: { Authorization: `Bearer ${accessToken}`, webid: webid }, params: queryParams };
    const reqAsset = { params: queryParams };
-   const fullUrl = `${mainUrl ?? import.meta.env.VITE_AUTH_URL}${url}`;
+   const fullUrl = `${mainUrl ?? import.meta.env.VITE_MAIN_URL}${url}`;
 
    try {
       // const response = await axios<ResponseType<T>>({ url: fullUrl, method: method, data: body ?? filterBody ?? {}, ...reqAsset }); // tur ashiglaj baigaa data naas shaltgalaad tur darsan

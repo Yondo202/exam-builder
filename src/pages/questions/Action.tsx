@@ -8,6 +8,9 @@ import { WithSelect, OpenQuestion, WithMedia, WithAdditional } from './QuestionT
 // import { BsSave } from 'react-icons/bs';
 
 // eslint-disable-next-line react-refresh/only-export-components
+
+
+// [ multi_select, select, text, drag_drop, multi_drag_drop ] - essay hassan
 export const qTypes = {
    withSelect: {
       label: 'Сонголттой асуулт',

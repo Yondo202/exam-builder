@@ -10,11 +10,15 @@ type TDrawerCustom = {
    content: ReactNode;
    className?: string;
    titleClassName?: string;
+   contentClassName?: string;
+
+   open?: boolean;
+   onOpenChange?: (open: boolean) => void;
 };
 
-const DrawerComponent = ({ title, children, content, description, className, titleClassName }: TDrawerCustom) => {
+const DrawerComponent = ({ title, children, content, description, className, titleClassName, contentClassName, ...props }: TDrawerCustom) => {
    return (
-      <Drawer>
+      <Drawer {...props}>
          {children && <DrawerTrigger asChild>{children}</DrawerTrigger>}
          <DrawerPortal>
             <DrawerOverlay />
@@ -24,7 +28,7 @@ const DrawerComponent = ({ title, children, content, description, className, tit
                      <DrawerTitle>{title}</DrawerTitle>
                      {description && <DrawerDescription>{description}</DrawerDescription>}
                   </DrawerHeader>
-                  <DrawerFooter className="py-6 pb-14 max-h-[75dvh] overflow-y-auto">{content}</DrawerFooter>
+                  <DrawerFooter className={cn("py-6 pb-14 max-h-[75dvh] overflow-y-auto", contentClassName)}>{content}</DrawerFooter>
                </div>
             </DrawerContent>
          </DrawerPortal>

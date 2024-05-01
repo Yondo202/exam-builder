@@ -38,7 +38,7 @@ const BreadCrumb = ({ pathList, className }: TBreadCrumbProps) => {
                return (
                   <React.Fragment key={index}>
                      <BreadcrumbItem>
-                        <Link to={item.to === '#' ? location.pathname + location.search : item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text font-medium` : ``}`}>
+                        <Link to={item.to === '#' ? location.pathname + location.search : item.to} className={`text-xs text-muted-text ${item?.isActive ? `text-text/90` : ``}`}>
                            {item.label}
                         </Link>
                      </BreadcrumbItem>

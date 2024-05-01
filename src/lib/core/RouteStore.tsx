@@ -1,5 +1,5 @@
-import { Users, Plan, Leaderboard, Group, Document, Factcheck } from '@/assets/svg';
-import Groups from '@/pages/groups';
+import { Users, Plan, Leaderboard, Group, Factcheck } from '@/assets/svg'; //Document
+import Category from '@/pages/category';
 import Questions from '@/pages/questions';
 import Exams from '@/pages/exams';
 import ExamAction from '@/pages/exams/Action';
@@ -25,8 +25,8 @@ const RouteStore: TRouteOmit[] = [
    {
       to: '/groups',
       icon: Group,
-      label: 'Бүлэг',
-      component: Groups,
+      label: 'Ангилал',
+      component: Category,
    },
    { to: '/questions', icon: Factcheck, label: 'Асуултын сан', component: Questions },
    { to: '/questions/:typeid', label: 'Асуултын сан', component: QuestionAction, isHide: true },
@@ -37,18 +37,18 @@ const RouteStore: TRouteOmit[] = [
       subMenu: [
          { to: '', label: 'Шалгалтууд', component: Exams },
          { to: '/exams/:typeid', label: 'Шалгалтууд', component: ExamAction, isHide: true },
-         { to: 'tocheck', label: 'Засах шалгалтууд', component: Groups },
+         { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],
    },
-   { to: '/report', icon: Document, label: 'Тайлан' },
+   // { to: '/report', icon: Document, label: 'Тайлан' },
    {
       to: '/users',
       icon: Users,
       label: 'Хэрэглэгч',
       subMenu: [
-         { to: '', label: 'Хэрэглэгчид', component: Groups },
-         { to: 'company', label: 'Компани', component: Groups },
+         { to: '', label: 'Хэрэглэгчид', component: Category },
+         { to: 'company', label: 'Компани', component: Category },
       ],
    },
 

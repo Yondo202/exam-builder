@@ -146,7 +146,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                   // label="Нэрээр хайх..."
                   // value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
                   // onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-                  beforeAddon={<BiSearchAlt className='text-lg' />}
+                  beforeAddon={<BiSearchAlt className="text-lg" />}
                   className="w-64 rounded-full"
                   sizes="sm"
                   value={globalFilter ?? ''}
@@ -237,7 +237,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                   ))}
                </TableHeader>
                <TableBody>
-                  {table.getRowModel().rows?.length ? (
+                  {!isLoading && table.getRowModel().rows?.length > 0 ? (
                      table.getRowModel().rows.map((row) => (
                         <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted-bg cursor-pointer">
                            {row.getVisibleCells().map((cell) => {
@@ -275,86 +275,89 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                </TableBody>
             </Table>
          </div>
-         <div className="flex w-full items-center justify-between space-x-2 py-4">
-            <Select
-               defaultValue={defaultPageSize.toString()}
-               onValueChange={(e) => {
-                  table.setPageSize(Number(e));
-               }}
-            >
-               <SelectTrigger className="w-[65px] text-xs p-2.5 py-1.5 h-8">
-                  <SelectValue placeholder="5" />
-               </SelectTrigger>
-               <SelectContent>
-                  {[defaultPageSize, 20, 30, 40, 50].map((pageSize) => (
-                     <SelectItem key={pageSize} value={pageSize.toString()}>
-                        {pageSize}
-                     </SelectItem>
-                  ))}
-               </SelectContent>
-            </Select>
+         {/*table.getRowModel().rows?.length - ene ch bj bolno*/}
+         {table.getPageCount() !== 0 && (
+            <div className="flex w-full items-center justify-between space-x-2 py-4">
+               <Select
+                  defaultValue={defaultPageSize.toString()}
+                  onValueChange={(e) => {
+                     table.setPageSize(Number(e));
+                  }}
+               >
+                  <SelectTrigger className="w-[65px] text-xs p-2.5 py-1.5 h-8">
+                     <SelectValue placeholder="5" />
+                  </SelectTrigger>
+                  <SelectContent>
+                     {[defaultPageSize, 20, 30, 40, 50].map((pageSize) => (
+                        <SelectItem key={pageSize} value={pageSize.toString()}>
+                           {pageSize}
+                        </SelectItem>
+                     ))}
+                  </SelectContent>
+               </Select>
 
-            <Pagination>
-               <PaginationContent>
-                  <PaginationItem>
-                     <PaginationPrevious className="text-xs" size="sm" isActive={table.getCanPreviousPage()} onClick={() => table.previousPage()} href="#" />
-                  </PaginationItem>
+               <Pagination>
+                  <PaginationContent>
+                     <PaginationItem>
+                        <PaginationPrevious className="text-xs" size="sm" isActive={table.getCanPreviousPage()} onClick={() => table.previousPage()} href="#" />
+                     </PaginationItem>
 
-                  {Array.from({ length: table.getPageCount() > 5 ? 5 : table.getPageCount() })?.map((_, index) => {
-                     return (
-                        <PaginationItem key={index}>
-                           <PaginationLink className="border-border" onClick={() => table.setPageIndex(index)} isActive={index === table.getState().pagination?.pageIndex} href="#">
-                              {index + 1}
+                     {Array.from({ length: table.getPageCount() > 5 ? 5 : table.getPageCount() })?.map((_, index) => {
+                        return (
+                           <PaginationItem key={index}>
+                              <PaginationLink className="border-border" onClick={() => table.setPageIndex(index)} isActive={index === table.getState().pagination?.pageIndex} href="#">
+                                 {index + 1}
+                              </PaginationLink>
+                           </PaginationItem>
+                        );
+                     })}
+
+                     {table.getPageCount() > 6 && (
+                        <PaginationItem>
+                           <Select
+                              value={
+                                 table.getPageCount() === table.getState().pagination?.pageIndex + 1
+                                    ? ''
+                                    : (table.getState().pagination?.pageIndex < 5 ? '' : table.getState().pagination?.pageIndex ?? '').toString()
+                              }
+                              onValueChange={(e) => {
+                                 table.setPageIndex(Number(e));
+                              }}
+                           >
+                              <SelectTrigger hideIcon className="w-8 h-7 text-xs p-0 flex items-center justify-center">
+                                 <SelectValue placeholder="..." />
+                              </SelectTrigger>
+                              <SelectContent align="end">
+                                 {Array.from({ length: table.getPageCount() - 6 }).map((_, index) => (
+                                    <SelectItem key={index + 5} value={(index + 5).toString()}>
+                                       {index + 6}
+                                    </SelectItem>
+                                 ))}
+                              </SelectContent>
+                           </Select>
+                        </PaginationItem>
+                     )}
+
+                     {table.getPageCount() > 5 && (
+                        <PaginationItem>
+                           <PaginationLink
+                              className="border-border"
+                              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                              isActive={table.getPageCount() - 1 === table.getState().pagination?.pageIndex}
+                              href="#"
+                           >
+                              {table.getPageCount()}
                            </PaginationLink>
                         </PaginationItem>
-                     );
-                  })}
+                     )}
 
-                  {table.getPageCount() > 6 && (
                      <PaginationItem>
-                        <Select
-                           value={
-                              table.getPageCount() === table.getState().pagination?.pageIndex + 1
-                                 ? ''
-                                 : (table.getState().pagination?.pageIndex < 5 ? '' : table.getState().pagination?.pageIndex ?? '').toString()
-                           }
-                           onValueChange={(e) => {
-                              table.setPageIndex(Number(e));
-                           }}
-                        >
-                           <SelectTrigger hideIcon className="w-8 h-7 text-xs p-0 flex items-center justify-center">
-                              <SelectValue placeholder="..." />
-                           </SelectTrigger>
-                           <SelectContent align="end">
-                              {Array.from({ length: table.getPageCount() - 6 }).map((_, index) => (
-                                 <SelectItem key={index + 5} value={(index + 5).toString()}>
-                                    {index + 6}
-                                 </SelectItem>
-                              ))}
-                           </SelectContent>
-                        </Select>
+                        <PaginationNext className="text-xs" size="sm" isActive={table.getCanNextPage()} onClick={() => (table.getCanNextPage() ? table.nextPage() : null)} href="#" />
                      </PaginationItem>
-                  )}
-
-                  {table.getPageCount() > 5 && (
-                     <PaginationItem>
-                        <PaginationLink
-                           className="border-border"
-                           onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                           isActive={table.getPageCount() - 1 === table.getState().pagination?.pageIndex}
-                           href="#"
-                        >
-                           {table.getPageCount()}
-                        </PaginationLink>
-                     </PaginationItem>
-                  )}
-
-                  <PaginationItem>
-                     <PaginationNext className="text-xs" size="sm" isActive={table.getCanNextPage()} onClick={() => (table.getCanNextPage() ? table.nextPage() : null)} href="#" />
-                  </PaginationItem>
-               </PaginationContent>
-            </Pagination>
-         </div>
+                  </PaginationContent>
+               </Pagination>
+            </div>
+         )}
       </div>
    );
 }

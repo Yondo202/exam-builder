@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 // const hoverShine: string =
 //    'before:ease overflow-hidden transition-all before:absolute before:right-0 before:top-0 before:h-14 before:w-10 before:translate-x-12 before:rotate-6 before:bg-white before:opacity-10 before:duration-700 hover:before:-translate-x-96'
 export const buttonVariants = cva(
-  "inline-flex items-center gap-2 text-text justify-center whitespace-nowrap rounded-md text-xs2 font-normal transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:pointer-events-none disabled:opacity-50 dark:focus-visible:ring-slate-300",
+  "inline-flex items-center gap-2 text-text justify-center whitespace-nowrap rounded-md text-xs2 font-normal transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-slate-950 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-slate-300",
   {
     variants: {
       variant: {

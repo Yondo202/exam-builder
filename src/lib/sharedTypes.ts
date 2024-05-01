@@ -1,64 +1,84 @@
-import { type Control, type RegisterOptions, type FieldValues, type FieldPath } from 'react-hook-form'
+import { type Control, type RegisterOptions, type FieldValues, type FieldPath } from 'react-hook-form';
 
+export const ATypes = {
+   add: {
+      apiMethod: 'post',
+   },
+   edit: {
+      apiMethod: 'put',
+   },
+   delete: {
+      apiMethod: 'delete',
+   },
+} as const;
 
 export type TAction<T> = {
-    isOpen: boolean;
-    type: 'add' | 'edit' | 'delete'
-    data?: T;
- };
+   isOpen: boolean;
+   type: keyof typeof ATypes;
+   data?: T;
+};
 
 export type TActionProps<TData> = {
-    select: TAction<TData>;
-    setClose?: ({ isDelete }: { isDelete?: boolean }) => void;
-    storeid?: string;
+   action: TAction<TData>;
+   setClose?: ({ isDelete }: { isDelete?: boolean }) => void;
+   // storeid?: string;
 };
 
 export type TControllerProps<TFieldValues extends FieldValues = FieldValues> = {
-    control: Control<TFieldValues>
-    name: FieldPath<TFieldValues>
-    rules?: Exclude<RegisterOptions, 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>
-    className?: string
- } 
+   control: Control<TFieldValues>;
+   name: FieldPath<TFieldValues>;
+   rules?: Exclude<RegisterOptions, 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>;
+   className?: string;
+};
 
+type TMeta = {
+   page: number;
+   page_size: number;
+   total: number;
+};
 
-export const statusValues = {
-    active: {
-        label: 'Идэхтэй',
-        key: 'active',
-        //default sort startedAt
-    },
-    inactive: {
-        label: 'Идэхгүй',
-        key: 'inactive',
-        //default sort endsAt
-    },
-    pending: {
-        label: 'Хүлээгдэж байгаа',
-        key: 'pending',
-        //default sort createdAt
-    },
-    cancelled: {
-        label: 'Татгалзсан',
-        key: 'cancelled',
-        //default sort createdAt
-    },
-} as const
+export type FinalRespnse<T> = {
+   meta: TMeta;
+   data: T[];
+};
 
-export const types = {
-    new: {
-        label: 'Шинэ',
-    },
-    upgrade: {
-        label: 'Дээшлүүлсэн',
-    },
-    downgrade: {
-        label: 'Доошлуулсан',
-    },
-    renew: {
-        label: 'Сунгасан',
-    },
-} as const
+// export const statusValues = {
+//    active: {
+//       label: 'Идэхтэй',
+//       key: 'active',
+//       //default sort startedAt
+//    },
+//    inactive: {
+//       label: 'Идэхгүй',
+//       key: 'inactive',
+//       //default sort endsAt
+//    },
+//    pending: {
+//       label: 'Хүлээгдэж байгаа',
+//       key: 'pending',
+//       //default sort createdAt
+//    },
+//    cancelled: {
+//       label: 'Татгалзсан',
+//       key: 'cancelled',
+//       //default sort createdAt
+//    },
+// } as const;
 
+// export const types = {
+//    new: {
+//       label: 'Шинэ',
+//    },
+//    upgrade: {
+//       label: 'Дээшлүүлсэн',
+//    },
+//    downgrade: {
+//       label: 'Доошлуулсан',
+//    },
+//    renew: {
+//       label: 'Сунгасан',
+//    },
+// } as const;
 
-export type TStatus = keyof typeof statusValues
-export type TSubTypes = keyof typeof types
+// export type TStatus = keyof typeof statusValues;
+// export type TSubTypes = keyof typeof types;
