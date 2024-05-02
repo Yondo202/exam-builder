@@ -30,14 +30,10 @@ const catAsset = {
    },
 } as const;
 
-type TKeys = keyof typeof catAsset;
+export type TKeys = keyof typeof catAsset;
 
-const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
-   const [mainCat, setMainCat] = useState<TOption[]>([]);
-   const [action, setAction] = useState<TAction<TCategory>>({ isOpen: false, type: 'add', data: {} as TCategory });
-   const [current, setCurrent] = useState<TKeys>('main_category');
-
-   const { data, isLoading, isRefetching } = useQuery({
+export const useGetCategories = ({ current }: { current: TKeys }) => {
+   return useQuery({
       queryKey: [`category/${current}`, current],
       queryFn: () =>
          request<FinalRespnse<TCategory>>({
@@ -52,6 +48,14 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             },
          }),
    });
+};
+
+const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const [mainCat, setMainCat] = useState<TOption[]>([]);
+   const [action, setAction] = useState<TAction<TCategory>>({ isOpen: false, type: 'add', data: {} as TCategory });
+   const [current, setCurrent] = useState<TKeys>('main_category');
+
+   const { data, isLoading, isRefetching } = useGetCategories({ current });
 
    useEffect(() => {
       if (current === 'main_category') {

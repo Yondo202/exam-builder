@@ -102,7 +102,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                   <Link
                      className={cn(
                         'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 hover:bg-primary/5 rounded-md',
-                        isHide ? `justify-center` : ``,
+                        isHide ? `justify-center py-2 mb-2` : ``,
                         (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to)) ? `active bg-primary hover:bg-primary` : ' border-transparent'
                      )}
                      to={to}

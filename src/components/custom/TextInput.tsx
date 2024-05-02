@@ -1,7 +1,7 @@
 import { Controller, type FieldValues } from 'react-hook-form';
+import { TControllerProps } from '@/lib/sharedTypes';
 import { FloatingLabelInput, FloatingLabelInputProps } from '@/components/ui/Input';
 import ErrorMessage from '@/components/ui/ErrorMessage';
-import { TControllerProps } from '@/lib/sharedTypes';
 
 const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, className = '', name, rules, label, ...props }: TControllerProps<TFieldValues> & FloatingLabelInputProps) => {
    return (
@@ -19,6 +19,14 @@ const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, c
                   ...props,
                   floatLabel,
                   requiredInput: rules?.required,
+                  onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                     const value = props.type === 'number' ? parseFloat(e.target.value) : e.target.value;
+                     if (props.type === 'number' && !value) {
+                        field?.onChange?.('');
+                     } else {
+                        field?.onChange?.(value);
+                     }
+                  },
                };
                return (
                   <>

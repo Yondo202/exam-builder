@@ -24,15 +24,11 @@ export const qTypes = {
       label: 'Дүрс зурагтай асуулт',
       component: WithMedia,
    },
-   Essay: {
-      label: 'Эссэ',
-      component: OpenQuestion,
-   },
    withAdditional: {
       label: 'Нэмэлт даалгавартай асуулт',
       component: WithAdditional,
    },
-};
+}
 
 export type TQTypes = keyof typeof qTypes;
 
