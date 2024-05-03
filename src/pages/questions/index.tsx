@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
-import { type FinalRespnse, type TAction, type TActionProps, ATypes } from '@/lib/sharedTypes';
+import { type FinalRespnse } from '@/lib/sharedTypes';
 import { BreadCrumb, Header, Button, DataTable, Badge } from '@/components/custom'; // DataTable
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
@@ -39,7 +39,6 @@ export type TQuestionTypes = {
    sub_category_id: string;
    // input_type: 'multi_select' | 'select' | 'text' | 'drag_drop' | 'multi_drag_drop';
    input_type: TInputType;
-
    created_at: string;
 };
 
@@ -59,8 +58,6 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             },
          }),
    });
-
-   console.log(data, '------->data');
 
    return (
       <div>
