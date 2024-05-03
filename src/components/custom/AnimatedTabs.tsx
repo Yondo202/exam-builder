@@ -59,6 +59,7 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => 
       <button
          disabled={item.disabled}
          onClick={() => onChange(item.key)}
+         type="button"
          //  className={`tab_item ${item.disabled ? `disabled` : ``} ${activeKey === item.key ? `active_tab` : ``}`}
          className={cn(
             'leading-[48px] text-muted-text font-medium select-none flex justify-center rounded-sm',

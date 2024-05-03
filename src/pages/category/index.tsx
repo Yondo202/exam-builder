@@ -54,7 +54,6 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const [mainCat, setMainCat] = useState<TOption[]>([]);
    const [action, setAction] = useState<TAction<TCategory>>({ isOpen: false, type: 'add', data: {} as TCategory });
    const [current, setCurrent] = useState<TKeys>('main_category');
-
    const { data, isLoading, isRefetching } = useGetCategories({ current });
 
    useEffect(() => {

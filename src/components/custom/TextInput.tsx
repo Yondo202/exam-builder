@@ -19,6 +19,11 @@ const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, c
                   ...props,
                   floatLabel,
                   requiredInput: rules?.required,
+                  onFocus: (event: { target: { select: () => void } }) => {
+                     if (props.type === 'number') {
+                        event.target.select();
+                     }
+                  },
                   onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                      const value = props.type === 'number' ? parseFloat(e.target.value) : e.target.value;
                      if (props.type === 'number' && !value) {
