@@ -1,5 +1,6 @@
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 import { Controller, type FieldValues } from 'react-hook-form';
+import { Empty } from '@/assets/svg';
 import { SelectProps } from '@radix-ui/react-select';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import Label from '@/components/ui/Label';
@@ -51,11 +52,18 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
                            <SelectValue placeholder="Сонго..." className="placeholder:text-muted-text/20" />
                         </SelectTrigger>
                         <SelectContent>
-                           {options?.map((item, index) => (
-                              <SelectItem key={index} value={item.value}>
-                                 {item.label}
-                              </SelectItem>
-                           ))}
+                           {options?.length > 0 ? (
+                              options?.map((item, index) => (
+                                 <SelectItem key={index} value={item.value}>
+                                    {item.label}
+                                 </SelectItem>
+                              ))
+                           ) : (
+                              <div className='flex flex-col gap-4 justify-center items-center p-2 py-4'>
+                                 <Empty className="dark:opacity-30" />
+                                 <div className="text-muted-text opacity-70">Мэдээлэл байхгүй байна</div>
+                              </div>
+                           )}
                         </SelectContent>
                      </Select>
                      <ErrorMessage error={fieldState?.error} />

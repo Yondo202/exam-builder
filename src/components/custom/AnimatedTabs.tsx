@@ -27,7 +27,7 @@ const AnimatedTabs = ({ items, activeKey, onChange, className }: TTabs) => {
          })}
          <div
             style={{ width: `${activeBorder.width}px`, left: `${activeBorder.offsetLeft}px` }}
-            className={cn('absolute bottom-0 h-[2px] rounded-t-sm bg-secondary transition-all duration-200')}
+            className={cn('absolute bottom-0 border-b-[2px] border-primary h-full rounded-t-md bg-secondary/[0.02] transition-all duration-200')}
          />
       </div>
    );
@@ -48,10 +48,13 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => 
    useEffect(() => {
       if (activeKey === item.key) {
          const current = elementRef?.current;
-         setActiveBorder({ width: 0, offsetLeft: current?.offsetLeft ?? 0 });
-         setTimeout(() => {
-            setActiveBorder({ width: current?.offsetWidth ?? 0, offsetLeft: current?.offsetLeft ?? 0 });
-         }, 120);
+         setActiveBorder({ width: current?.offsetWidth ?? 0, offsetLeft: current?.offsetLeft ?? 0 });
+
+
+         // setActiveBorder({ width: 0, offsetLeft: current?.offsetLeft ?? 0 });
+         // setTimeout(() => {
+         //    setActiveBorder({ width: current?.offsetWidth ?? 0, offsetLeft: current?.offsetLeft ?? 0 });
+         // }, 120);
       }
    }, [activeKey, item.key, setActiveBorder]);
 
@@ -60,14 +63,13 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => 
          disabled={item.disabled}
          onClick={() => onChange(item.key)}
          type="button"
-         //  className={`tab_item ${item.disabled ? `disabled` : ``} ${activeKey === item.key ? `active_tab` : ``}`}
          className={cn(
             'leading-[48px] text-muted-text font-medium select-none flex justify-center rounded-sm',
             activeKey === item.key ? 'text-secondary' : '',
             item?.disabled ? `disabled:opacity-50` : ``
          )}
       >
-         <div ref={elementRef} className="px-2 hover:bg-hover-bg/50 rounded-t-sm">
+         <div ref={elementRef} className="px-3 hover:bg-hover-bg/50 rounded-t-sm">
             {item?.labelRender ?? item.label}
          </div>
       </button>

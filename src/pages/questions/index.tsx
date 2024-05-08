@@ -6,13 +6,15 @@ import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { MdOutlineAdd } from 'react-icons/md';
 import { Link } from 'react-router-dom';
-import { FiChevronDown, FiCheck } from 'react-icons/fi';
+import { FiChevronDown } from 'react-icons/fi';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { questionAsset, type TQTypes } from './Action';
+import { GoCheckCircle } from 'react-icons/go';
 
-export type TQuestion = 'text' | 'checkbox';
+export type TQuestion = 'text' | 'checkbox'; // filler
 
-export type TInputType = 'multi_select' | 'select' | 'text' | 'drag_drop' | 'multi_drag_drop';
+export type TInputType = 'multi_select' | 'select' | 'text' | 'text_long' | 'text_format';
+// | 'drag_drop' | 'multi_drag_drop';
 
 export type TInputTypeTab = {
    label: string;
@@ -72,17 +74,23 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                      </Button>
                   </PopoverTrigger>
 
-                  <PopoverContent align="end" sideOffset={8}>
+                  <PopoverContent className='w-84' align="end" sideOffset={8}>
                      {Object.keys(questionAsset)?.map((item, index) => {
                         return (
                            <Link
                               to={`${breadcrumbs.find((item) => item.isActive)?.to}/create?type=${item}`}
-                              className="group p-3 hover:bg-hover-bg rounded-md cursor-pointer flex items-center justify-between gap-3"
+                              className="group p-4 hover:bg-hover-bg rounded-md cursor-pointer grid grid-cols-[auto_1fr] gap-4"
                               key={index}
                            >
-                              {questionAsset[item as TQTypes]?.label} <FiCheck className="opacity-0 group-hover:opacity-100" />
+
+                              <GoCheckCircle className="text-xl text-secondary mt-1" />
+
+                              <div className="flex flex-col gap-[2px]">
+                                 <span className='font-medium'>{questionAsset[item as TQTypes]?.label}</span>
+                                 <span className='text-muted-text text-xs'>{questionAsset[item as TQTypes]?.description}</span>
+                              </div>
                            </Link>
-                        );
+                        )
                      })}
                   </PopoverContent>
                </Popover>

@@ -5,9 +5,15 @@ import ErrorMessage from '@/components/ui/ErrorMessage';
 import { TControllerProps } from '@/lib/sharedTypes';
 import { Textarea, TextareaProps } from '@/components/ui/textarea';
 
-const ControlTextArea = <TFieldValues extends FieldValues>({ control, className = '', name, rules, ...props }: TControllerProps<TFieldValues> & { label?: string } & TextareaProps) => {
+const ControlTextArea = <TFieldValues extends FieldValues>({
+   control,
+   parentClassName = '',
+   name,
+   rules,
+   ...props
+}: TControllerProps<TFieldValues> & { label?: string; parentClassName?: string } & TextareaProps) => {
    return (
-      <div className={className}>
+      <div className={parentClassName}>
          <Controller
             control={control}
             name={name}
@@ -18,7 +24,12 @@ const ControlTextArea = <TFieldValues extends FieldValues>({ control, className 
                      <Label htmlFor={field.name}>
                         {props.label} {rules?.required && <span className="text-danger-color">*</span>}
                      </Label>
-                     <Textarea id={field.name} {...field} {...props} className={fieldState?.error ? `border-danger-color focus:border-danger-color focus-visible:ring-danger-color` : ``} />
+                     <Textarea
+                        id={field.name}
+                        {...field}
+                        {...props}
+                        className={`${props.className} ${fieldState?.error ? `border-danger-color focus:border-danger-color focus-visible:ring-danger-color` : ``}`}
+                     />
                      <ErrorMessage error={fieldState?.error} />
                   </>
                );

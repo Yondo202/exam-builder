@@ -32,13 +32,13 @@ const catAsset = {
 
 export type TKeys = keyof typeof catAsset;
 
-export const useGetCategories = ({ current }: { current: TKeys }) => {
+export const useGetCategories = ({ current, idKey }: { current: TKeys; idKey?: string }) => {
    return useQuery({
-      queryKey: [`category/${current}`, current],
+      queryKey: [`category/${current}`, `${current}${idKey ?? ''}`],
       queryFn: () =>
          request<FinalRespnse<TCategory>>({
-            method: 'post',
-            url: catAsset[current]?.url,
+            method: idKey ? 'get' : 'post',
+            url: idKey ? `cats/sub-category/${idKey}` : catAsset[current]?.url,
             offAlert: true,
             filterBody: {
                pagination: {

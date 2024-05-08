@@ -1,27 +1,20 @@
-import { TextInput, Textarea, Button, Checkbox, Label, CkEditor, Header, SelectInput, AnimatedTabs } from '@/components/custom';
-import { useForm, type FieldValues, useFieldArray, Controller } from 'react-hook-form';
+import { TextInput, Textarea, Button, Checkbox, Label, CkEditor, Header, AnimatedTabs, Badge } from '@/components/custom';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { IoCloseOutline } from 'react-icons/io5';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useMutation } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 import { BsSave } from 'react-icons/bs';
 import { useEffect, useState } from 'react';
 import { IoWarningOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { TControllerProps } from '@/lib/sharedTypes';
-import { useGetCategories, type TKeys } from '../category';
 import { GoDotFill } from 'react-icons/go';
 import { type TQuestionTypes, type TAnswers, type TInputTypeTab, type TInputType, type TQuestion } from '.';
 import { cn } from '@/lib/utils';
+import { CategorySelect } from './Action';
 
 // type TQTypesInBackEnd = 'radio' | 'checkbox' | 'text';
-
-const CategorySelect = <TFieldValues extends FieldValues>({ control, name, current, label }: TControllerProps<TFieldValues> & { current: TKeys; label: string }) => {
-   const { data } = useGetCategories({ current });
-   return (
-      <SelectInput options={data?.data ? data.data?.map((item) => ({ value: item.id, label: item.name })) : []} rules={{ required: 'Ангилалаа сонгоно уу' }} {...{ label, name, control }} />
-   );
-};
 
 const InitialAnswer: TAnswers[] = [
    {
@@ -49,6 +42,7 @@ export const WithSelect = ({ title, type }: { title: string; type: TQuestion }) 
    const { control, handleSubmit, watch, setValue } = useForm<TQuestionTypes>({
       defaultValues: { question: '', score: 0, category_id: '', sub_category_id: '', input_type: 'select', answers: InitialAnswer },
    });
+
    const { fields, append, remove } = useFieldArray({ control, name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
 
    const { isPending, mutate } = useMutation({
@@ -100,7 +94,7 @@ export const WithSelect = ({ title, type }: { title: string; type: TQuestion }) 
          <div className="wrapper p-7 mb-5">
             <div className="flex gap-10 mb-5">
                <CategorySelect control={control} name="category_id" current="main_category" label="Үндсэн ангилал" />
-               <CategorySelect control={control} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
+               <CategorySelect control={control} disabled={!watch()?.category_id} idKey={watch()?.category_id} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
             </div>
 
             <Textarea
@@ -113,7 +107,7 @@ export const WithSelect = ({ title, type }: { title: string; type: TQuestion }) 
             />
          </div>
 
-         <div className={cn('wrapper p-7 relative', showError ? `border-danger-color` : ``)}>
+         <div className={cn('wrapper p-7 mb-5 relative', showError ? `border-danger-color` : ``)}>
             <div className="pb-12 flex justify-between items-end">
                <TextInput
                   // floatLabel={false}
@@ -243,23 +237,112 @@ export const WithSelect = ({ title, type }: { title: string; type: TQuestion }) 
                </div>
             )}
          </div>
+         <div className="flex justify-center">
+            <Button type="button" variant="outline" size="lg" className={cn('relative rounded-full py-6 shadow-sm')}>
+               <MdOutlineAdd className="text-xl" />{' '}
+               <Badge variant="secondary" className="text-xs rounded-full">
+                  {title}
+               </Badge>{' '}
+               дотор асуулт нэмэх
+            </Button>
+         </div>
       </form>
    );
 };
 
-export const OpenQuestion = () => {
-   const { control } = useForm({ defaultValues: { question: '', score: '' } });
+const SelectInputTypes: TInputTypeTab[] = [
+   { label: 'Богино хариулттай', key: 'text' },
+   { label: 'Урт хариулттай', key: 'text_long' },
+   { label: 'Дүрс зурагтай - асуулт / хариулт', key: 'text_format' },
+];
+
+export const OpenQuestion = ({ title }: { title: string }) => {
+   // const { control } = useForm({ defaultValues: { question: '', score: '' } });
+   const { control, watch } = useForm<TQuestionTypes>({
+      defaultValues: { question: '', score: 0, category_id: '', sub_category_id: '', input_type: 'text' },
+   });
+
+   const { isPending } = useMutation({
+      mutationFn: (body: TQuestionTypes) =>
+         request<Omit<TQuestionTypes, 'id'>>({
+            method: 'post',
+            url: `exam/question-with-answers`,
+            body: body,
+         }),
+      onSuccess: () => {
+         // navigate('/questions');
+      },
+   });
+
    return (
       <>
-         <div className="wrapper p-7">
-            <TextInput floatLabel={false} className="w-72 mb-5" name="score" control={control} label="Асуултын оноо" placeholder="Оноо оруулах" type="number" />
-            <Textarea className="w-full min-h-[100px]" name="question" control={control} label="Асуулт оруулах" placeholder="Асуултаа дэлгэрэнгүй оруулах" />
+         <Header
+            title={title}
+            action={
+               <Button isLoading={isPending} type="submit">
+                  <BsSave className="text-sm mr-1" />
+                  Хадгалах
+               </Button>
+            }
+         />
+
+         <div className="wrapper p-7 mb-5">
+            <div className="flex gap-10 mb-5">
+               <CategorySelect control={control} name="category_id" current="main_category" label="Үндсэн ангилал" />
+               <CategorySelect control={control} disabled={!watch()?.category_id} idKey={watch()?.category_id} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
+            </div>
+
+            <Controller
+               control={control}
+               name="input_type"
+               render={({ field }) => {
+                  return (
+                     <AnimatedTabs
+                        className="mb-8 text-xs"
+                        items={SelectInputTypes}
+                        activeKey={field.value}
+                        onChange={(value) => {
+                           field.onChange(value as TInputType);
+                        }}
+                     />
+                  );
+               }}
+            />
+            {watch()?.input_type === 'text_format' ? (
+               <>
+                  <Controller
+                     control={control}
+                     name="question"
+                     rules={{ required: 'Асуулт оруулах' }}
+                     render={({ field, fieldState }) => {
+                        return (
+                           <>
+                              <Label htmlFor={field.name}>
+                                 Асуулт оруулах <span className="text-danger-color">*</span>
+                              </Label>
+                              <CkEditor />
+                              <ErrorMessage error={fieldState?.error} />
+                           </>
+                        );
+                     }}
+                  />
+               </>
+            ) : (
+               <Textarea
+                  className={cn("w-full transition-all", watch()?.input_type === "text_long" ? `min-h-[220px]`:`min-h-[80px]`)}
+                  name="question"
+                  control={control}
+                  label="Асуулт оруулах"
+                  placeholder="Асуултаа дэлгэрэнгүй оруулах"
+                  rules={{ required: 'Асуулт оруулах' }}
+               />
+            )}
          </div>
       </>
    );
 };
 
-export const WithMedia = () => {
+export const Filler = () => {
    const { control } = useForm({ defaultValues: { question: '', score: '' } });
    return (
       <>
@@ -267,33 +350,6 @@ export const WithMedia = () => {
             <TextInput floatLabel={false} className="w-72 mb-5" name="score" control={control} label="Асуултын оноо" placeholder="Оноо оруулах" type="number" />
             <Label htmlFor="123">Асуулт оруулах</Label>
             <CkEditor />
-         </div>
-      </>
-   );
-};
-
-export const WithAdditional = () => {
-   const { control } = useForm({ defaultValues: { question: '', score: '' } });
-   return (
-      <>
-         <div className="wrapper p-7">
-            <TextInput floatLabel={false} className="w-72 mb-5" name="score" control={control} label="Асуултын оноо" placeholder="Оноо оруулах" type="number" />
-            <Textarea className="w-full min-h-[100px]" name="question" control={control} label="Асуулт оруулах" placeholder="Асуултаа оруулах" />
-            <div className="py-5 text-secondary/70">Нэмэлт асуулт</div>
-
-            <div className="grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6">
-               <div className="grid grid-cols-[auto_1fr] items-center gap-2">
-                  <Button size="icon" variant="ghost" className="rounded-full">
-                     <IoCloseOutline className="text-[22px] text-danger-color " />
-                  </Button>
-                  <TextInput sizes="lg" beforeAddon={<span className="font-light ml-1 text-base">1.</span>} className="w-full" name="question" control={control} label="Асуулт оруулах" />
-               </div>
-            </div>
-            <div className="py-8 pb-0 flex justify-end">
-               <Button variant="outline" className="rounded-md">
-                  <MdOutlineAdd className="text-base" /> Нэмэлт асуулт нэмэх
-               </Button>
-            </div>
          </div>
       </>
    );

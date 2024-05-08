@@ -39,7 +39,7 @@ const LeftMenu = () => {
             <div className="p-3 py-5">
                <TavanbogdLogo className="w-18 max-w-full" />
             </div>
-            <div className={cn('flex flex-col gap-0 pt-6', isHide ? `px-1.5 items-center justify-center` : `px-3`)}>
+            <div className={cn('flex flex-col  pt-6', isHide ? `px-1.5 items-center justify-center gap-3` : `px-3  gap-0`)}>
                {RouteStore?.filter((item) => !item.isHide).map((Element, index) => {
                   return <NavLinkComponent key={index} isHide={isHide} Element={Element} />;
                })}
@@ -102,7 +102,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                   <Link
                      className={cn(
                         'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 hover:bg-primary/5 rounded-md',
-                        isHide ? `justify-center py-2 mb-2` : ``,
+                        isHide ? `justify-center py-2 mb-0` : ``,
                         (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to)) ? `active bg-primary hover:bg-primary` : ' border-transparent'
                      )}
                      to={to}
