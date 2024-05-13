@@ -6,6 +6,11 @@ import { type FieldValues } from 'react-hook-form';
 import { TControllerProps } from '@/lib/sharedTypes';
 import { WithSelect, OpenQuestion, Filler } from './QuestionTypes';
 import { TQuestion } from '.';
+import { IconType } from 'react-icons/lib';
+import { GoCheckCircle } from 'react-icons/go';
+import { IoTextOutline } from "react-icons/io5";
+import { HiOutlineDotsHorizontal } from "react-icons/hi";
+
 // import { BsSave } from 'react-icons/bs';
 // eslint-disable-next-line react-refresh/only-export-components
 // [ multi_select, select, text, drag_drop, multi_drag_drop ] - essay hassan
@@ -13,11 +18,12 @@ import { TQuestion } from '.';
 export type TQTypes = 'withSelect' | 'openQuestion' | 'filler';
 // | 'withAdditional';
 
-type TObjectPettern = {
+export type TObjectPettern = {
    label: string;
    component: ({ title, type }: { title: string; type: TQuestion }) => JSX.Element;
    type: TQuestion;
    description:string
+   icon:IconType
 };
 
 type TQuestionTypesInFront = { [Key in TQTypes]: TObjectPettern };
@@ -27,19 +33,22 @@ export const questionAsset: TQuestionTypesInFront = {
       label: 'Сонголттой асуулт',
       component: WithSelect,
       type: 'checkbox',
-      description:'Нэг болон олон сонголттой тест'
+      description:'Нэг болон олон сонголттой тест',
+      icon:GoCheckCircle 
    },
    openQuestion: {
       label: 'Нээлттэй асуулт',
       component: OpenQuestion,
       type: 'text',
-      description:'Энгийн болон Эссэ бичих боломжтой'
+      description:'Энгийн болон Эссэ бичих боломжтой',
+      icon:IoTextOutline
    },
    filler: {
       label: 'Нөхөж бичих',
       component: Filler,
       type: 'text',
-      description:'Өгүүлбэр дунд хариулт нөхөж оруулах боломжтой'
+      description:'Өгүүлбэр дунд хариулт нөхөж оруулах боломжтой',
+      icon:HiOutlineDotsHorizontal
    },
 };
 

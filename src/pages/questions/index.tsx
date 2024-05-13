@@ -9,11 +9,10 @@ import { Link } from 'react-router-dom';
 import { FiChevronDown } from 'react-icons/fi';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { questionAsset, type TQTypes } from './Action';
-import { GoCheckCircle } from 'react-icons/go';
 
 export type TQuestion = 'text' | 'checkbox'; // filler
 
-export type TInputType = 'multi_select' | 'select' | 'text' | 'text_long' | 'text_format';
+export type TInputType = 'multi_select' | 'select' | 'text' | 'text_long' | 'text_format' | 'filler' | 'filler_select';
 // | 'drag_drop' | 'multi_drag_drop';
 
 export type TInputTypeTab = {
@@ -74,18 +73,19 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                      </Button>
                   </PopoverTrigger>
 
-                  <PopoverContent className='w-84' align="end" sideOffset={8}>
+                  <PopoverContent className='p-6 w-78 flex flex-col gap-4' align="end" sideOffset={8}>
                      {Object.keys(questionAsset)?.map((item, index) => {
+                        const Icon = questionAsset[item as TQTypes]?.icon
                         return (
                            <Link
                               to={`${breadcrumbs.find((item) => item.isActive)?.to}/create?type=${item}`}
-                              className="group p-4 hover:bg-hover-bg rounded-md cursor-pointer grid grid-cols-[auto_1fr] gap-4"
+                              className="group p-4 hover:bg-primary/5 rounded-md cursor-pointer grid grid-cols-[auto_1fr] gap-4 border border-primary/20"
                               key={index}
                            >
 
-                              <GoCheckCircle className="text-xl text-secondary mt-1" />
+                              <Icon className="text-xl text-secondary mt-1" />
 
-                              <div className="flex flex-col gap-[2px]">
+                              <div className="flex flex-col gap-1">
                                  <span className='font-medium'>{questionAsset[item as TQTypes]?.label}</span>
                                  <span className='text-muted-text text-xs'>{questionAsset[item as TQTypes]?.description}</span>
                               </div>

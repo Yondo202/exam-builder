@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 type TDrawerCustom = {
    title: string;
    description?: string;
-   children: ReactNode;
+   children?: ReactNode;
    content: ReactNode;
    className?: string;
    titleClassName?: string;

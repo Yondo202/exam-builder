@@ -23,4 +23,5 @@ export { default as Loading, MainSectorSkeleton } from '@/components/custom/Load
 export { Checkbox } from '@/components/ui/checkbox';
 export { default as SelectInput, type TOption } from './SelectInput';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+export { Sortable, SortableDragHandle, SortableItem, SortableOverlay } from './Sortable';
 // export { default as CheckBox } from './CheckBox'

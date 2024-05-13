@@ -5,7 +5,7 @@ import Label from '@/components/ui/Label';
 import { ValidationRule } from 'react-hook-form';
 
 const InputVariants = cva(
-   `flex w-full rounded-md border py-1.5 bg-card-bg hover:bg-hover-bg focus:hover:bg-card-bg text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-text/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-50`,
+   `flex w-full rounded-md border py-1.5 bg-card-bg hover:bg-hover-bg focus:hover:bg-card-bg text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-text/30 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus:border-primary disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted-bg`,
    {
       variants: {
          variant: {
@@ -48,7 +48,7 @@ const FloatingLabel = React.forwardRef<React.ElementRef<typeof Label>, React.Com
       <Label
          className={cn(
             //peer-focus:secondary peer-focus:dark:secondary / sain oilgosongui
-            `absolute start-2 top-1 z-10 origin-[0] -translate-y-5 scale-75 transform rounded-md bg-card-bg px-2 text-sm text-muted-text/50 duration-300
+            `absolute start-2 top-1.5 z-10 origin-[0] -translate-y-5 scale-75 transform rounded-md bg-card-bg px-2 text-sm text-muted-text/50 duration-300
              peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:bg-transparent 
              peer-focus:-top-[4px] peer-focus:text-primary peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:bg-card-bg peer-focus:px-2.5 peer-focus:py-[3px]`,
             className,
@@ -74,7 +74,7 @@ const FloatingLabelInput = React.forwardRef<React.ElementRef<typeof FloatingInpu
 
       return (
          <div className="relative">
-            {!floatLabel && (
+            {!floatLabel && label && (
                <Label htmlFor={id ?? ids}>
                   {label} {requiredInput ? <span className="text-danger-color">*</span> : ``}
                </Label>

@@ -1,4 +1,4 @@
-import { Users, Plan, Leaderboard, Group, Factcheck } from '@/assets/svg'; //Document
+import { Users, Plan, Group, Factcheck } from '@/assets/svg'; //Document //Leaderboard
 import Category from '@/pages/category';
 import Questions from '@/pages/questions';
 import Exams from '@/pages/exams';
@@ -17,13 +17,13 @@ type TRouteStore = {
 export type TRouteOmit = TRouteStore & { subMenu?: Omit<TRouteStore, 'icon'>[] };
 
 const RouteStore: TRouteOmit[] = [
+   // {
+   //    label: 'Хянах самбар',
+   //    to: '/',
+   //    icon: Leaderboard,
+   // },
    {
-      label: 'Хянах самбар',
-      to: '/',
-      icon: Leaderboard,
-   },
-   {
-      to: '/groups',
+      to: '/', //groups
       icon: Group,
       label: 'Ангилал',
       component: Category,
