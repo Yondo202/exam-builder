@@ -22,7 +22,7 @@ const InputVariants = cva(
          variant: 'default',
          sizes: 'default',
       },
-   },
+   }
 );
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement>, VariantProps<typeof InputVariants> {
@@ -51,7 +51,7 @@ const FloatingLabel = React.forwardRef<React.ElementRef<typeof Label>, React.Com
             `absolute start-2 top-1.5 z-10 origin-[0] -translate-y-5 scale-75 transform rounded-md bg-card-bg px-2 text-sm text-muted-text/50 duration-300
              peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:bg-transparent 
              peer-focus:-top-[4px] peer-focus:text-primary peer-focus:-translate-y-4 peer-focus:scale-75 peer-focus:bg-card-bg peer-focus:px-2.5 peer-focus:py-[3px]`,
-            className,
+            className
          )}
          ref={ref}
          {...props}
@@ -66,7 +66,7 @@ export type TInputPropsAddition = {
    beforeAddon?: React.ReactNode;
 };
 
-export type FloatingLabelInputProps = InputProps & TInputPropsAddition & { requiredInput?: string | ValidationRule<boolean> };
+export type FloatingLabelInputProps = InputProps & TInputPropsAddition & { requiredInput?: string | ValidationRule<boolean>; idPrefix?: string };
 
 const FloatingLabelInput = React.forwardRef<React.ElementRef<typeof FloatingInput>, React.PropsWithoutRef<FloatingLabelInputProps>>(
    ({ id, label, floatLabel = true, requiredInput, beforeAddon, ...props }, ref) => {
@@ -79,7 +79,6 @@ const FloatingLabelInput = React.forwardRef<React.ElementRef<typeof FloatingInpu
                   {label} {requiredInput ? <span className="text-danger-color">*</span> : ``}
                </Label>
             )}
-
             <FloatingInput ref={ref} id={id ?? ids} {...props} className={`${props.className} ${beforeAddon ? `pl-9` : ``}`} />
 
             <div className={cn('absolute left-2 top-1/2 w-4 -translate-y-1/2 text-muted-text peer-focus:text-primary text-lg', props.sizes === 'sm' ? 'text-base' : `text-lg`)}>
@@ -93,7 +92,7 @@ const FloatingLabelInput = React.forwardRef<React.ElementRef<typeof FloatingInpu
             )}
          </div>
       );
-   },
+   }
 );
 
 FloatingLabelInput.displayName = 'FloatingLabelInput';

@@ -10,8 +10,9 @@ const ControlTextArea = <TFieldValues extends FieldValues>({
    parentClassName = '',
    name,
    rules,
+   idPrefix,
    ...props
-}: TControllerProps<TFieldValues> & { label?: string; parentClassName?: string } & TextareaProps) => {
+}: TControllerProps<TFieldValues> & { label?: string; parentClassName?: string; idPrefix?: string } & TextareaProps) => {
    return (
       <div className={parentClassName}>
          <Controller
@@ -21,11 +22,11 @@ const ControlTextArea = <TFieldValues extends FieldValues>({
             render={({ field, fieldState }) => {
                return (
                   <>
-                     <Label htmlFor={field.name}>
+                     <Label htmlFor={`${idPrefix ?? ''}${field.name}`}>
                         {props.label} {rules?.required && <span className="text-danger-color">*</span>}
                      </Label>
                      <Textarea
-                        id={field.name}
+                        id={`${idPrefix ?? ''}${field.name}`}
                         {...field}
                         {...props}
                         className={`${props.className} ${fieldState?.error ? `border-danger-color focus:border-danger-color focus-visible:ring-danger-color` : ``}`}

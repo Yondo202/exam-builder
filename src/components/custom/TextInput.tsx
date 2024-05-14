@@ -3,7 +3,7 @@ import { TControllerProps } from '@/lib/sharedTypes';
 import { FloatingLabelInput, FloatingLabelInputProps } from '@/components/ui/Input';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
-const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, className = '', name, rules, label, ...props }: TControllerProps<TFieldValues> & FloatingLabelInputProps) => {
+const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, className = '', name, rules, idPrefix, label, ...props }: TControllerProps<TFieldValues> & FloatingLabelInputProps) => {
    return (
       <div className={className}>
          <Controller
@@ -14,7 +14,7 @@ const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, c
                const inputProps = {
                   ...field,
                   label: label,
-                  id: field.name,
+                  id:`${idPrefix??''}${field.name}`,
                   type: 'text',
                   ...props,
                   floatLabel,

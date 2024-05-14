@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '.';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
-export const DatePicker = <TFieldValues extends FieldValues>({ control, className = '', name, rules, ...props }: TControllerProps<TFieldValues> & { label?: string }) => {
+export const DatePicker = <TFieldValues extends FieldValues>({ control, className = '', name, rules, ...props }: TControllerProps<TFieldValues> & { label?: string, idPrefix?:string }) => {
    return (
       <div className={cn('', className)}>
          <Controller
@@ -22,13 +22,13 @@ export const DatePicker = <TFieldValues extends FieldValues>({ control, classNam
             render={({ field, fieldState }) => {
                return (
                   <>
-                     <Label htmlFor={field.name}>
+                     <Label htmlFor={`${props?.idPrefix??''}${field.name}`}>
                         {props.label} {rules?.required ? <span className="text-danger-color">*</span> : ``}
                      </Label>
                      <Popover>
                         <PopoverTrigger asChild>
                            <Button
-                              id={field.name}
+                              id={`${props?.idPrefix??''}${field.name}`}
                               variant="outline"
                               className={cn(
                                  'relative  w-full h-[36px] justify-between text-left font-normal text-text pr-3 cursor-pointer',

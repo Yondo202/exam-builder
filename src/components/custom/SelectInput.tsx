@@ -44,6 +44,11 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
                         <SelectTrigger
                            id={id}
                            ref={field.ref}
+                           value={field.value}
+                           onClear={() => {
+                              console.log( "clear")
+                              field.onChange('')
+                           }}
                            className={cn(
                               'w-full text-sm p-4 py-1 h-10 relative data-[placeholder]:text-muted-text/50 hover:bg-hover-bg ',
                               fieldState.error ? `border-danger-color focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``

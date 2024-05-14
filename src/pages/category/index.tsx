@@ -2,7 +2,7 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { request, UseReFetch } from '@/lib/core/request';
 import { useEffect, useState } from 'react';
-import { DataTable, BreadCrumb, AnimatedTabs, Drawer, Button, TextInput, DeleteContent, SelectInput, type TOption, Badge } from '@/components/custom';
+import { DataTable, BreadCrumb, AnimatedTabs, Drawer, Button, TextInput, DeleteContent, SelectInput, type TOption, Badge, UsePrompt } from '@/components/custom';
 import { type FinalRespnse, type TAction, type TActionProps, ATypes } from '@/lib/sharedTypes';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
@@ -32,6 +32,7 @@ const catAsset = {
 
 export type TKeys = keyof typeof catAsset;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useGetCategories = ({ current, idKey }: { current: TKeys; idKey?: string }) => {
    return useQuery({
       queryKey: [`category/${current}`, `${current}${idKey ?? ''}`],
@@ -60,6 +61,7 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       if (current === 'main_category') {
          setMainCat(data?.data ? data?.data.map((item) => ({ label: item.name, value: item.id })) : []);
       }
+   // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [current, isLoading, isRefetching]);
 
    const setClose = () => {
@@ -151,13 +153,14 @@ const GroupAction = ({ current, action, setClose, options }: TActionProps<TCateg
          }
          reset(action.data);
       }
+   // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [action.isOpen]);
 
    const onSubmit = (data: Omit<TCategory, 'id'>) => {
       mutate(data);
    };
 
-   // UsePrompt({ isBlocked: isDirty });
+   UsePrompt({ isBlocked: isDirty });
 
    if (action.type === 'delete') {
       return <DeleteContent setClose={setClose} submitAction={() => mutate(undefined)} isLoading={isPending} className="pb-6" />;

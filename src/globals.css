@@ -87,8 +87,9 @@
       @apply max-w-full truncate;
    }
    .wrapper {
-      @apply rounded-lg border bg-card-bg border-muted-border shadow-md shadow-muted-text/10;
+      @apply rounded-lg border bg-card-bg border-muted-border/60 shadow-sm shadow-muted-text/10;
    }
+   
 
    .dialog-footer {
       @apply sticky bottom-0 left-0 bg-card-bg py-4 flex justify-end w-full;

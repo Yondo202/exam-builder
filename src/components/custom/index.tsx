@@ -15,6 +15,7 @@ export { Skeleton } from '../ui/skeleton';
 export { Badge } from '../ui/badge';
 export { default as Button } from '../ui/button';
 export { default as Label } from '@/components/ui/Label'
+export { default as UsePrompt } from '@/lib/hooks/UsePrompt'
 export { default as BreadCrumb } from './BreadCrumb';
 // export { default as MultipleSelector } from "../ui/MultiSelect"
 export { default as MultipleSelector, type MultipleSelectorRef } from './MultiSelect';
@@ -24,4 +25,5 @@ export { Checkbox } from '@/components/ui/checkbox';
 export { default as SelectInput, type TOption } from './SelectInput';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 export { Sortable, SortableDragHandle, SortableItem, SortableOverlay } from './Sortable';
+
 // export { default as CheckBox } from './CheckBox'

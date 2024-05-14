@@ -11,8 +11,9 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { questionAsset, type TQTypes } from './Action';
 
 export type TQuestion = 'text' | 'checkbox'; // filler
-
-export type TInputType = 'multi_select' | 'select' | 'text' | 'text_long' | 'text_format' | 'filler' | 'filler_select';
+// richtext                                 filler_with_choice
+// export type TInputType = 'multi_select' | 'select' | 'text' | 'text_long' | 'text_format' | 'filler' | 'filler_select';
+export type TInputType = 'multi_select' | 'select' | 'text' | 'richtext' | 'text_format' | 'filler' | 'filler_with_choice';
 // | 'drag_drop' | 'multi_drag_drop';
 
 export type TInputTypeTab = {
@@ -29,25 +30,29 @@ export type TAnswers = {
    mark: number; // zowhon multi select tei ued
 };
 
-export type TQuestionTypes = {
+type AllTypesQuestionTypes = {
    question: string;
    score: number;
    type: TQuestion;
    category_id: string;
    answers: TAnswers[];
+   sub_category_id: string;
+   input_type: TInputType;
+
    sort_number: number;
    total_score: number;
-   sub_category_id: string;
-   // input_type: 'multi_select' | 'select' | 'text' | 'drag_drop' | 'multi_drag_drop';
-   input_type: TInputType;
    created_at: string;
+
+   sub_questions: TQuestionTypes[];
 };
+
+export type TQuestionTypes = Omit<AllTypesQuestionTypes, 'created_at' | 'sort_number' | 'total_score'>;
 
 const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const { data, isLoading } = useQuery({
       queryKey: [`questions`],
       queryFn: () =>
-         request<FinalRespnse<TQuestionTypes>>({
+         request<FinalRespnse<AllTypesQuestionTypes>>({
             method: 'post',
             url: `exam/list/question`,
             offAlert: true,
@@ -73,24 +78,23 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                      </Button>
                   </PopoverTrigger>
 
-                  <PopoverContent className='p-6 w-78 flex flex-col gap-4' align="end" sideOffset={8}>
+                  <PopoverContent className="p-6 w-78 flex flex-col gap-4" align="end" sideOffset={8}>
                      {Object.keys(questionAsset)?.map((item, index) => {
-                        const Icon = questionAsset[item as TQTypes]?.icon
+                        const Icon = questionAsset[item as TQTypes]?.icon;
                         return (
                            <Link
                               to={`${breadcrumbs.find((item) => item.isActive)?.to}/create?type=${item}`}
                               className="group p-4 hover:bg-primary/5 rounded-md cursor-pointer grid grid-cols-[auto_1fr] gap-4 border border-primary/20"
                               key={index}
                            >
-
                               <Icon className="text-xl text-secondary mt-1" />
 
                               <div className="flex flex-col gap-1">
-                                 <span className='font-medium'>{questionAsset[item as TQTypes]?.label}</span>
-                                 <span className='text-muted-text text-xs'>{questionAsset[item as TQTypes]?.description}</span>
+                                 <span className="font-medium">{questionAsset[item as TQTypes]?.label}</span>
+                                 <span className="text-muted-text text-xs">{questionAsset[item as TQTypes]?.description}</span>
                               </div>
                            </Link>
-                        )
+                        );
                      })}
                   </PopoverContent>
                </Popover>
@@ -103,7 +107,7 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
 export default Groups;
 
-const columnDef: ColumnDef<TQuestionTypes>[] = [
+const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
    {
       header: 'Асуулт',
       accessorKey: 'question',

@@ -4,6 +4,8 @@ import { HiChevronUp } from 'react-icons/hi2';
 import { GoChevronDown } from 'react-icons/go';
 import * as SelectPrimitive from '@radix-ui/react-select';
 
+import { IoClose } from 'react-icons/io5';
+
 import { cn } from '@/lib/utils';
 
 const Select = SelectPrimitive.Root;
@@ -12,28 +14,34 @@ const SelectGroup = SelectPrimitive.Group;
 
 const SelectValue = SelectPrimitive.Value;
 
-const SelectTrigger = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Trigger>, React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & { hideIcon?: boolean }>(
-   ({ className, children, hideIcon, ...props }, ref) => (
+const SelectTrigger = React.forwardRef<
+   React.ElementRef<typeof SelectPrimitive.Trigger>,
+   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> & { hideIcon?: boolean; onClear?: () => void }
+>(({ className, children, hideIcon, onClear, ...props }, ref) => (
+   <div className="group relative">
       <SelectPrimitive.Trigger
          ref={ref}
          className={cn(
-            'flex h-9 w-full bg-card-bg items-center justify-between whitespace-nowrap rounded-md border border-border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-text focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+            ' flex h-9 w-full bg-card-bg items-center justify-between whitespace-nowrap rounded-md border border-border px-3 py-2 text-sm ring-offset-background placeholder:text-muted-text focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
             className
          )}
          {...props}
       >
-         <>
-            {children}
+         {children}
 
-            {!props.asChild && !hideIcon && (
-               <SelectPrimitive.Icon>
-                  <GoChevronDown className="h-4 w-4 opacity-70 text-secondary" />
-               </SelectPrimitive.Icon>
-            )}
-         </>
+         {!props.asChild && !hideIcon && (
+            <SelectPrimitive.Icon>
+               <GoChevronDown className="h-4 w-4 opacity-70 text-secondary" />
+            </SelectPrimitive.Icon>
+         )}
       </SelectPrimitive.Trigger>
-   )
-);
+      {props.value && (
+         <div onClick={onClear} className="absolute hidden cursor-pointer top-[1px] right-1.5 z-20 h-[98%] rounded-full aspect-square bg-card-bg group-hover:flex items-center justify-center">
+            <IoClose className="text-base opacity-70 text-secondary " />
+         </div>
+      )}
+   </div>
+));
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 const SelectScrollUpButton = React.forwardRef<React.ElementRef<typeof SelectPrimitive.ScrollUpButton>, React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>>(
