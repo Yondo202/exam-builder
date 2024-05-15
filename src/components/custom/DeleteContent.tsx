@@ -5,7 +5,7 @@ import { GoTrash } from 'react-icons/go';
 
 type TDeleteContent = {
    className?: string;
-   isLoading: boolean;
+   isLoading?: boolean;
    setClose?: ({ isDelete }: { isDelete:boolean }) => void;
    submitAction: () => void;
 };

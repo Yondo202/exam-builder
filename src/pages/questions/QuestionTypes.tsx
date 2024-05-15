@@ -1,4 +1,4 @@
-import { TextInput, Textarea, Button, Checkbox, Label, CkEditor, Header, AnimatedTabs, Drawer } from '@/components/custom';
+import { TextInput, Textarea, Button, Checkbox, Label, CkEditor, Header, AnimatedTabs, Drawer, Sortable, SortableDragHandle, SortableItem, Skeleton } from '@/components/custom';
 import { useForm, useFieldArray, Controller, type FieldArrayWithId, type UseFieldArrayAppend } from 'react-hook-form';
 import { IoCloseOutline } from 'react-icons/io5';
 import { MdOutlineAdd } from 'react-icons/md';
@@ -14,6 +14,8 @@ import { BsChatSquareText } from 'react-icons/bs';
 import { CategorySelect, type TObjectPettern, type TQTypesProps, InitialAnswer } from './Action';
 import { BsPencil } from 'react-icons/bs';
 import { GoTrash } from 'react-icons/go';
+import { PiDotsSixVerticalBold } from 'react-icons/pi';
+
 // type TQTypesInBackEnd = 'radio' | 'checkbox' | 'text';
 
 const SelectTypes: TInputTypeTab[] = [
@@ -22,7 +24,7 @@ const SelectTypes: TInputTypeTab[] = [
 ];
 
 export const WithSelect = ({ control, watch, setValue, setShowError, showError, idPrefix }: TQTypesProps) => {
-   const { fields, append, remove } = useFieldArray({ control, name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
+   const { fields, append, remove, move } = useFieldArray({ control, name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
 
    useEffect(() => {
       if (watch?.()?.input_type === 'multi_select') {
@@ -34,17 +36,17 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
          );
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [watch?.()]);
+   }, [JSON.stringify(watch?.().answers), watch?.()?.input_type]);
 
    return (
-      <div className={cn('wrapper p-7 pt-2 mb-4 relative', showError ? `border-danger-color` : ``, idPrefix ? `p-0 mb-4 border-none shadow-none` : ``)}>
+      <div className={cn('wrapper p-7 pt-0 mb-4 relative', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``, showError ? `border-danger-color` : ``)}>
          <Controller
             control={control}
             name="input_type"
             render={({ field }) => {
                return (
                   <AnimatedTabs
-                     className="text-xs mb-6"
+                     className="text-xs mb-8"
                      items={SelectTypes}
                      activeKey={field.value}
                      onChange={(value) => {
@@ -55,6 +57,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                            );
                         }
 
+                        setValue('score', 0);
                         field.onChange(value as TInputType);
                      }}
                   />
@@ -73,7 +76,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
             />
             <TextInput
                floatLabel={false}
-               className="w-72 mb-0"
+               className="w-64 mb-0"
                name="score"
                disabled={watch?.()?.input_type === 'multi_select'}
                control={control}
@@ -85,86 +88,109 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                idPrefix={idPrefix}
             />
          </div>
-         <div className={cn('grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6', watch?.()?.input_type === 'multi_select' && 'grid-cols-[1fr]')}>
-            {fields?.map((item, index) => {
-               return (
-                  <div key={item.id} className={cn('grid grid-cols-[1fr_auto] items-center gap-3', watch?.()?.input_type === 'multi_select' && `grid-cols-[1fr_auto_auto] gap-8`)}>
-                     <div className="relative">
-                        <TextInput
-                           control={control}
-                           name={`answers.${index}.answer`}
-                           rules={{ required: 'Хариултаа оруулна уу' }}
-                           sizes="lg"
-                           beforeAddon={<span className="font-light ml-1 text-base">{index + 1}.</span>}
-                           className="w-full"
-                           label="Хариулт оруулах"
-                           idPrefix={idPrefix}
-                        />
-
-                        <Controller
-                           control={control}
-                           name={`answers.${index}.is_correct` as const}
-                           render={({ field }) => {
-                              return (
-                                 <div className="flex items-center gap-3 px-4 absolute right-[1px] top-[1px] bottom-[1px] w-36 rounded-md bg-card-bg">
-                                    <Checkbox
-                                       name={field.name}
-                                       id={`${idPrefix ?? ''}${field.name}`}
-                                       checked={field.value}
-                                       onCheckedChange={(event) => {
-                                          event ? setShowError(false) : null;
-                                          const newValue = watch?.()?.answers.map((element, ind) =>
-                                             ind === index
-                                                ? { ...element, mark: event ? element.mark : 0, is_correct: event ? true : false }
-                                                : watch()?.input_type === 'select'
-                                                ? { ...element, is_correct: false }
-                                                : element
-                                          );
-                                          setValue('answers', newValue ?? []);
-                                       }}
-                                    />
-                                    <Label htmlFor={`${idPrefix ?? ''}${field.name}`} className="m-0">
-                                       Зөв хариулт
-                                    </Label>
-                                 </div>
-                              );
-                           }}
-                        />
-                     </div>
-
-                     {watch?.()?.input_type === 'multi_select' ? (
-                        <div className="w-80">
-                           {item.is_correct ? (
+         {/* <div className={cn('grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6', watch?.()?.input_type === 'multi_select' && 'grid-cols-[1fr]')}> */}
+         <Sortable
+            value={fields}
+            onMove={({ activeIndex, overIndex }) => move(activeIndex, overIndex)}
+            overlay={
+               <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+                  <Skeleton className="h-8 w-8 rounded-sm" />
+                  <Skeleton className="h-11 w-full rounded-sm" />
+                  <Skeleton className="size-8 shrink-0 rounded-sm" />
+                  {/* <Skeleton className="size-8 shrink-0 rounded-sm" /> */}
+               </div>
+            }
+         >
+            <div className={cn('grid grid-cols-1 gap-y-6')}>
+               {fields?.map((item, index) => {
+                  return (
+                     <SortableItem key={item.id} value={item.id} asChild>
+                        <div
+                           key={item.id}
+                           className={cn('grid grid-cols-[auto_1fr_auto] items-center gap-3', watch?.()?.input_type === 'multi_select' && `grid-cols-[auto_1fr_auto_auto] gap-6`)}
+                        >
+                           <SortableDragHandle variant="ghost" size="icon" className="size-8 shrink-0">
+                              <PiDotsSixVerticalBold className="text-lg text-muted-text" aria-hidden="true" />
+                           </SortableDragHandle>
+                           <div className="relative">
                               <TextInput
                                  control={control}
-                                 name={`answers.${index}.mark`}
-                                 // rules={{ required: 'Хариултанд харгалзах оноо' }}
-                                 rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 }  }}
+                                 name={`answers.${index}.answer`}
+                                 rules={{ required: 'Хариултаа оруулна уу' }}
                                  sizes="lg"
-                                 autoFocus
-                                 beforeAddon={<GoDotFill className="text-xs" />}
+                                 beforeAddon={<span className="font-light ml-1 text-base">{index + 1}.</span>}
                                  className="w-full"
-                                 label="Зөв хариултанд харгалзах оноо"
-                                 type="number"
+                                 label="Хариулт оруулах"
                                  idPrefix={idPrefix}
                               />
-                           ) : (
-                              <span className="text-muted-text opacity-60">
-                                 <span className="text-lg font-medium">0 / </span> оноо
-                              </span>
-                           )}
-                        </div>
-                     ) : null}
 
-                     <Button disabled={fields.length === 2} onClick={() => remove(index)} size="icon" variant="ghost" className="rounded-full" type="button">
-                        <IoCloseOutline className="text-[22px] text-danger-color " />
-                     </Button>
-                  </div>
-               );
-            })}
-         </div>
-         <div className="py-10 pb-0 flex justify-end">
-            <Button onClick={() => append({ ...InitialAnswer[0], sort_number: fields.length })} variant="outline" type="button" className="rounded-md">
+                              <Controller
+                                 control={control}
+                                 name={`answers.${index}.is_correct` as const}
+                                 render={({ field }) => {
+                                    return (
+                                       <div className="flex items-center gap-3 px-4 absolute right-[1px] top-[1px] bottom-[1px] w-36 rounded-md bg-card-bg">
+                                          <Checkbox
+                                             name={field.name}
+                                             id={`${idPrefix ?? ''}${field.name}`}
+                                             checked={field.value}
+                                             onCheckedChange={(event) => {
+                                                event ? setShowError(false) : null;
+                                                const newValue = watch?.()?.answers.map((element, ind) =>
+                                                   ind === index
+                                                      ? { ...element, mark: event ? element.mark : 0, is_correct: event ? true : false }
+                                                      : watch()?.input_type === 'select'
+                                                      ? { ...element, is_correct: false }
+                                                      : element
+                                                );
+                                                setValue('answers', newValue ?? []);
+                                             }}
+                                          />
+                                          <Label htmlFor={`${idPrefix ?? ''}${field.name}`} className="m-0">
+                                             Зөв хариулт
+                                          </Label>
+                                       </div>
+                                    );
+                                 }}
+                              />
+                           </div>
+
+                           {watch?.()?.input_type === 'multi_select' ? (
+                              <div className="w-48">
+                                 {item.is_correct ? (
+                                    <TextInput
+                                       control={control}
+                                       name={`answers.${index}.mark`}
+                                       // rules={{ required: 'Хариултанд харгалзах оноо' }}
+                                       rules={{ required: 'Хариултын оноо', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+                                       sizes="lg"
+                                       autoFocus
+                                       beforeAddon={<GoDotFill className="text-xs" />}
+                                       className="w-full"
+                                       label="Харгалзах оноо"
+                                       type="number"
+                                       idPrefix={idPrefix}
+                                    />
+                                 ) : (
+                                    <span className="text-muted-text opacity-60">
+                                       <span className="text-lg font-medium">0 / </span> оноо
+                                    </span>
+                                 )}
+                              </div>
+                           ) : null}
+
+                           <Button disabled={fields.length === 2} onClick={() => remove(index)} size="icon" variant="ghost" className="rounded-full" type="button">
+                              <IoCloseOutline className="text-[22px] text-danger-color " />
+                           </Button>
+                        </div>
+                     </SortableItem>
+                  );
+               })}
+            </div>
+         </Sortable>
+
+         <div className="py-6 pb-0 flex justify-center">
+            <Button onClick={() => append(InitialAnswer)} variant="outline" size="sm" type="button" className="rounded-full ">
                <MdOutlineAdd className="text-base" /> Хариулт нэмэх
             </Button>
          </div>
@@ -188,39 +214,39 @@ const SelectInputTypes: TInputTypeTab[] = [
    { label: 'Дүрс зурагтай - асуулт / хариулт', key: 'text_format' },
 ];
 
-export const OpenQuestion = ({ control, watch }: TQTypesProps) => {
+export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
    return (
-      <div className="wrapper p-7 mb-5">
-         <div className="pb-12 flex justify-between items-end">
-            <Controller
-               control={control}
-               name="input_type"
-               render={({ field }) => {
-                  return (
-                     <AnimatedTabs
-                        className="mb-0 text-xs"
-                        items={SelectInputTypes}
-                        activeKey={field.value}
-                        onChange={(value) => {
-                           field.onChange(value as TInputType);
-                        }}
-                     />
-                  );
-               }}
-            />
-            <TextInput
-               // floatLabel={false}
-               className="w-72 mb-0"
-               name="score"
-               disabled={watch?.()?.input_type === 'multi_select'}
-               control={control}
-               beforeAddon={<GoDotFill className="text-xs" />}
-               rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Хамгийн багадаа 1 оноо оруулах боломжтой', value: 1 } }}
-               label="Асуултанд авах оноо"
-               placeholder="Оноо оруулах"
-               type="number"
-            />
-         </div>
+      <div className={cn('wrapper p-7 pt-0 mb-5', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``)}>
+         {/* <div className="pb-12 flex justify-between items-end"></div> */}
+         <Controller
+            control={control}
+            name="input_type"
+            render={({ field }) => {
+               return (
+                  <AnimatedTabs
+                     className="mb-8 text-xs"
+                     items={SelectInputTypes}
+                     activeKey={field.value}
+                     onChange={(value) => {
+                        field.onChange(value as TInputType);
+                     }}
+                  />
+               );
+            }}
+         />
+         <TextInput
+            // floatLabel={false}
+            className="w-72 mb-5"
+            name="score"
+            disabled={watch?.()?.input_type === 'multi_select'}
+            control={control}
+            beforeAddon={<GoDotFill className="text-xs" />}
+            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Хамгийн багадаа 1 оноо оруулах боломжтой', value: 1 } }}
+            label="Асуултанд авах оноо"
+            placeholder="Оноо оруулах"
+            type="number"
+            idPrefix={idPrefix}
+         />
 
          {watch?.()?.input_type === 'text_format' ? (
             <>
@@ -249,6 +275,7 @@ export const OpenQuestion = ({ control, watch }: TQTypesProps) => {
                label="Асуулт оруулах"
                placeholder="Асуултаа дэлгэрэнгүй оруулах"
                rules={{ required: 'Асуулт оруулах' }}
+               idPrefix={idPrefix}
             />
          )}
       </div>
@@ -387,7 +414,7 @@ export const Filler = ({ title }: { title: string }) => {
                            )}
                         >
                            <div className="text-pretty">{item.value}</div>
-
+                           {/* daraa ActionButtons component iig ashigla */}
                            <div className="flex cursor-default items-center gap-2 absolute w-full -top-10 translate-y-1/2 -left-2 opacity-0 scale-0 transition-all duration-200 group-hover/items:opacity-100 group-hover/items:scale-100">
                               <Button variant="outline" className="rounded-full h-7 w-7 min-w-7" size="icon">
                                  <BsPencil className="text-xs2" />

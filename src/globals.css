@@ -19,7 +19,7 @@
       --muted-bg: 210 40% 96.1%;
       /* --muted-text: 215.4 16.3% 46.9%; */
       --muted-text: 205.91 20.18% 45.75%;
-      --muted-border: 214.3 33% 87%;
+      --muted-border: 214.3 33% 92%;
 
       --ring: 221.2 83.2% 53.3%; /*box shadow toi border*/
    }
@@ -87,7 +87,7 @@
       @apply max-w-full truncate;
    }
    .wrapper {
-      @apply rounded-lg border bg-card-bg border-muted-border/60 shadow-sm shadow-muted-text/10;
+      @apply rounded-lg border bg-card-bg border-muted-border shadow-sm shadow-muted-text/10;
    }
    
 
