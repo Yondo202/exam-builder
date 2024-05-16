@@ -15,6 +15,7 @@ import { CategorySelect, type TObjectPettern, type TQTypesProps, InitialAnswer }
 import { BsPencil } from 'react-icons/bs';
 import { GoTrash } from 'react-icons/go';
 import { PiDotsSixVerticalBold } from 'react-icons/pi';
+import TotolUi from './components/TotolUi';
 
 // type TQTypesInBackEnd = 'radio' | 'checkbox' | 'text';
 
@@ -27,7 +28,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
    const { fields, append, remove, move } = useFieldArray({ control, name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
 
    useEffect(() => {
-      if (watch?.()?.input_type === 'multi_select') {
+      if (watch?.('input_type') === 'multi_select') {
          setValue(
             'score',
             watch()
@@ -36,7 +37,10 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
          );
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [JSON.stringify(watch?.().answers), watch?.()?.input_type]);
+   }, [JSON.stringify(watch?.('answers')), watch?.('input_type')]);
+
+   // console.log(, "watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0)")÷
+   // const TotalValue;
 
    return (
       <div className={cn('wrapper p-7 pt-0 mb-4 relative', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``, showError ? `border-danger-color` : ``)}>
@@ -74,19 +78,22 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                rules={{ required: 'Асуулт оруулах' }}
                idPrefix={idPrefix}
             />
-            <TextInput
-               floatLabel={false}
-               className="w-64 mb-0"
-               name="score"
-               disabled={watch?.()?.input_type === 'multi_select'}
-               control={control}
-               // beforeAddon={<GoDotFill className="text-xs" />}
-               rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
-               label="Асуултанд авах оноо"
-               placeholder="Оноо оруулах"
-               type="number"
-               idPrefix={idPrefix}
-            />
+            <div>
+               <TextInput
+                  floatLabel={false}
+                  className="w-64 mb-0"
+                  name="score"
+                  disabled={watch?.('input_type') === 'multi_select'}
+                  control={control}
+                  // beforeAddon={<GoDotFill className="text-xs" />}
+                  rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+                  label="Асуултанд авах оноо"
+                  placeholder="Оноо оруулах"
+                  type="number"
+                  idPrefix={idPrefix}
+               />
+               <TotolUi mainCount={watch?.()?.score ?? 0} additionalCount={watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0} />
+            </div>
          </div>
          {/* <div className={cn('grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6', watch?.()?.input_type === 'multi_select' && 'grid-cols-[1fr]')}> */}
          <Sortable

@@ -38,14 +38,11 @@ export const useGetCategories = ({ current, idKey }: { current: TKeys; idKey?: s
       queryKey: [`category/${current}`, `${current}${idKey ?? ''}`],
       queryFn: () =>
          request<FinalRespnse<TCategory>>({
-            method: idKey ? 'get' : 'post',
-            url: idKey ? `cats/sub-category/${idKey}` : catAsset[current]?.url,
+            method: 'post',
+            url: catAsset[current]?.url,
             offAlert: true,
             filterBody: {
-               pagination: {
-                  page: 1,
-                  page_size: 20,
-               },
+               category_id: idKey,
             },
          }),
    });
@@ -61,7 +58,7 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       if (current === 'main_category') {
          setMainCat(data?.data ? data?.data.map((item) => ({ label: item.name, value: item.id })) : []);
       }
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [current, isLoading, isRefetching]);
 
    const setClose = () => {
@@ -153,7 +150,7 @@ const GroupAction = ({ current, action, setClose, options }: TActionProps<TCateg
          }
          reset(action.data);
       }
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [action.isOpen]);
 
    const onSubmit = (data: Omit<TCategory, 'id'>) => {

@@ -21,13 +21,13 @@ export type TRequest<T> = {
 export const getJwt = () => {
    return document.cookie
       ?.split('; ')
-      ?.find((row) => row.startsWith('jwt='))
+      ?.find((row) => row.startsWith('access_token='))
       ?.split('=')[1];
 };
 
 export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody }: TRequest<T>) => {
-   //    const reqAsset = { headers: { Authorization: `Bearer ${accessToken}`, webid: webid }, params: queryParams };
-   const reqAsset = { params: queryParams };
+      const reqAsset = { headers: { Authorization: `Bearer ${getJwt()}` }, params: queryParams };
+   // const reqAsset = { params: queryParams };
    const fullUrl = `${mainUrl ?? import.meta.env.VITE_MAIN_URL}${url}`;
 
    try {

@@ -16,9 +16,10 @@ export type TOption = {
 type TSelectProps = {
    options: TOption[];
    label?: string;
+   onChange?: (event: string) => void;
 } & SelectProps;
 
-const SelectInput = <TFieldValues extends FieldValues>({ options, control, className = '', name, rules, label, ...props }: TControllerProps<TFieldValues> & TSelectProps) => {
+const SelectInput = <TFieldValues extends FieldValues>({ options, control, className = '', name, rules, label, onChange, ...props }: TControllerProps<TFieldValues> & TSelectProps) => {
    const id = useId();
    return (
       <div className={cn('w-full', className)}>
@@ -38,7 +39,7 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
                         //    table.setPageSize(Number(e));
                         // }}
                         value={field.value}
-                        onValueChange={(event) => field.onChange(event)}
+                        onValueChange={(event) => (field.onChange(event), onChange?.(event))}
                         {...props}
                      >
                         <SelectTrigger
@@ -46,8 +47,9 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
                            ref={field.ref}
                            value={field.value}
                            onClear={() => {
-                              console.log( "clear")
-                              field.onChange('')
+                              console.log('clear');
+                              field.onChange('');
+                              onChange?.('');
                            }}
                            className={cn(
                               'w-full text-sm p-4 py-1 h-10 relative data-[placeholder]:text-muted-text/50 hover:bg-hover-bg ',
@@ -64,7 +66,7 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
                                  </SelectItem>
                               ))
                            ) : (
-                              <div className='flex flex-col gap-4 justify-center items-center p-2 py-4'>
+                              <div className="flex flex-col gap-4 justify-center items-center p-2 py-4">
                                  <Empty className="dark:opacity-30" />
                                  <div className="text-muted-text opacity-70">Мэдээлэл байхгүй байна</div>
                               </div>

@@ -1,6 +1,5 @@
 import { Empty, Loading } from '@/assets/svg';
 import * as React from 'react';
-import { RxDotsHorizontal } from 'react-icons/rx';
 import {
    ColumnDef,
    ColumnFiltersState,
@@ -18,16 +17,18 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import { Checkbox } from '@/components/ui/checkbox';
 import { FloatingLabelInput } from '@/components/ui/Input';
 import Button from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+// import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+// import { GoTrash, GoPencil } from 'react-icons/go';
+// import { RxDotsHorizontal } from 'react-icons/rx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { GoTrash, GoPencil } from 'react-icons/go';
 import { PiPath } from 'react-icons/pi';
 import { BiSearchAlt } from 'react-icons/bi';
 import { BsArrowDown, BsArrowUp } from 'react-icons/bs';
 import { TfiArrowsVertical } from 'react-icons/tfi';
 import { TAction } from '@/lib/sharedTypes';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ActionButtons from '@/components/ActionButtons';
 
 // export type TRowAction<T> = {
 //    type:'edit' | 'delete' | 'add'
@@ -79,26 +80,10 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
             enableHiding: false,
             cell: ({ row }: { row: Row<T> }) => {
                // const rowdata = row.original
+               const action = { data: row.original, isOpen: true };
                return (
-                  <div className="flex justify-center">
-                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                           <Button variant="ghost" className="h-8 w-8 p-0">
-                              {/* <span className="sr-only">Open menu</span> */}
-                              <RxDotsHorizontal className="h-4 w-4" />
-                           </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                           <DropdownMenuLabel className="text-muted-text">Үйлдэл</DropdownMenuLabel>
-                           <DropdownMenuSeparator />
-                           <DropdownMenuItem className="gap-3" onClick={() => rowAction?.({ type: 'edit', data: row.original, isOpen: true })}>
-                              <GoPencil /> Засах
-                           </DropdownMenuItem>
-                           <DropdownMenuItem className="gap-3" onClick={() => rowAction?.({ type: 'delete', data: row.original, isOpen: true })}>
-                              <GoTrash /> Устгах
-                           </DropdownMenuItem>
-                        </DropdownMenuContent>
-                     </DropdownMenu>
+                  <div className="relative">
+                     <ActionButtons className='right-3' deleteTrigger={() => rowAction?.({ type: 'delete', ...action })} editTrigger={() => rowAction?.({ type: 'edit', ...action })} />
                   </div>
                );
             },
@@ -239,7 +224,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                <TableBody>
                   {!isLoading && table.getRowModel().rows?.length > 0 ? (
                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted-bg cursor-pointer">
+                        <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted-bg cursor-pointer group/items">
                            {row.getVisibleCells().map((cell) => {
                               const size = cell.column.getSize();
                               return (

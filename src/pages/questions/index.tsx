@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { type FinalRespnse, type TAction } from '@/lib/sharedTypes';
-import { BreadCrumb, Header, Button, DataTable, Badge } from '@/components/custom'; // DataTable
+import { BreadCrumb, Header, Button, DataTable, Badge, Dialog, DeleteContent } from '@/components/custom'; // DataTable
 import { ColumnDef } from '@tanstack/react-table';
 import { useNavigate } from 'react-router-dom';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
@@ -9,6 +9,7 @@ import { MdOutlineAdd } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { questionAsset } from './Action';
+import { useState } from 'react';
 
 export type TQuestion = 'text' | 'checkbox'; // filler
 // richtext                                 filler_with_choice
@@ -30,7 +31,8 @@ export type TAnswers = {
    mark: number; // zowhon multi select tei ued
 };
 
-type AllTypesQuestionTypes = {
+export type AllTypesQuestionTypes = {
+   id: string;
    question: string;
    score: number;
    type: TQuestion;
@@ -46,11 +48,14 @@ type AllTypesQuestionTypes = {
    sub_questions: TQuestionTypes[];
 };
 
-export type TQuestionTypes = Omit<AllTypesQuestionTypes, 'created_at' | 'sort_number' | 'total_score'>;
+export type TQuestionTypes = Omit<AllTypesQuestionTypes, 'created_at' | 'total_score'>;
 
 const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const [deleteAction, setDeleteAction] = useState({ isOpen: false, id: '' });
+   // const [isOpen, setIsOpen] = useState(false);
    const navigate = useNavigate();
-   const { data, isLoading } = useQuery({
+
+   const { data, isLoading, refetch } = useQuery({
       queryKey: [`questions`],
       queryFn: () =>
          request<FinalRespnse<AllTypesQuestionTypes>>({
@@ -60,10 +65,22 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             filterBody: {
                pagination: {
                   page: 1,
-                  page_size: 20,
+                  page_size: 1000,
                },
             },
          }),
+   });
+
+   const { isPending, mutate } = useMutation({
+      mutationFn: () =>
+         request<TQuestionTypes>({
+            method: 'delete',
+            url: `exam/question/${deleteAction.id}`,
+         }),
+      onSuccess: () => {
+         refetch();
+         setDeleteAction({ isOpen: false, id: '' });
+      },
    });
 
    const rowAction = (item: TQuestion) => {
@@ -83,7 +100,22 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                </SelectQuestionType>
             }
          />
-         <DataTable data={data?.data ?? []} columns={columnDef} isLoading={isLoading} />
+         
+         <DataTable
+            data={data?.data ?? []}
+            columns={columnDef}
+            isLoading={isLoading}
+            rowAction={(data: TAction<AllTypesQuestionTypes>) => {
+               if (data.type === 'edit') {
+                  navigate(`${breadcrumbs.find((item) => item.isActive)?.to}/${data.data?.id}`);
+                  return;
+               }
+               setDeleteAction({ isOpen: true, id: data.data?.id ?? '' });
+            }}
+         />
+         <Dialog isOpen={deleteAction.isOpen} onOpenChange={(e) => setDeleteAction((prev) => ({ ...prev, isOpen: e }))}>
+            <DeleteContent setClose={() => setDeleteAction({ isOpen: false, id: '' })} submitAction={mutate} isLoading={isPending} className="pb-6" />
+         </Dialog>
       </div>
    );
 };
@@ -92,7 +124,7 @@ export default Groups;
 
 type TSelectQuestionProps = {
    children: React.ReactNode;
-   rowAction: (item: TQuestion, type?: TAction<TQuestionTypes>['type'], data?:TAction<TQuestionTypes>) => void;
+   rowAction: (item: TQuestion, type?: TAction<TQuestionTypes>['type'], data?: TAction<TQuestionTypes>) => void;
 };
 
 export const SelectQuestionType = ({ children, rowAction }: TSelectQuestionProps) => {
