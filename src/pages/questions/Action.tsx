@@ -2,19 +2,31 @@ import { BreadCrumb, SelectInput, Header, Button, UsePrompt, Dialog, DeleteConte
 import { useEffect, useMemo, useState } from 'react';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { useGetCategories, type TKeys } from '../category';
-import { type FieldValues, useForm, type Control, type UseFormWatch, type UseFormSetValue, useFieldArray, type UseFieldArrayAppend, type UseFieldArrayUpdate } from 'react-hook-form'; //useFieldArray
+import {
+   type FieldValues,
+   useForm,
+   type Control,
+   type UseFormWatch,
+   type UseFormSetValue,
+   useFieldArray,
+   type UseFieldArrayAppend,
+   type UseFieldArrayUpdate,
+   type UseFormClearErrors,
+} from 'react-hook-form'; //useFieldArray
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { TControllerProps, type TAction, type TActionProps } from '@/lib/sharedTypes'; //type TActionProps
 // import { TControllerProps } from '@/lib/sharedTypes';
-import { WithSelect, OpenQuestion } from './QuestionTypes'; // Filler -- daraa nemchine
+import { WithSelect, OpenQuestion, Filler } from './QuestionTypes'; // Filler -- daraa nemchine
 import { type TQuestion, type TQuestionTypes, type TAnswers, type TInputType, SelectQuestionType, type AllTypesQuestionTypes } from '.';
 import { IconType } from 'react-icons/lib';
 import { GoCheckCircle } from 'react-icons/go';
 import { BsSave } from 'react-icons/bs';
 import { IoTextOutline } from 'react-icons/io5';
 import { request } from '@/lib/core/request';
+import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { cn } from '@/lib/utils';
 import ActionButtons from '@/components/ActionButtons';
 
@@ -24,8 +36,7 @@ import ActionButtons from '@/components/ActionButtons';
 // | 'withAdditional';
 
 type AdditionalProps = {
-   setShowError: React.Dispatch<React.SetStateAction<boolean>>;
-   showError: boolean;
+   clearErrors?: UseFormClearErrors<TQuestionTypes>;
 };
 
 export type TQTypesProps = {
@@ -39,7 +50,7 @@ export type TQTypesProps = {
 
 export type TObjectPettern = {
    label: string;
-   component: ({ control, watch, setValue, setShowError, showError }: TQTypesProps) => JSX.Element;
+   component: ({ control, watch, setValue }: TQTypesProps) => JSX.Element;
    // type: TQuestion;
    description: string;
    icon: IconType;
@@ -68,14 +79,17 @@ export const questionAsset: TQuestionTypesInFront = {
       icon: IoTextOutline,
       input_type: 'text', // default type
    },
-   // filler: {
-   //    label: 'Нөхөж бичих',
-   //    component: Filler,
-   //    type: 'text', // filler gedeg typetai bolno
-   //    description: 'Өгүүлбэр дунд хариулт нөхөж оруулах боломжтой',
-   //    icon: HiOutlineDotsHorizontal,
-   // },
+   fill: {
+      label: 'Нөхөж бичих',
+      component: Filler,
+      // type: 'text', // filler gedeg typetai bolno
+      description: 'Өгүүлбэр дунд хариулт нөхөж оруулах боломжтой',
+      icon: HiOutlineDotsHorizontal,
+      input_type: 'filler', // default type
+   },
 };
+
+const errorText = 'Зөв хариултаа сонгоно уу!';
 
 type TSelectProps = { current: TKeys; label: string; disabled?: boolean; idKey?: string; onChange?: (name: string) => void };
 
@@ -110,15 +124,23 @@ const GroupAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
 export default GroupAction;
 // eslint-disable-next-line react-refresh/only-export-components
-export const InitialAnswer: TAnswers = { answer: '', is_correct: false, mark: 0 }; //sort_number: 0,
+export const InitialAnswer: TAnswers = { answer: '', is_correct: false, mark: 0, sort_number: 0 }; //sort_number: 0,
 
 const inititalState = { question: '', sort_number: 0, score: 0, category_id: '', sub_category_id: '', answers: [], sub_questions: [] };
+
+const InitialonCreate = ({ type }: { type: TQuestion }) => {
+   return {
+      type: type,
+      answers: type === 'checkbox' ? [InitialAnswer, { ...InitialAnswer, sort_number: 1 }] : [],
+      sub_questions: [],
+      input_type: questionAsset[type as TQuestion]?.input_type,
+   };
+};
 
 const ActionWrapper = ({ type }: { type: TQuestion }) => {
    const { typeid } = useParams();
    const [subType, setSubType] = useState<{ type: TQuestion; index: number }>({ type: 'checkbox', index: 0 });
    const [action, setAction] = useState<TAction<TQuestionTypes>>({ isOpen: false, type: 'add', data: {} as TQuestionTypes });
-   const [showError, setShowError] = useState(false);
    const navigate = useNavigate();
    const {
       control,
@@ -126,6 +148,8 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
       watch,
       setValue,
       reset,
+      setError,
+      clearErrors,
       formState: { isDirty },
    } = useForm<TQuestionTypes>({
       defaultValues: inititalState, //answers: InitialAnswer
@@ -148,11 +172,19 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
 
    useEffect(() => {
       if (typeid === 'create') {
-         reset({ type: type, answers: [InitialAnswer, InitialAnswer], sub_questions: [], input_type: questionAsset[type as TQuestion]?.input_type });
+         // reset({ type: type, answers: type === 'checkbox' ? [InitialAnswer, InitialAnswer] : [], sub_questions: [], input_type: questionAsset[type as TQuestion]?.input_type });
+         reset({ ...InitialonCreate({ type }) });
          return;
       }
 
-      reset(data?.data);
+      // end sort hiine, bas subtotal iig hasaj score oo gargaj avj baigaa
+
+      if (data?.data) {
+         const subTotal = data?.data?.sub_questions?.reduce((a, b) => a + b.score, 0) ?? 0;
+         const mainScore = data?.data?.score - subTotal;
+         reset({ ...data?.data, score: mainScore, answers: data?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number) });
+      }
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [typeid, isFetchedAfterMount, isFetched]);
 
@@ -170,9 +202,13 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
    });
 
    const onSubmit = (data: TQuestionTypes) => {
-      if (!watch()?.answers?.some((item) => item.is_correct)) {
-         setShowError(true);
-         return;
+      if (type === 'checkbox') {
+         if (!watch()?.answers?.some((item) => item.is_correct)) {
+            toast.error(errorText);
+            setError('answers.0.is_correct', { message: errorText });
+            setError('answers.1.is_correct', { message: errorText });
+            return;
+         }
       }
 
       const subTotal = watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0;
@@ -217,36 +253,41 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
                <CategorySelect control={control} disabled={!watch()?.category_id} idKey={watch()?.category_id} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
                <div className="h-[1.34rem] w-0.5 bg-primary/40 absolute top-full left-10" />
             </div>
-
-            <div className="grid gap-5 grid-cols-[1fr_260px]">
-               {Component && <Component control={control} watch={watch} setValue={setValue} {...{ setShowError, showError }} />}
-               <div>
-                  <div className="flex justify-center mb-4 w-full">
-                     <SelectQuestionType rowAction={(item) => rowAction(item as TQuestion, 'add', undefined, fields.length)}>
-                        <Button type="button" variant="outline" size="lg" className={cn('flex items-center relative rounded-full py-5 shadow-sm w-full')}>
-                           <MdOutlineAdd className="text-base" /> Нэмэлт асуулт нэмэх
-                        </Button>
-                     </SelectQuestionType>
-                  </div>
-                  {fields.length > 0 && (
-                     <div className="wrapper relative">
-                        <div className="p-3 px-4 border-b text-muted-text font-medium">Нэмэлт асуултууд</div>
-                        {fields.map((item, index) => {
-                           return (
-                              <div key={item.id} className="group/items p-3 px-4 hover:bg-primary/10 cursor-pointer relative grid grid-cols-[18px_1fr] gap-1">
-                                 <div>{index + 1}.</div>
-                                 <div className="one_line">{item.question}</div>
-                                 <ActionButtons editTrigger={() => rowAction(item.type, 'edit', item, index)} deleteTrigger={() => rowAction(item.type, 'delete', item, index)} />
-                              </div>
-                           );
-                        })}
-
-                        <div className="h-0.5 w-[1.34rem] bg-primary/40 absolute right-full top-6" />
-                     </div>
-                  )}
-               </div>
-            </div>
          </form>
+
+         <div className="grid gap-5 grid-cols-[1fr_300px]">
+            {Component && <Component {...{ clearErrors, setValue, watch, control }} />}
+            <div>
+               <div className="flex justify-center mb-4 w-full">
+                  <SelectQuestionType rowAction={(item) => rowAction(item as TQuestion, 'add', undefined, fields.length)}>
+                     <Button type="button" variant="outline" size="lg" className={cn('flex items-center relative rounded-full py-5 shadow-sm w-full')}>
+                        <MdOutlineAdd className="text-base" /> Нэмэлт асуулт нэмэх
+                     </Button>
+                  </SelectQuestionType>
+               </div>
+               {fields.length > 0 && (
+                  <div className="wrapper relative">
+                     <div className="p-3 px-4 border-b text-muted-text font-medium">Нэмэлт асуултууд</div>
+                     {fields.map((item, index) => {
+                        const Icon = questionAsset[item.type as TQuestion]?.icon;
+                        return (
+                           <div key={item.id} className="group/items text-xs2 p-3 px-4 hover:bg-primary/10 cursor-pointer relative grid items-center grid-cols-[auto_auto_1fr_auto] gap-2">
+                              {<Icon className="text text-primary" />}
+                              <div className="text-muted-text">{index + 1}.</div>
+                              <div className="one_line" onClick={() => rowAction(item.type, 'edit', item, index)}>
+                                 {item.question}
+                              </div>
+                              <div className="text-primary font-medium">{item.score}</div>
+                              <ActionButtons editTrigger={() => rowAction(item.type, 'edit', item, index)} deleteTrigger={() => rowAction(item.type, 'delete', item, index)} />
+                           </div>
+                        );
+                     })}
+
+                     <div className="h-0.5 w-[1.34rem] bg-primary/40 absolute right-full top-6" />
+                  </div>
+               )}
+            </div>
+         </div>
          <Dialog
             className={cn('pt-0', action.type === 'delete' ? 'w-[600px]' : 'w-[800px]')}
             isOpen={action.isOpen}
@@ -270,14 +311,13 @@ type TSubWrapperProps = {
 } & TActionProps<TQuestionTypes>;
 
 const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }: TSubWrapperProps) => {
-   const [showError, setShowError] = useState(false);
-   const { control, handleSubmit, watch, setValue, reset } = useForm<TQuestionTypes>({
+   const { control, handleSubmit, watch, setValue, reset, clearErrors, setError } = useForm<TQuestionTypes>({
       defaultValues: inititalState, //answers: InitialAnswer
    });
 
    useEffect(() => {
       if (action.type === 'add') {
-         reset({ type: type, answers: [InitialAnswer, InitialAnswer], sub_questions: [], input_type: questionAsset[type as TQuestion]?.input_type });
+         reset({ ...InitialonCreate({ type }) });
          return;
       }
 
@@ -289,12 +329,13 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
    const onSubmit = (data: TQuestionTypes) => {
       if (type === 'checkbox') {
          if (!watch()?.answers?.some((item) => item.is_correct)) {
-            setShowError(true);
+            toast.error(errorText);
+            setError('answers.0.is_correct', { message: errorText });
+            setError('answers.1.is_correct', { message: errorText });
             return;
          }
       }
 
-      // delete data.sub_questions;
       // daraa total_score - iig ni avj hay backend ees
       const finalData = { ...data, total_score: 0, sort_number: indexKey, answers: data.answers.map((el, index) => ({ ...el, sort_number: index })) };
 
@@ -317,7 +358,7 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
 
    return (
       <form onSubmit={handleSubmit(onSubmit)} className="mb-4">
-         <Component idPrefix="sub_questions" control={control} watch={watch} setValue={setValue} {...{ setShowError, showError }} />
+         <Component idPrefix="sub_questions" {...{ clearErrors, setValue, watch, control }} />
          <div className="flex justify-end py-4">
             <Button type="submit">
                <BsSave className="text-sm mr-1" />

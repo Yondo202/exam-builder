@@ -1,18 +1,23 @@
-import { useState } from 'react';
+// import { useState } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import './CkEditor.css';
 import CustomEditor from 'ckeditor5-custom-build';
 
-const CkEditorComponent = () => {
-   const [value, setValue] = useState('');
+type TCkEditor = {
+   value: string;
+   setValue: (value: string) => void;
+};
+
+const CkEditorComponent = ({ value, setValue }: TCkEditor) => {
+   // const [value, setValue] = useState('');
+   
    return (
       // <Suspense fallback={<Loading load={true} />}>
       <div className="ckeditor">
          <CKEditor
-            
             editor={CustomEditor}
             data={value}
-            config={{  }}
+            config={{}}
             // onReady={(editor) => {
             //    console.log(editor, "============>")
             //    // editor.ui.view.editable.element.style.minHeight = '500px';

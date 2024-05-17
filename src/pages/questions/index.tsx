@@ -11,25 +11,36 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { questionAsset } from './Action';
 import { useState } from 'react';
 
-export type TQuestion = 'text' | 'checkbox'; // filler
-// richtext                                 filler_with_choice
-// export type TInputType = 'multi_select' | 'select' | 'text' | 'text_long' | 'text_format' | 'filler' | 'filler_select';
-export type TInputType = 'multi_select' | 'select' | 'text' | 'richtext' | 'text_format' | 'filler' | 'filler_with_choice';
-// | 'drag_drop' | 'multi_drag_drop';
+export type TQuestion = 'text' | 'checkbox' | 'fill';
+export type TInputType = 'multi_select' | 'select' | 'text' | 'richtext' | 'essay' | 'filler' | 'filler_with_choice';
+
+export const fillerInputTypes = {
+   question: {
+      label: 'Асуулт',
+   },
+   answer: {
+      label: 'Хариулт',
+   },
+};
 
 export type TInputTypeTab = {
    label: string;
    key: TInputType;
 };
 
+// only use on fill type
+type TFillAnswer = {
+   fill_index?: number;
+   temp_type?: keyof typeof fillerInputTypes;
+};
+
 export type TAnswers = {
    answer: string;
    is_correct: boolean;
-   sub_question_id?: string;
-   // sort_number: number;
-
+   // sub_question_id?: string;
+   sort_number: number;
    mark: number; // zowhon multi select tei ued
-};
+} & TFillAnswer
 
 export type AllTypesQuestionTypes = {
    id: string;
@@ -100,7 +111,7 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                </SelectQuestionType>
             }
          />
-         
+
          <DataTable
             data={data?.data ?? []}
             columns={columnDef}
@@ -163,14 +174,33 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
       // size:500,
    },
    {
+      header: 'Нийт оноо',
+      accessorKey: 'score',
+      size: 100,
+      cell: ({ row }) => <Badge variant="outline">{row.original?.score}</Badge>,
+   },
+   {
       header: 'Үүсгэсэн огноо',
       accessorKey: 'created_at',
-      cell: ({ row }) => row.original?.created_at?.slice(0, 16).replace('T', ' '),
+      cell: ({ row }) => row.original?.created_at?.slice(0, 10).replace('T', ' '),
+   },
+   {
+      header: 'Өөрчилсөн огноо',
+      accessorKey: 'updated_at',
+      cell: ({ row }) => row.original?.created_at?.slice(0, 10).replace('T', ' '),
    },
    {
       header: 'Төрөл',
       accessorKey: 'type',
-      cell: ({ row }) => (row.original?.type === 'checkbox' ? <Badge variant="secondary">Сонголттой</Badge> : <Badge variant="secondary">Бичгээр</Badge>),
+      cell: ({ row }) => {
+         const Icon = questionAsset[row.original?.type as TQuestion]?.icon;
+         // return row.original?.type === 'checkbox' ? <Badge variant="secondary">Сонголттой</Badge> : <Badge variant="secondary">Бичгээр</Badge>
+         return (
+            <Badge variant="secondary" className="text-xs flex items-center gap-1.5 w-fit">
+               {Icon && <Icon className="text-md" />} {questionAsset[row.original?.type as TQuestion]?.label}{' '}
+            </Badge>
+         );
+      },
    },
 
    // {

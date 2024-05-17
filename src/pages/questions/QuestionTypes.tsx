@@ -1,22 +1,22 @@
-import { TextInput, Textarea, Button, Checkbox, Label, CkEditor, Header, AnimatedTabs, Drawer, Sortable, SortableDragHandle, SortableItem, Skeleton } from '@/components/custom';
-import { useForm, useFieldArray, Controller, type FieldArrayWithId, type UseFieldArrayAppend } from 'react-hook-form';
+import { TextInput, Textarea, Button, Checkbox, Label, CkEditor, AnimatedTabs, Drawer, Sortable, SortableDragHandle, SortableItem, Skeleton, DeleteContent } from '@/components/custom';
+import { useForm, useFieldArray, Controller, type FieldArrayWithId, type UseFieldArrayAppend, type UseFormWatch, type Control, type UseFieldArrayUpdate } from 'react-hook-form';
 import { IoCloseOutline } from 'react-icons/io5';
 import { MdOutlineAdd } from 'react-icons/md';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 import { useEffect, useState } from 'react';
-import { IoWarningOutline } from 'react-icons/io5';
+// import { IoWarningOutline } from 'react-icons/io5';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { GoDotFill } from 'react-icons/go';
-import { type TQuestionTypes, type TInputTypeTab, type TInputType } from '.';
+import { type TQuestionTypes, type TInputTypeTab, type TInputType, fillerInputTypes, type TAnswers } from '.';
 import { cn } from '@/lib/utils';
 import { BsChatSquareText } from 'react-icons/bs';
-import { CategorySelect, type TObjectPettern, type TQTypesProps, InitialAnswer } from './Action';
+import { type TObjectPettern, type TQTypesProps, InitialAnswer } from './Action';
 import { BsPencil } from 'react-icons/bs';
 import { GoTrash } from 'react-icons/go';
 import { PiDotsSixVerticalBold } from 'react-icons/pi';
 import TotolUi from './components/TotolUi';
-
+import { type TAction, type TActionProps } from '@/lib/sharedTypes'; //type TActionProps
 // type TQTypesInBackEnd = 'radio' | 'checkbox' | 'text';
 
 const SelectTypes: TInputTypeTab[] = [
@@ -24,7 +24,37 @@ const SelectTypes: TInputTypeTab[] = [
    { label: 'Олон зөв хариулттай', key: 'multi_select' },
 ];
 
-export const WithSelect = ({ control, watch, setValue, setShowError, showError, idPrefix }: TQTypesProps) => {
+type TScoreInputProps = {
+   idPrefix?: string;
+   isLine?: boolean;
+   className?: string;
+   control: Control<TQuestionTypes>;
+   // control: TControllerProps['control'];
+   watch?: UseFormWatch<TQuestionTypes>;
+};
+
+const ScoreInput = ({ control, idPrefix, watch, isLine = false, className }: TScoreInputProps) => {
+   return (
+      <div className={cn('', className)}>
+         <TextInput
+            floatLabel={isLine}
+            className="w-64 mb-0"
+            name="score"
+            disabled={watch?.('input_type') === 'multi_select'}
+            control={control}
+            // beforeAddon={<GoDotFill className="text-xs" />}
+            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+            label="Асуултанд авах оноо"
+            placeholder="Оноо оруулах"
+            type="number"
+            idPrefix={idPrefix}
+         />
+         <TotolUi isLine={isLine} mainCount={watch?.()?.score ?? 0} additionalCount={watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0} />
+      </div>
+   );
+};
+
+export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: TQTypesProps) => {
    const { fields, append, remove, move } = useFieldArray({ control, name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
 
    useEffect(() => {
@@ -43,7 +73,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
    // const TotalValue;
 
    return (
-      <div className={cn('wrapper p-7 pt-0 mb-4 relative', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``, showError ? `border-danger-color` : ``)}>
+      <div className={cn('wrapper p-7 pt-0 mb-4 relative', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``)}>
          <Controller
             control={control}
             name="input_type"
@@ -78,22 +108,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                rules={{ required: 'Асуулт оруулах' }}
                idPrefix={idPrefix}
             />
-            <div>
-               <TextInput
-                  floatLabel={false}
-                  className="w-64 mb-0"
-                  name="score"
-                  disabled={watch?.('input_type') === 'multi_select'}
-                  control={control}
-                  // beforeAddon={<GoDotFill className="text-xs" />}
-                  rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
-                  label="Асуултанд авах оноо"
-                  placeholder="Оноо оруулах"
-                  type="number"
-                  idPrefix={idPrefix}
-               />
-               <TotolUi mainCount={watch?.()?.score ?? 0} additionalCount={watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0} />
-            </div>
+            <ScoreInput {...{ watch, control, idPrefix }} />
          </div>
          {/* <div className={cn('grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6', watch?.()?.input_type === 'multi_select' && 'grid-cols-[1fr]')}> */}
          <Sortable
@@ -112,10 +127,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                {fields?.map((item, index) => {
                   return (
                      <SortableItem key={item.id} value={item.id} asChild>
-                        <div
-                           key={item.id}
-                           className={cn('grid grid-cols-[auto_1fr_auto] items-center gap-3', watch?.()?.input_type === 'multi_select' && `grid-cols-[auto_1fr_auto_auto] gap-6`)}
-                        >
+                        <div key={item.id} className={cn('grid grid-cols-[auto_1fr_auto] items-center gap-3', watch?.()?.input_type === 'multi_select' && `grid-cols-[auto_1fr_auto_auto]`)}>
                            <SortableDragHandle variant="ghost" size="icon" className="size-8 shrink-0">
                               <PiDotsSixVerticalBold className="text-lg text-muted-text" aria-hidden="true" />
                            </SortableDragHandle>
@@ -134,15 +146,19 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                               <Controller
                                  control={control}
                                  name={`answers.${index}.is_correct` as const}
-                                 render={({ field }) => {
+                                 render={({ field, fieldState }) => {
                                     return (
                                        <div className="flex items-center gap-3 px-4 absolute right-[1px] top-[1px] bottom-[1px] w-36 rounded-md bg-card-bg">
                                           <Checkbox
                                              name={field.name}
                                              id={`${idPrefix ?? ''}${field.name}`}
                                              checked={field.value}
+                                             className={fieldState.error ? 'border-danger-color' : ''}
                                              onCheckedChange={(event) => {
-                                                event ? setShowError(false) : null;
+                                                if (event) {
+                                                   clearErrors?.('answers.0.is_correct');
+                                                   clearErrors?.('answers.1.is_correct');
+                                                }
                                                 const newValue = watch?.()?.answers.map((element, ind) =>
                                                    ind === index
                                                       ? { ...element, mark: event ? element.mark : 0, is_correct: event ? true : false }
@@ -153,7 +169,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                                                 setValue('answers', newValue ?? []);
                                              }}
                                           />
-                                          <Label htmlFor={`${idPrefix ?? ''}${field.name}`} className="m-0">
+                                          <Label htmlFor={`${idPrefix ?? ''}${field.name}`} className={cn('m-0', fieldState.error ? `text-danger-color` : ``)}>
                                              Зөв хариулт
                                           </Label>
                                        </div>
@@ -202,7 +218,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
             </Button>
          </div>
 
-         {showError && (
+         {/* {showError && (
             <div className="text-danger-color flex items-center gap-2 absolute right-4 -top-3 bg-card-bg px-4 py-1 rounded-md">
                <div className="relative">
                   <IoWarningOutline className="text-sm" />
@@ -210,7 +226,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
                </div>
                Зөв хариултаа сонгоно уу!
             </div>
-         )}
+         )} */}
       </div>
    );
 };
@@ -218,7 +234,7 @@ export const WithSelect = ({ control, watch, setValue, setShowError, showError, 
 const SelectInputTypes: TInputTypeTab[] = [
    { label: 'Богино хариулттай', key: 'text' },
    { label: 'Урт хариулттай', key: 'richtext' },
-   { label: 'Дүрс зурагтай - асуулт / хариулт', key: 'text_format' },
+   { label: 'Дүрс зурагтай - асуулт / хариулт', key: 'essay' },
 ];
 
 export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
@@ -241,21 +257,10 @@ export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
                );
             }}
          />
-         <TextInput
-            // floatLabel={false}
-            className="w-72 mb-5"
-            name="score"
-            disabled={watch?.()?.input_type === 'multi_select'}
-            control={control}
-            beforeAddon={<GoDotFill className="text-xs" />}
-            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Хамгийн багадаа 1 оноо оруулах боломжтой', value: 1 } }}
-            label="Асуултанд авах оноо"
-            placeholder="Оноо оруулах"
-            type="number"
-            idPrefix={idPrefix}
-         />
 
-         {watch?.()?.input_type === 'text_format' ? (
+         <ScoreInput {...{ watch, control, idPrefix }} className="flex items-center gap-0 mb-8" isLine />
+
+         {watch?.()?.input_type === 'essay' ? (
             <>
                <Controller
                   control={control}
@@ -267,7 +272,7 @@ export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
                            <Label htmlFor={field.name}>
                               Асуулт оруулах <span className="text-danger-color">*</span>
                            </Label>
-                           <CkEditor />
+                           <CkEditor value={field.value} setValue={(val) => field.onChange(val)} />
                            <ErrorMessage error={fieldState?.error} />
                         </>
                      );
@@ -289,47 +294,17 @@ export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
    );
 };
 
-const fillerInputTypes = {
-   question: {
-      label: 'Асуулт',
-   },
-   answer: {
-      label: 'Хариулт',
-   },
-};
-
 type fillerTypeEnum = keyof typeof fillerInputTypes;
 
-type TQuestionLine = {
-   value: string;
-   type: fillerTypeEnum;
-};
-
-const fillerList: TQuestionLine = {
-   value: 'Асууулт 123',
-   type: 'question',
-};
+// type TQuestionLine = {
+//    value: string;
+//    type: fillerTypeEnum;
+// };
 
 const fillerTabItem: TInputTypeTab[] = [
    { label: 'Хариулт харагдахгүй', key: 'filler' },
    { label: 'Хариултын сонголт харагдана', key: 'filler_with_choice' },
 ];
-
-// const temp = [
-//    {
-//       is_answer: false,
-//       text: 'Asuult 123'
-//    },
-//    null,
-//    {
-//       is_answer: false,
-//       text: 'Asuult'
-//    }
-//    // {
-//    //    is_answer: true,
-//    //    text: 'Hariult 1123'
-//    // }
-// ]
 
 type TQuestionTypesInFront = { [Key in fillerTypeEnum]: Pick<TObjectPettern, 'label' | 'description' | 'icon'> };
 
@@ -346,67 +321,42 @@ const questionAsset: TQuestionTypesInFront = {
    },
 };
 
-export const Filler = ({ title }: { title: string }) => {
-   const [qAction, setQAction] = useState<{ isOpen: boolean; type: fillerTypeEnum }>({ isOpen: false, type: 'answer' });
+// export const Filler = ({ idPrefix }: { title: string }) => {
+export const Filler = ({ control, watch, idPrefix }: TQTypesProps) => {
+   const [action, setAction] = useState<TAction<TAnswers>>({ isOpen: false, type: 'add', data: {} as TAnswers });
+   const [subType, setSubType] = useState<{ temp_type: fillerTypeEnum; index: number }>({ temp_type: 'answer', index: 0 });
+   const { fields, append, remove, update } = useFieldArray({ control, name: 'answers' });
 
-   const { control, watch } = useForm<Omit<TQuestionTypes, 'questionLine'> & { questionLine: TQuestionLine[] }>({
-      defaultValues: { question: '', input_type: 'filler', score: 0, questionLine: [fillerList, fillerList, { type: 'answer', value: 'hariult123123123' }, fillerList] },
-   });
+   const setClose = () => {
+      setAction((prev) => ({ ...prev, isOpen: false }));
+   };
 
-   const { fields, append, remove } = useFieldArray({ control, name: 'questionLine' });
+   const rowAction = (temp_type: fillerTypeEnum, type: TAction<TAnswers>['type'], data?: TAction<TAnswers>['data'], index?: number) => {
+      setSubType({ temp_type: temp_type, index: index ?? 0 });
+      setAction({ isOpen: true, type: type, data: data });
+   };
 
-   // console.log(fields, '------->field');
    return (
       <>
-         <Header
-            title={title}
-            // action={
-            //    <Button isLoading={isPending} type="submit">
-            //       <BsSave className="text-sm mr-1" />
-            //       Хадгалах
-            //    </Button>
-            // }
-         />
-         <div className="wrapper p-7 mb-5">
-            <div className="flex gap-10 mb-5">
-               <CategorySelect control={control} name="category_id" current="main_category" label="Үндсэн ангилал" />
-               <CategorySelect control={control} disabled={!watch()?.category_id} idKey={watch()?.category_id} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
-            </div>
-         </div>
+         <div className={cn('wrapper p-7 pt-0 mb-5', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``)}>
+            <Controller
+               control={control}
+               name="input_type"
+               render={({ field }) => {
+                  return (
+                     <AnimatedTabs
+                        className="mb-8 text-xs"
+                        items={fillerTabItem}
+                        activeKey={field.value}
+                        onChange={(value) => {
+                           field.onChange(value as TInputType);
+                        }}
+                     />
+                  );
+               }}
+            />
 
-         <div className="wrapper p-7 mb-5">
-            <div className="pb-12 flex justify-between items-end">
-               <Controller
-                  control={control}
-                  name="input_type"
-                  render={({ field }) => {
-                     return (
-                        <AnimatedTabs
-                           className="mb-0 text-xs"
-                           items={fillerTabItem}
-                           activeKey={field.value}
-                           onChange={(value) => {
-                              field.onChange(value as TInputType);
-                           }}
-                        />
-                     );
-                  }}
-               />
-               <TextInput
-                  // floatLabel={false}
-                  className="w-72 mb-0"
-                  name="score"
-                  disabled={true}
-                  control={control}
-                  beforeAddon={<GoDotFill className="text-xs" />}
-                  rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Хамгийн багадаа 1 оноо оруулах боломжтой', value: 1 } }}
-                  label="Асуултанд авах оноо"
-                  placeholder="Оноо оруулах"
-                  type="number"
-               />
-            </div>
-            {/* <div className="p-7 py-3 border-b">Асуулт оруулах</div> */}
-            {/* <TextInput floatLabel={false} className="w-72 mb-5" name="score" control={control} label="Асуултын оноо" placeholder="Оноо оруулах" type="number" /> */}
+            <ScoreInput {...{ watch, control, idPrefix }} className="flex items-center gap-0 mb-8" isLine />
 
             <div className="flex gap-y-2 items-center flex-wrap">
                <div className="group flex gap-x-2 gap-y-2 items-center flex-wrap">
@@ -416,17 +366,30 @@ export const Filler = ({ title }: { title: string }) => {
                            key={item.id}
                            className={cn(
                               'relative group/items bg-card-bg group-hover:opacity-40 border cursor-pointer rounded-md leading-[2.3rem] border-transparent group-hover:hover:opacity-100 group-hover:hover:border-primary/20  max-w-full transition-all duration-500 py-1 px-2 ', //group-hover:hover:px-3
-                              item.type === 'answer' ? `text-primary` : ``
+                              item.temp_type === 'answer' ? `text-primary` : ``
                               // item.value?.length > 50 ? `group-hover:hover:scale-120` : `group-hover:hover:scale-200`
                            )}
                         >
-                           <div className="text-pretty">{item.value}</div>
+                           <div className="text-pretty">{item.answer}</div>
+
                            {/* daraa ActionButtons component iig ashigla */}
                            <div className="flex cursor-default items-center gap-2 absolute w-full -top-10 translate-y-1/2 -left-2 opacity-0 scale-0 transition-all duration-200 group-hover/items:opacity-100 group-hover/items:scale-100">
-                              <Button variant="outline" className="rounded-full h-7 w-7 min-w-7" size="icon">
+                              <Button
+                                 onClick={() => rowAction(item.temp_type as fillerTypeEnum, 'edit', item, index)}
+                                 variant="outline"
+                                 className="rounded-full h-7 w-7 min-w-7"
+                                 size="icon"
+                                 type="button"
+                              >
                                  <BsPencil className="text-xs2" />
                               </Button>
-                              <Button onClick={() => remove(index)} variant="outline" className="rounded-full h-8 w-8 min-w-7" size="icon">
+                              <Button
+                                 onClick={() => rowAction(item.temp_type as fillerTypeEnum, 'delete', item, index)}
+                                 variant="outline"
+                                 className="rounded-full h-8 w-8 min-w-7"
+                                 size="icon"
+                                 type="button"
+                              >
                                  <GoTrash className="text-sm" />
                               </Button>
                            </div>
@@ -437,7 +400,7 @@ export const Filler = ({ title }: { title: string }) => {
 
                <Popover>
                   <PopoverTrigger asChild>
-                     <Button className="rounded-full ml-2 bg-primary/10" variant="outline" size="icon">
+                     <Button className="rounded-full ml-2 bg-primary/10" variant="outline" size="icon" type="button">
                         <MdOutlineAdd className="text-lg" />
                      </Button>
                   </PopoverTrigger>
@@ -447,7 +410,8 @@ export const Filler = ({ title }: { title: string }) => {
                         const Icon = questionAsset[item as fillerTypeEnum]?.icon;
                         return (
                            <div
-                              onClick={() => setQAction({ isOpen: true, type: item as fillerTypeEnum })}
+                              // onClick={() => setQAction({ isOpen: true, type: item as fillerTypeEnum })}
+                              onClick={() => rowAction(item as fillerTypeEnum, 'add', undefined, fields.length)}
                               className="group p-4 hover:bg-primary/5 rounded-md cursor-pointer grid grid-cols-[auto_1fr] gap-4 border border-primary/20"
                               key={index}
                            >
@@ -465,70 +429,88 @@ export const Filler = ({ title }: { title: string }) => {
             </div>
 
             <Drawer
-               open={qAction.isOpen}
-               onOpenChange={(event) => setQAction((prev) => ({ ...prev, isOpen: event }))}
-               title={questionAsset[qAction.type]?.label}
+               open={action.isOpen}
+               onOpenChange={(event) => setAction((prev) => ({ ...prev, isOpen: event }))}
+               title={questionAsset[subType.temp_type]?.label}
                content={
                   <FillerAnserAction
-                     onClose={() => setQAction({ isOpen: false, type: 'answer' })}
-                     label={`${questionAsset[qAction.type]?.label} оруулах`}
-                     type={qAction.type}
-                     {...{ append, fields }}
+                     // onClose={() => setQAction({ isOpen: false, type: 'answer' })}
+                     label={`${questionAsset[subType.temp_type]?.label} оруулах`}
+                     temp_type={subType.temp_type}
+                     {...{ append, fields, setClose, action, update }}
+                     remove={() => remove(subType.index)}
+                     indexKey={subType.index}
                   />
                }
                className={`py-2 max-w-2xl`}
             />
-
-            {/* <CkEditor /> */}
          </div>
       </>
    );
 };
 
-type TFillerAction = {
-   label: string;
-   fields: FieldArrayWithId<
-      Omit<TQuestionTypes, 'questionLine'> & {
-         questionLine: TQuestionLine[];
-      },
-      'questionLine',
-      'id'
-   >[];
-   append: UseFieldArrayAppend<
-      Omit<TQuestionTypes, 'questionLine'> & {
-         questionLine: TQuestionLine[];
-      },
-      'questionLine'
-   >;
-   type: fillerTypeEnum;
-   onClose: () => void;
-};
+export type TFillerActionProps = {
+   // type: TQuestion;
+   append: UseFieldArrayAppend<TQuestionTypes, 'answers'>;
+   remove: () => void;
+   update: UseFieldArrayUpdate<TQuestionTypes, 'answers'>;
+   indexKey: number;
 
-const FillerAnserAction = ({ label, append, fields, type, onClose }: TFillerAction) => {
-   const { control, handleSubmit } = useForm({
-      defaultValues: { value: '', type: type },
+   fields: FieldArrayWithId<TQuestionTypes, 'answers', 'id'>[];
+   label: string;
+   temp_type: fillerTypeEnum;
+} & TActionProps<TAnswers>;
+
+const FillerAnserAction = ({ temp_type, action, setClose, append, remove, update, indexKey, fields, label }: TFillerActionProps) => {
+   const { control, handleSubmit, reset } = useForm<TAnswers>({
+      defaultValues: { answer: '', temp_type: temp_type },
    });
 
-   const onSubmit = (data: { value: string }) => {
-      append({ value: data.value, type: type });
-      onClose?.();
+   useEffect(() => {
+      // if (action.type === 'add') {
+      //    reset({ ...InitialonCreate({ type }) });
+      //    return;
+      // }
+
+      if (action.type !== 'add') {
+         reset(action.data);
+      }
+   }, [action.type, action.isOpen]);
+
+   const onSubmit = (data: TAnswers) => {
+      if (action.type === 'add') {
+         append(data);
+      }
+
+      if (action.type === 'edit') {
+         update(indexKey, data);
+      }
+
+      setClose?.({});
    };
 
+   if (action.type === 'delete') {
+      return <DeleteContent setClose={setClose} submitAction={() => (remove(), setClose?.({}))} />;
+   }
+
+   // edit deer active input iig haruulj medegd bas hooson ued haruul
    return (
-      <form onSubmit={handleSubmit(onSubmit)} className="py-6">
+      <form onSubmit={handleSubmit(onSubmit)} id="form-id" className="py-6">
          <div className="py-6 flex items-center gap-2 flex-wrap">
             {fields.map((item) => {
                return (
                   <div className="opacity-50" key={item.id}>
-                     {item.value}
+                     {item.answer}
                   </div>
                );
             })}
-            <TextInput floatLabel={false} className="w-72" placeholder={label} control={control} name="value" rules={{ required: label }} autoFocus />
+            <TextInput floatLabel={false} className="w-72" placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />
          </div>
 
          <div className="flex mt-7 justify-end">
-            <Button className="ml-auto">Хадгалах</Button>
+            <Button form="form-id" className="ml-auto" type="submit">
+               Хадгалах
+            </Button>
          </div>
       </form>
    );

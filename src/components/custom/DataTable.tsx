@@ -51,7 +51,10 @@ const colSize = 180.666; // ene value auto oor avagdaj baigaa bolohoor .666 gej 
 
 export default function DataTable<T extends object>({ columns, data = [], isLoading, rowAction, headAction, hideAction, defaultPageSize = defaultSize }: DataTableProps<T>) {
    const [globalFilter, setGlobalFilter] = React.useState('');
-   const [sorting, setSorting] = React.useState<SortingState>([]);
+   const [sorting, setSorting] = React.useState<SortingState>([ {
+      id: 'updated_at',
+      desc: true,
+   }]);
    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
    const [rowSelection, setRowSelection] = React.useState({});
@@ -83,7 +86,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                const action = { data: row.original, isOpen: true };
                return (
                   <div className="relative">
-                     <ActionButtons className='right-3' deleteTrigger={() => rowAction?.({ type: 'delete', ...action })} editTrigger={() => rowAction?.({ type: 'edit', ...action })} />
+                     <ActionButtons className="right-3" deleteTrigger={() => rowAction?.({ type: 'delete', ...action })} editTrigger={() => rowAction?.({ type: 'edit', ...action })} />
                   </div>
                );
             },
@@ -115,6 +118,12 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
             pageIndex: 0,
             pageSize: defaultPageSize,
          },
+         // sorting: [
+         //    {
+         //       id: 'updated_at',
+         //       desc: true,
+         //    },
+         // ],
       },
       defaultColumn: {
          size: colSize, //starting column size
@@ -233,7 +242,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                                     onClick={() => (cell.column.id !== 'actions' ? rowAction?.({ type: 'edit', data: row.original, isOpen: true }) : null)}
                                     // style={size !== colSize ? { width: size, maxWidth: size } : {}}
                                     style={{ width: size, maxWidth: size }}
-                                    className={`one_line ${cell.column.id === 'actions' ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-primary/5` : ``}`}
+                                    className={`one_line ${cell.column.id === 'actions' ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-hover-bg/30` : ``}`}
                                  >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                  </TableCell>
