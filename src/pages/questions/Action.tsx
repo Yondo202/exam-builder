@@ -1,10 +1,12 @@
-import { BreadCrumb, SelectInput, Header, Button, UsePrompt, Dialog, DeleteContent, Skeleton } from '@/components/custom';
+import { BreadCrumb, SelectInput, Header, Button, UsePrompt, Dialog, DeleteContent, Skeleton, TextInput } from '@/components/custom';
 import { useEffect, useMemo, useState } from 'react';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { useGetCategories, type TKeys } from '../category';
+// import { FillConverter } from './components/utils';
+import { FillerSubmit, FillerSetConvert } from './question-types/Filler';
 import {
    type FieldValues,
    useForm,
@@ -19,14 +21,17 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { TControllerProps, type TAction, type TActionProps } from '@/lib/sharedTypes'; //type TActionProps
 // import { TControllerProps } from '@/lib/sharedTypes';
-import { WithSelect, OpenQuestion, Filler } from './QuestionTypes'; // Filler -- daraa nemchine
+import { WithSelect, OpenQuestion, Filler } from './question-types'; // Filler -- daraa nemchine
 import { type TQuestion, type TQuestionTypes, type TAnswers, type TInputType, SelectQuestionType, type AllTypesQuestionTypes } from '.';
 import { IconType } from 'react-icons/lib';
-import { GoCheckCircle } from 'react-icons/go';
+import { GoCheckCircle, GoBook } from 'react-icons/go';
 import { BsSave } from 'react-icons/bs';
-import { IoTextOutline } from 'react-icons/io5';
+// import { IoTextOutline } from 'react-icons/io5';
 import { request } from '@/lib/core/request';
-import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+// import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+// import { PiChatCenteredDotsLight } from "react-icons/pi";
+import { TbMessageCircleQuestion } from 'react-icons/tb';
+import TotolUi, { ScoreValue } from './components/TotolUi';
 import { cn } from '@/lib/utils';
 import ActionButtons from '@/components/ActionButtons';
 
@@ -76,7 +81,7 @@ export const questionAsset: TQuestionTypesInFront = {
       component: OpenQuestion,
       // type: 'text',
       description: 'Энгийн болон Эссэ бичих боломжтой',
-      icon: IoTextOutline,
+      icon: GoBook,
       input_type: 'text', // default type
    },
    fill: {
@@ -84,8 +89,8 @@ export const questionAsset: TQuestionTypesInFront = {
       component: Filler,
       // type: 'text', // filler gedeg typetai bolno
       description: 'Өгүүлбэр дунд хариулт нөхөж оруулах боломжтой',
-      icon: HiOutlineDotsHorizontal,
-      input_type: 'filler', // default type
+      icon: TbMessageCircleQuestion,
+      input_type: 'fill', // default type
    },
 };
 
@@ -130,8 +135,13 @@ const inititalState = { question: '', sort_number: 0, score: 0, category_id: '',
 
 const InitialonCreate = ({ type }: { type: TQuestion }) => {
    return {
+      ...inititalState,
       type: type,
       answers: type === 'checkbox' ? [InitialAnswer, { ...InitialAnswer, sort_number: 1 }] : [],
+      // type === 'fill'
+      // ? // ? FillConverter({ input: `answers1 {{ question1 }} answer2 {{ question4 }} answer3 answer4` })
+      // []//   FillConverter({ input: `` })
+      // : [],
       sub_questions: [],
       input_type: questionAsset[type as TQuestion]?.input_type,
    };
@@ -157,9 +167,10 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
 
    const Component = useMemo(() => {
       return questionAsset[watch()?.type as TQuestion]?.component;
+   // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [watch()?.type]);
 
-   const { fields, append, remove, update } = useFieldArray({ control, name: 'sub_questions' });
+   const { fields, append, remove, update } = useFieldArray({ control, name: 'sub_questions', keyName: '_id' });
 
    const { data, isFetchedAfterMount, isFetched } = useQuery({
       enabled: typeid !== 'create',
@@ -182,7 +193,10 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
       if (data?.data) {
          const subTotal = data?.data?.sub_questions?.reduce((a, b) => a + b.score, 0) ?? 0;
          const mainScore = data?.data?.score - subTotal;
-         reset({ ...data?.data, score: mainScore, answers: data?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number) });
+
+         const finalAnswers: TAnswers[] = FillerSetConvert({ data: data?.data });
+
+         reset({ ...data?.data, score: mainScore, answers: data?.data.type === 'fill' ? finalAnswers : data?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number) });
       }
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -213,7 +227,18 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
 
       const subTotal = watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0;
 
-      mutate({ ...data, score: data.score + subTotal, sort_number: 0, answers: data.answers.map((el, index) => ({ ...el, sort_number: index })) }); // type: type,
+      let answers: TAnswers[] = [];
+
+      if (data.type === 'fill') {
+         answers = FillerSubmit({ answers: data.answers });
+      }
+
+      mutate({
+         ...data,
+         score: data.score + subTotal,
+         sort_number: 0,
+         answers: answers?.map((el, index) => ({ ...el, sort_number: index })),
+      });
    };
 
    const setClose = () => {
@@ -261,23 +286,24 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
                <div className="flex justify-center mb-4 w-full">
                   <SelectQuestionType rowAction={(item) => rowAction(item as TQuestion, 'add', undefined, fields.length)}>
                      <Button type="button" variant="outline" size="lg" className={cn('flex items-center relative rounded-full py-5 shadow-sm w-full')}>
-                        <MdOutlineAdd className="text-base" /> Нэмэлт асуулт нэмэх
+                        <MdOutlineAdd className="text-base" /> Нэмэлт асуулт
                      </Button>
                   </SelectQuestionType>
                </div>
                {fields.length > 0 && (
                   <div className="wrapper relative">
-                     <div className="p-3 px-4 border-b text-muted-text font-medium">Нэмэлт асуултууд</div>
+                     <div className="p-3 px-4 border-b text-muted-text font-medium text-xs">Нэмэлт асуултууд</div>
                      {fields.map((item, index) => {
                         const Icon = questionAsset[item.type as TQuestion]?.icon;
                         return (
-                           <div key={item.id} className="group/items text-xs2 p-3 px-4 hover:bg-primary/10 cursor-pointer relative grid items-center grid-cols-[auto_auto_1fr_auto] gap-2">
+                           <div key={item._id} className="group/items text-xs2 p-3 px-4 hover:bg-primary/10 cursor-pointer relative grid items-center grid-cols-[auto_auto_1fr_auto] gap-2">
                               {<Icon className="text text-primary" />}
                               <div className="text-muted-text">{index + 1}.</div>
                               <div className="one_line" onClick={() => rowAction(item.type, 'edit', item, index)}>
                                  {item.question}
                               </div>
-                              <div className="text-primary font-medium">{item.score}</div>
+                              <ScoreValue count={item.score} className="relative translate-y-0 top-0 right-0" />
+                              {/* <div className="text-primary font-medium">{item.score}</div> */}
                               <ActionButtons editTrigger={() => rowAction(item.type, 'edit', item, index)} deleteTrigger={() => rowAction(item.type, 'delete', item, index)} />
                            </div>
                         );
@@ -321,7 +347,12 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
          return;
       }
 
-      reset(action.data);
+      // filler type nd zoriulj hiigdsen
+      const finalAnswers: TAnswers[] = FillerSetConvert({ data: action?.data as AllTypesQuestionTypes });
+
+      reset({ ...action.data, answers: action.data?.type === 'fill' ? finalAnswers : action?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number) });
+    
+   // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [action.type, action.isOpen]);
 
    const Component = questionAsset[type as TQuestion]?.component;
@@ -335,9 +366,14 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
             return;
          }
       }
+      // daraa er ni ene submit hesegiig neg bolgo
+      let answers: TAnswers[] = [];
+      if (data.type === 'fill') {
+         answers = FillerSubmit({ answers: data.answers });
+      }
 
       // daraa total_score - iig ni avj hay backend ees
-      const finalData = { ...data, total_score: 0, sort_number: indexKey, answers: data.answers.map((el, index) => ({ ...el, sort_number: index })) };
+      const finalData = { ...data, total_score: 0, sort_number: indexKey, answers: answers.map((el, index) => ({ ...el, sort_number: index })) };
 
       if (action.type === 'add') {
          append(finalData);
@@ -357,14 +393,48 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
    // margaash guitseene deee
 
    return (
-      <form onSubmit={handleSubmit(onSubmit)} className="mb-4">
+      <div className="mb-4">
          <Component idPrefix="sub_questions" {...{ clearErrors, setValue, watch, control }} />
-         <div className="flex justify-end py-4">
-            <Button type="submit">
-               <BsSave className="text-sm mr-1" />
-               Хадгалах
-            </Button>
-         </div>
-      </form>
+         <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex justify-end py-4">
+               <Button type="submit">
+                  <BsSave className="text-sm mr-1" />
+                  Хадгалах
+               </Button>
+            </div>
+         </form>
+      </div>
+   );
+};
+
+type TScoreInputProps = {
+   idPrefix?: string;
+   isLine?: boolean;
+   className?: string;
+   control: Control<TQuestionTypes>;
+   // control: TControllerProps['control'];
+   watch?: UseFormWatch<TQuestionTypes>;
+
+   disabled?: boolean;
+};
+
+export const ScoreInput = ({ control, idPrefix, watch, isLine = false, className, disabled }: TScoreInputProps) => {
+   return (
+      <div className={cn('', className)}>
+         <TextInput
+            floatLabel={isLine}
+            className="w-64 mb-0"
+            name="score"
+            disabled={disabled}
+            control={control}
+            // beforeAddon={<GoDotFill className="text-xs" />}
+            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+            label="Асуултанд авах оноо"
+            placeholder="Оноо оруулах"
+            type="number"
+            idPrefix={idPrefix}
+         />
+         <TotolUi isLine={isLine} mainCount={watch?.()?.score ?? 0} additionalCount={watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0} />
+      </div>
    );
 };

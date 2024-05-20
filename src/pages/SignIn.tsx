@@ -49,29 +49,32 @@ export default function SignIn() {
    };
 
    return (
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full h-[100dvh] flex justify-center items-start pt-24">
-         <div className="w-[502px] rounded-lg bg-card-bg p-[48px_56px] shadow-md border">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full h-[100dvh] flex justify-center items-start pt-16 sm:px-2">
+         <div className="w-[410px] max-w-full">
             <div className="flex justify-center pb-10">
                <TavanbogdLogo className="w-28 h-auto" />{' '}
             </div>
-            <div className="mb-10 flex border-b text-xl font-medium">
-               <div className="h-full border-b-2 border-primary pb-2.5">Нэвтрэх</div>
+
+            <div className='rounded-lg bg-card-bg p-10 pt-8 shadow-md border'>
+               <div className="mb-10 flex border-b text-base font-medium text-muted-text">
+                  <div className="h-full border-b-2 border-primary pb-2.5">Нэвтрэх</div>
+               </div>
+               <TextInput beforeAddon={<AiOutlineUser />} sizes="lg" className="mb-8" control={control} label="Нэвтрэх нэр" name="username" rules={{ required: 'Нэвтрэх нэр' }} />
+               <TextInput
+                  beforeAddon={<IoKeyOutline />}
+                  sizes="lg"
+                  className="mb-8"
+                  autoComplete="on"
+                  type="password"
+                  control={control}
+                  name="password"
+                  label="Нууц үг."
+                  rules={{ required: 'Нууц үг' }}
+               />
+               <Button size="default" isLoading={isPending} type="submit" className="mt-2 w-full">
+                  Нэвтрэх &rarr;
+               </Button>
             </div>
-            <TextInput beforeAddon={<AiOutlineUser />} sizes="lg" className="mb-8" control={control} label="Нэвтрэх нэр" name="username" rules={{ required: 'Нэвтрэх нэр' }} />
-            <TextInput
-               beforeAddon={<IoKeyOutline />}
-               sizes="lg"
-               className="mb-8"
-               autoComplete="on"
-               type="password"
-               control={control}
-               name="password"
-               label="Нууц үг."
-               rules={{ required: 'Нууц үг' }}
-            />
-            <Button size="lg" isLoading={isPending} type="submit" className="mt-2 w-full">
-               Нэвтрэх &rarr;
-            </Button>
          </div>
       </form>
    );

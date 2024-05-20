@@ -12,16 +12,20 @@ import { questionAsset } from './Action';
 import { useState } from 'react';
 
 export type TQuestion = 'text' | 'checkbox' | 'fill';
-export type TInputType = 'multi_select' | 'select' | 'text' | 'richtext' | 'essay' | 'filler' | 'filler_with_choice';
+export type TInputType = 'multi_select' | 'select' | 'text' | 'richtext' | 'essay' | 'fill' | 'fill_with_choice';
+export type TTempType = 'question' | 'answer' | 'wrong_answer'
 
-export const fillerInputTypes = {
-   question: {
-      label: 'Асуулт',
-   },
-   answer: {
-      label: 'Хариулт',
-   },
-};
+//  const fillerInputTypes = {
+//    question: {
+//       label: 'Асуулт',
+//    },
+//    answer: {
+//       label: 'Хариулт',
+//    },
+//    wrong_answer: {
+//       label: 'Буруу хариулт',
+//    },
+// };
 
 export type TInputTypeTab = {
    label: string;
@@ -31,7 +35,7 @@ export type TInputTypeTab = {
 // only use on fill type
 type TFillAnswer = {
    fill_index?: number;
-   temp_type?: keyof typeof fillerInputTypes;
+   temp_type?: TTempType;
 };
 
 export type TAnswers = {
@@ -40,7 +44,7 @@ export type TAnswers = {
    // sub_question_id?: string;
    sort_number: number;
    mark: number; // zowhon multi select tei ued
-} & TFillAnswer
+} & TFillAnswer;
 
 export type AllTypesQuestionTypes = {
    id: string;
@@ -177,7 +181,12 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
       header: 'Нийт оноо',
       accessorKey: 'score',
       size: 100,
-      cell: ({ row }) => <Badge variant="outline">{row.original?.score}</Badge>,
+      // cell: ({ row }) => <Badge variant="outline">{row.original?.score}</Badge>,
+      cell: ({ row }) => (
+         <Badge variant="outline" className="w-fit text-[11px] py-0.5 px-2 font-medium text-primary bg-secondary/5">
+            {row.original?.score}
+         </Badge>
+      ),
    },
    {
       header: 'Үүсгэсэн огноо',
@@ -196,9 +205,12 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
          const Icon = questionAsset[row.original?.type as TQuestion]?.icon;
          // return row.original?.type === 'checkbox' ? <Badge variant="secondary">Сонголттой</Badge> : <Badge variant="secondary">Бичгээр</Badge>
          return (
-            <Badge variant="secondary" className="text-xs flex items-center gap-1.5 w-fit">
-               {Icon && <Icon className="text-md" />} {questionAsset[row.original?.type as TQuestion]?.label}{' '}
-            </Badge>
+            <div className="flex items-center gap-3">
+               {Icon && <Icon className="text-md text-primary/60" />}
+               <Badge variant="secondary" className="w-fit text-[11px] py-0.5 font-medium text-primary/90">
+                  {questionAsset[row.original?.type as TQuestion]?.label}{' '}
+               </Badge>
+            </div>
          );
       },
    },
