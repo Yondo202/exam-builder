@@ -37,6 +37,9 @@ export const request = async <T>({ mainUrl, url = '', method = 'get', body = und
          toast.success('Хүсэлт амжилттай');
       }
 
+      // if(method === "post"){
+      //    return response.data?.data
+      // }
       // return response.data.data;
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

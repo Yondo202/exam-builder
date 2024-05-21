@@ -10,10 +10,11 @@ import { FiChevronDown } from 'react-icons/fi';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { questionAsset } from './Action';
 import { useState } from 'react';
+import { HtmlToText } from '@/lib/utils';
 
 export type TQuestion = 'text' | 'checkbox' | 'fill';
 export type TInputType = 'multi_select' | 'select' | 'text' | 'richtext' | 'essay' | 'fill' | 'fill_with_choice';
-export type TTempType = 'question' | 'answer' | 'wrong_answer'
+export type TTempType = 'question' | 'answer' | 'wrong_answer';
 
 //  const fillerInputTypes = {
 //    question: {
@@ -73,7 +74,7 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const { data, isLoading, refetch } = useQuery({
       queryKey: [`questions`],
       queryFn: () =>
-         request<FinalRespnse<AllTypesQuestionTypes>>({
+         request<FinalRespnse<AllTypesQuestionTypes[]>>({
             method: 'post',
             url: `exam/list/question`,
             offAlert: true,
@@ -175,12 +176,18 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
    {
       header: 'Асуулт',
       accessorKey: 'question',
-      // size:500,
+      cell: ({ row }) => {
+         if (row.original.input_type === 'richtext' || row.original.input_type === 'essay') {
+            return HtmlToText({ html: row.original.question ?? '' });
+         }
+         return row.original.question;
+      },
+      size:250,
    },
    {
       header: 'Нийт оноо',
       accessorKey: 'score',
-      size: 100,
+      size: 120,
       // cell: ({ row }) => <Badge variant="outline">{row.original?.score}</Badge>,
       cell: ({ row }) => (
          <Badge variant="outline" className="w-fit text-[11px] py-0.5 px-2 font-medium text-primary bg-secondary/5">
@@ -207,7 +214,7 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
          return (
             <div className="flex items-center gap-3">
                {Icon && <Icon className="text-md text-primary/60" />}
-               <Badge variant="secondary" className="w-fit text-[11px] py-0.5 font-medium text-primary/90">
+               <Badge variant="secondary" className="w-fit text-[11px] font-medium text-primary/90">
                   {questionAsset[row.original?.type as TQuestion]?.label}{' '}
                </Badge>
             </div>

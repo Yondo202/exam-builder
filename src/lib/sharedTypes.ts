@@ -40,7 +40,8 @@ type TMeta = {
 
 export type FinalRespnse<T> = {
    meta: TMeta;
-   data: T[];
+   // data: T[];
+   data: T;
 };
 
 // export const statusValues = {

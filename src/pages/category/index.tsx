@@ -37,7 +37,7 @@ export const useGetCategories = ({ current, idKey }: { current: TKeys; idKey?: s
    return useQuery({
       queryKey: [`category/${current}`, `${current}${idKey ?? ''}`],
       queryFn: () =>
-         request<FinalRespnse<TCategory>>({
+         request<FinalRespnse<TCategory[]>>({
             method: 'post',
             url: catAsset[current]?.url,
             offAlert: true,

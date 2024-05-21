@@ -38,7 +38,7 @@ export const ScoreValue = ({ count, className }: { count: number; className?: st
    return (
       <div
          className={cn(
-            'absolute -top-5 translate-y-1/2 -right-3 text-primary w-5 h-5 rounded-full bg-green-100/30 border border-green-300 font-semibold text-[10px] flex items-center justify-center',
+            'absolute -top-5 translate-y-1/2 -right-2 text-primary w-5 h-5 rounded-full bg-green-100/30 border border-green-300 font-semibold text-[8px] flex items-center justify-center opacity-80',
             className
          )}
       >

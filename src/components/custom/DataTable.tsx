@@ -43,18 +43,30 @@ interface DataTableProps<T> {
    headAction?: React.ReactNode;
    hideAction?: boolean;
    defaultPageSize?: number;
+   defaultSortField?: string;
 }
 const defaultSize = 10;
 const colSize = 180.666; // ene value auto oor avagdaj baigaa bolohoor .666 gej speacial oruulsan
 
 // Row<T>
 
-export default function DataTable<T extends object>({ columns, data = [], isLoading, rowAction, headAction, hideAction, defaultPageSize = defaultSize }: DataTableProps<T>) {
+export default function DataTable<T extends object>({
+   columns,
+   data = [],
+   isLoading,
+   rowAction,
+   headAction,
+   hideAction,
+   defaultPageSize = defaultSize,
+   defaultSortField,
+}: DataTableProps<T>) {
    const [globalFilter, setGlobalFilter] = React.useState('');
-   const [sorting, setSorting] = React.useState<SortingState>([ {
-      id: 'updated_at',
-      desc: true,
-   }]);
+   const [sorting, setSorting] = React.useState<SortingState>([
+      {
+         id: defaultSortField ?? 'updated_at',
+         desc: true,
+      },
+   ]);
    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
    const [rowSelection, setRowSelection] = React.useState({});
@@ -79,7 +91,7 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
          ...columns,
          {
             id: 'actions',
-            size: 70,
+            size: 80,
             enableHiding: false,
             cell: ({ row }: { row: Row<T> }) => {
                // const rowdata = row.original
@@ -217,10 +229,10 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                                     {/* {header.column.getCanSort() && !header.column.getIsSorted() && <TwoSideArrow />} */}
                                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                     <div className="absolute right-px top-2/4 -translate-y-2/4">
-                                       {header.column.getCanSort() && !header.column.getIsSorted() && <TfiArrowsVertical className="opacity-50" />}
+                                       {header.column.getCanSort() && !header.column.getIsSorted() && <TfiArrowsVertical className="opacity-50 text-xs" />}
                                        {{
-                                          asc: <BsArrowUp />,
-                                          desc: <BsArrowDown />,
+                                          asc: <BsArrowUp className='text-xs text-primary' />,
+                                          desc: <BsArrowDown className='text-xs text-primary'/>,
                                        }[header.column.getIsSorted() as string] ?? null}
                                     </div>
                                  </div>
@@ -239,10 +251,10 @@ export default function DataTable<T extends object>({ columns, data = [], isLoad
                               return (
                                  <TableCell
                                     key={cell.id}
-                                    onClick={() => (cell.column.id !== 'actions' ? rowAction?.({ type: 'edit', data: row.original, isOpen: true }) : null)}
+                                    onClick={() => ((cell.column.id !== 'actions' && cell.column.id !== "as_action") ? rowAction?.({ type: 'edit', data: row.original, isOpen: true }) : null)}
                                     // style={size !== colSize ? { width: size, maxWidth: size } : {}}
                                     style={{ width: size, maxWidth: size }}
-                                    className={`one_line ${cell.column.id === 'actions' ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-hover-bg/30` : ``}`}
+                                    className={`one_line ${cell.column.id === 'actions' || cell.column.id === "as_action" ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-hover-bg/30` : ``}`}
                                  >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                  </TableCell>
