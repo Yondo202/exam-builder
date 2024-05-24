@@ -10,9 +10,25 @@ import ConfigAction from '@/pages/exams/ConfigAction';
 import { useState } from 'react';
 import { finalRenderDate } from '@/lib/utils';
 import { IoArrowForwardSharp } from 'react-icons/io5';
+import { AllTypesQuestionTypes } from '../questions';
+
+export type TExamSection = {
+   id:string,
+   name:string;
+   description:string
+   sort_number:number
+   questions:AllTypesQuestionTypes[]
+   // exam_id:string
+}
+export type TVariant = {
+   id:string,
+   name:string;
+   description:string
+   exam_id:string
+}
 
 export type TExam = {
-   id: number;
+   id: string;
    name: string;
    code: string;
    description: string;
@@ -24,7 +40,7 @@ export type TExam = {
    avg_score: number;
    duration_min: number;
    take_per_user: number;
-   
+
    category_id: string;
    sub_category_id: string;
    reviewable: boolean;
@@ -34,6 +50,8 @@ export type TExam = {
    active_end_at: string;
    created_at: Date;
    updated_at: Date;
+
+   variants:TVariant[]
 };
 
 // {
@@ -84,7 +102,7 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                </Button>
             }
          />
-         
+
          <DataTable defaultSortField="active_start_at" rowAction={(data) => setAction(data)} data={data?.data ?? []} columns={columnDef} isLoading={isLoading} />
 
          <Drawer
@@ -143,8 +161,10 @@ const columnDef: ColumnDef<TExam>[] = [
       header: '',
       accessorKey: 'as_action',
       size: 100,
+      enableSorting: false,
+      enableHiding: false,
       cell: ({ row }) => (
-         <Link to={row.original?.id?.toString()??'/'} className='w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline'>
+         <Link to={row.original?.id ?? '/'} className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline">
             Дэлгэрэнгүй <IoArrowForwardSharp />
          </Link>
       ),

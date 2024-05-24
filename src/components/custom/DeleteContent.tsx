@@ -23,10 +23,10 @@ const DeleteContent = ({ className, isLoading, setClose, submitAction }: TDelete
          <div className="flex flex-col justify-between">
             <div className="font-normal text-lg">Мэдээллийг устгахдаа итгэлтэй байна уу?</div>
             <div className="flex items-center justify-end gap-5">
-               <Button onClick={()=>setClose?.({ isDelete:true })} variant="outline">
+               <Button onClick={()=>setClose?.({ isDelete:true })} variant="outline" type='button'>
                   Болих
                </Button>
-               <Button isLoading={isLoading} onClick={submitAction} variant="destructive">
+               <Button isLoading={isLoading} onClick={submitAction} variant="destructive" type='button'>
                   <GoTrash /> Устгах
                </Button>
             </div>

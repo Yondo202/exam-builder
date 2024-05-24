@@ -11,7 +11,9 @@ import {
    getPaginationRowModel,
    getSortedRowModel,
    useReactTable,
+   RowSelectionState,
    type Row,
+   type Table as TableType,
 } from '@tanstack/react-table';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -44,6 +46,11 @@ interface DataTableProps<T> {
    hideAction?: boolean;
    defaultPageSize?: number;
    defaultSortField?: string;
+
+   rowSelection?: RowSelectionState;
+   setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
+
+   size?: 'sm' | 'md';
 }
 const defaultSize = 10;
 const colSize = 180.666; // ene value auto oor avagdaj baigaa bolohoor .666 gej speacial oruulsan
@@ -59,6 +66,9 @@ export default function DataTable<T extends object>({
    hideAction,
    defaultPageSize = defaultSize,
    defaultSortField,
+   size = 'md',
+   rowSelection,
+   setRowSelection,
 }: DataTableProps<T>) {
    const [globalFilter, setGlobalFilter] = React.useState('');
    const [sorting, setSorting] = React.useState<SortingState>([
@@ -69,26 +79,35 @@ export default function DataTable<T extends object>({
    ]);
    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-   const [rowSelection, setRowSelection] = React.useState({});
 
+   const checkAcion = {
+      id: 'select',
+      header: ({ table }: { table: TableType<T> }) => {
+         return (
+            <Checkbox
+               checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+               onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+               aria-label="Select all"
+            />
+         );
+      },
+      cell: ({ row }: { row: Row<T> }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />,
+      enableSorting: false,
+      enableHiding: false,
+      size: 60,
+   };
+
+   const columnReturn = () => {
+      if (rowSelection) {
+         return [checkAcion, ...columns];
+      }
+
+      return columns;
+   };
    const cols = {
-      withoutAction: columns,
+      withoutAction: rowSelection ? [checkAcion, ...columns] : columns,
       withAction: [
-         // {
-         //    id: 'select',
-         //    header: ({ table }) => (
-         //       <Checkbox
-         //          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-         //          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-         //          aria-label="Select all"
-         //       />
-         //    ),
-         //    cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />,
-         //    enableSorting: false,
-         //    enableHiding: false,
-         //    size: 40,
-         // },
-         ...columns,
+         ...columnReturn(),
          {
             id: 'actions',
             size: 80,
@@ -118,11 +137,13 @@ export default function DataTable<T extends object>({
       onColumnVisibilityChange: setColumnVisibility,
       onRowSelectionChange: setRowSelection,
       onGlobalFilterChange: setGlobalFilter,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      getRowId: (row: any) => row?.id,
       state: {
          sorting,
          columnFilters,
          columnVisibility,
-         rowSelection,
+         rowSelection: rowSelection ?? {},
          globalFilter,
       },
       initialState: {
@@ -143,6 +164,11 @@ export default function DataTable<T extends object>({
          maxSize: 500, //enforced during column resizing
       },
    });
+
+   console.log(
+      table.getSelectedRowModel().rows?.map((item) => item.original),
+      '===============. table.getIsAllPageRowsSelected()'
+   );
 
    return (
       <div className="w-full">
@@ -210,7 +236,7 @@ export default function DataTable<T extends object>({
                </DropdownMenu> */}
             </div>
 
-            <Table>
+            <Table className={size === 'sm' ? 'text-xs' : ''}>
                <TableHeader>
                   {table.getHeaderGroups().map((headerGroup) => (
                      <TableRow key={headerGroup.id}>
@@ -225,14 +251,14 @@ export default function DataTable<T extends object>({
                                  }}
                                  className={header.column.getCanSort() ? `hover:bg-hover-bg ${header.column.getIsSorted() ? `bg-hover-bg` : ``}` : ``}
                               >
-                                 <div className={`relative text-sm ${header.column.getCanSort() ? `cursor-pointer` : ``}`}>
+                                 <div className={`relative ${header.column.getCanSort() ? `cursor-pointer` : ``}`}>
                                     {/* {header.column.getCanSort() && !header.column.getIsSorted() && <TwoSideArrow />} */}
                                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                     <div className="absolute right-px top-2/4 -translate-y-2/4">
                                        {header.column.getCanSort() && !header.column.getIsSorted() && <TfiArrowsVertical className="opacity-50 text-xs" />}
                                        {{
-                                          asc: <BsArrowUp className='text-xs text-primary' />,
-                                          desc: <BsArrowDown className='text-xs text-primary'/>,
+                                          asc: <BsArrowUp className="text-xs text-primary" />,
+                                          desc: <BsArrowDown className="text-xs text-primary" />,
                                        }[header.column.getIsSorted() as string] ?? null}
                                     </div>
                                  </div>
@@ -247,14 +273,16 @@ export default function DataTable<T extends object>({
                      table.getRowModel().rows.map((row) => (
                         <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted-bg cursor-pointer group/items">
                            {row.getVisibleCells().map((cell) => {
-                              const size = cell.column.getSize();
+                              const sizeCol = cell.column.getSize();
                               return (
                                  <TableCell
                                     key={cell.id}
-                                    onClick={() => ((cell.column.id !== 'actions' && cell.column.id !== "as_action") ? rowAction?.({ type: 'edit', data: row.original, isOpen: true }) : null)}
+                                    onClick={() => (cell.column.id !== 'actions' && cell.column.id !== 'as_action' ? rowAction?.({ type: 'edit', data: row.original, isOpen: true }) : null)}
                                     // style={size !== colSize ? { width: size, maxWidth: size } : {}}
-                                    style={{ width: size, maxWidth: size }}
-                                    className={`one_line ${cell.column.id === 'actions' || cell.column.id === "as_action" ? `p-0` : ``} ${cell.column.getIsSorted() ? `bg-hover-bg/30` : ``}`}
+                                    style={{ width: sizeCol, maxWidth: sizeCol }}
+                                    className={`one_line ${cell.column.id === 'actions' || cell.column.id === 'as_action' ? `p-0` : ``} ${size === 'sm' ? 'py-2' : ``} ${
+                                       cell.column.getIsSorted() ? `bg-hover-bg/30` : ``
+                                    }`}
                                  >
                                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                  </TableCell>

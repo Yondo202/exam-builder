@@ -9,7 +9,8 @@ import { MdOutlineAdd } from 'react-icons/md';
 import { FiChevronDown } from 'react-icons/fi';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { questionAsset } from './Action';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { type RowSelectionState } from '@tanstack/react-table';
 import { HtmlToText } from '@/lib/utils';
 
 export type TQuestion = 'text' | 'checkbox' | 'fill';
@@ -66,7 +67,8 @@ export type AllTypesQuestionTypes = {
 
 export type TQuestionTypes = Omit<AllTypesQuestionTypes, 'created_at' | 'total_score'>;
 
-const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadCrumb[]; fromAction?: (row: RowSelectionState) => React.ReactNode; prevData?: AllTypesQuestionTypes[] }) => {
+   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
    const [deleteAction, setDeleteAction] = useState({ isOpen: false, id: '' });
    // const [isOpen, setIsOpen] = useState(false);
    const navigate = useNavigate();
@@ -86,6 +88,17 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             },
          }),
    });
+   // eslint-disable-next-line react-hooks/exhaustive-deps
+
+   useEffect(() => {
+      const temp = prevData?.reduce((a: RowSelectionState, c: AllTypesQuestionTypes) => {
+         a[c.id] = true;
+         return a;
+      }, {});
+      setRowSelection(temp ?? {});
+   }, []);
+
+   // console.log(rowSelection);
 
    const { isPending, mutate } = useMutation({
       mutationFn: () =>
@@ -103,40 +116,61 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       navigate(`${breadcrumbs.find((item) => item.isActive)?.to}/create?type=${item}`);
    };
 
-   return (
-      <div>
-         <BreadCrumb pathList={breadcrumbs} />
-         <Header
-            title={breadcrumbs.find((item) => item.isActive)?.label}
-            action={
-               <SelectQuestionType rowAction={rowAction}>
-                  <Button>
-                     <MdOutlineAdd className="text-base" /> Асуумж нэмэх <FiChevronDown />
-                  </Button>
-               </SelectQuestionType>
-            }
-         />
+   // console.log(prevData, '============>?prevData');
 
+   // const submitAction = () =>{
+   //    // rowSelection.forEach()
+   //    // rowMutate()
+   //    Object.keys(rowSelection)?.forEach(item=>{
+   //       rowMutate(item)
+   //    })
+   // }
+
+
+   return (
+      <>
+         {!fromAction && <BreadCrumb pathList={breadcrumbs} />}
+         {!fromAction && (
+            <Header
+               title={breadcrumbs.find((item) => item.isActive)?.label}
+               action={
+                  <SelectQuestionType rowAction={rowAction}>
+                     <Button>
+                        <MdOutlineAdd className="text-base" /> Асуумж нэмэх <FiChevronDown />
+                     </Button>
+                  </SelectQuestionType>
+               }
+            />
+         )}
+         {fromAction?.(rowSelection)}
          <DataTable
             data={data?.data ?? []}
             columns={columnDef}
-            isLoading={isLoading}
-            rowAction={(data: TAction<AllTypesQuestionTypes>) => {
-               if (data.type === 'edit') {
-                  navigate(`${breadcrumbs.find((item) => item.isActive)?.to}/${data.data?.id}`);
-                  return;
-               }
-               setDeleteAction({ isOpen: true, id: data.data?.id ?? '' });
-            }}
+            rowSelection={fromAction ? rowSelection : undefined}
+            {...{ setRowSelection, isLoading }}
+            defaultPageSize={fromAction ? 1000 : 10}
+            hideAction={!!fromAction}
+            size={fromAction ? 'sm' : 'md'}
+            rowAction={
+               fromAction
+                  ? () => null
+                  : (data: TAction<AllTypesQuestionTypes>) => {
+                       if (data.type === 'edit') {
+                          navigate(`${breadcrumbs.find((item) => item.isActive)?.to}/${data.data?.id}`);
+                          return;
+                       }
+                       setDeleteAction({ isOpen: true, id: data.data?.id ?? '' });
+                    }
+            }
          />
          <Dialog isOpen={deleteAction.isOpen} onOpenChange={(e) => setDeleteAction((prev) => ({ ...prev, isOpen: e }))}>
             <DeleteContent setClose={() => setDeleteAction({ isOpen: false, id: '' })} submitAction={mutate} isLoading={isPending} className="pb-6" />
          </Dialog>
-      </div>
+      </>
    );
 };
 
-export default Groups;
+export default Questions;
 
 type TSelectQuestionProps = {
    children: React.ReactNode;
@@ -182,7 +216,7 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
          }
          return row.original.question;
       },
-      size:250,
+      size: 250,
    },
    {
       header: 'Нийт оноо',

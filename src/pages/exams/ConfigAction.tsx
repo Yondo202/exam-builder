@@ -1,10 +1,12 @@
-import { TextInput, Textarea, Button, Checkbox, Label, DatePicker, DeleteContent } from '@/components/custom'; //Checkbox, Label
+import { TextInput, Textarea, Button, Checkbox, Label, DatePicker, DeleteContent, Badge } from '@/components/custom'; //Checkbox, Label
 import { Controller, useForm, type Control, type UseFormWatch, type UseFormSetValue } from 'react-hook-form';
 // import { IoCloseOutline } from 'react-icons/io5';
 import { PiFolderMinusLight } from 'react-icons/pi';
 import { type TExam } from '.';
+import { RxClock } from "react-icons/rx";
 import { CategorySelect } from '../questions/Action';
 import { Input } from '@/components/ui/Input';
+import { IoIosCheckmarkCircleOutline } from "react-icons/io";
 import { type TActionProps, ATypes } from '@/lib/sharedTypes';
 
 type TDateInput = {
@@ -59,7 +61,7 @@ type TConfigResponse = {
 
 const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
    const { control, handleSubmit, watch, setValue, reset } = useForm<TExam>({
-      defaultValues: { name: '', description: '', sub_category_id: '', category_id: '', active_start_at: '', active_end_at: '', reviewable: false },
+      defaultValues: { name: '', description: '', sub_category_id: '', category_id: '', active_start_at: '', active_end_at: '', reviewable: false, duration_min: 0, pass_score: 0 },
    });
 
    useEffect(() => {
@@ -118,6 +120,34 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                label="Шалгалтын тайлбар"
                placeholder="Шалгалтын тайлбар дэлгэрэнгүй оруулах"
             />
+         </div>
+
+         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-8">
+            <TextInput
+               beforeAddon={<IoIosCheckmarkCircleOutline />}
+               className="w-full mb-0"
+               name="pass_score"
+               control={control}
+               label="Шалгалтанд тэнцэх доод оноо"
+               rules={{ required: 'Шалгалтанд тэнцэх доод оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+               placeholder="Оноо оруулах"
+               type="number"
+            />
+            <div className="flex items-center gap-2">
+               <TextInput
+                  beforeAddon={<RxClock />}
+                  className="w-full mb-0"
+                  name="duration_min"
+                  control={control}
+                  label="Шалгалтын үргэлжилэх хугацаа / мин"
+                  rules={{ required: 'Шалгалтын үргэлжилэх хугацаа оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+                  placeholder="Оноо оруулах"
+                  type="number"
+               />
+               <Badge className="h-full font-medium opacity-70" variant="secondary">
+                  Минут
+               </Badge>
+            </div>
          </div>
 
          <div className="grid grid-cols-[1fr_1fr] gap-10 mb-8">
