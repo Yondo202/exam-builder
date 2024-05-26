@@ -54,9 +54,8 @@ const Section = ({ variant_id }: TVairantTabs) => {
    //          url: `exam/section/48cf75ea-780e-47d7-8559-23bf457a9e68`,
    //       }),
    // });
-   // console.log(dataOne, '[[[[[[[[[[[[[[dataOne');
 
-   console.log(data, '[[[[[[[[[[[[[[data');
+
 
    return (
       <div className="wrapper py-5">
@@ -69,54 +68,56 @@ const Section = ({ variant_id }: TVairantTabs) => {
          </div>
          {(data?.data?.length ?? 0) > 0 ? (
             <Accordion type="multiple" className="px-6">
-               {data?.data?.map((item, index) => {
-                  return (
-                     <AccordionItem key={index} value={item.id} className="border rounded-md bg-primary/10 mb-4 pr-1.5">
-                        <div className="grid items-center grid-cols-[1fr_auto]">
-                           <AccordionTrigger className="flex-row-reverse justify-end gap-3 relative group/items">
-                              <span className="truncate max-w-96">{item.name}</span> <span>{index + 1}.</span>
-                              <ActionButtons // ene component oos bolj aldaa ogj baigaa browser deer
-                                 editTrigger={() => setAction({ data: item, type: 'edit', isOpen: true })}
-                                 deleteTrigger={() => setAction({ data: item, type: 'delete', isOpen: true })}
-                                 className="pl-9 -top-1/4 -translate-y-1/2 translate-x-11 right-full"
-                              />
-                           </AccordionTrigger>
-                           <div className="flex items-center gap-5">
-                              <div className="text-muted-text">
-                                 Нийт асуултын тоо: <span className="text-text font-medium">{item.questions.length}</span>
+               {data?.data
+                  ?.sort((a, b) => a.sort_number - b.sort_number)
+                  .map((item, index) => {
+                     return (
+                        <AccordionItem key={index} value={item.id} className="border rounded-md bg-primary/10 mb-4 pr-1.5">
+                           <div className="grid items-center grid-cols-[1fr_auto]">
+                              <AccordionTrigger className="flex-row-reverse justify-end gap-3 relative group/items">
+                                 <span className="truncate max-w-96">{item.name}</span> <span>{index + 1}.</span>
+                                 <ActionButtons // ene component oos bolj aldaa ogj baigaa browser deer
+                                    editTrigger={() => setAction({ data: item, type: 'edit', isOpen: true })}
+                                    deleteTrigger={() => setAction({ data: item, type: 'delete', isOpen: true })}
+                                    className="pl-9 -top-1/4 -translate-y-1/2 translate-x-11 right-full"
+                                 />
+                              </AccordionTrigger>
+                              <div className="flex items-center gap-5">
+                                 <div className="text-muted-text">
+                                    Нийт асуултын тоо: <span className="text-text font-medium">{item.questions.length}</span>
+                                 </div>
+                                 <Button
+                                    size="sm"
+                                    type="button"
+                                    variant="outline"
+                                    className="rounded-full"
+                                    onClick={() => setActionQuestion({ type: 'add', isOpen: true, data: { section_id: item.id, questions: item.questions ?? [] } })}
+                                 >
+                                    <MdOutlineAdd className="text-base" /> Асуулт нэмэх
+                                 </Button>
                               </div>
-                              <Button
-                                 size="sm"
-                                 type="button"
-                                 variant="outline"
-                                 className="rounded-full"
-                                 onClick={() => setActionQuestion({ type: 'add', isOpen: true, data: { section_id: item.id, questions: item.questions ?? [] } })}
-                              >
-                                 <MdOutlineAdd className="text-base" /> Асуулт нэмэх
-                              </Button>
                            </div>
-                        </div>
 
-                        <AccordionContent className="p-3">
-                           <div className="pb-1 mb-2 text-primary/70 text-xs border-border border-b font-medium">Асуултууд</div>
-                           {item.questions.length > 0 ? (
-                              item.questions.map((element, ind) => {
-                                 return (
-                                    <div className="bg-card-bg mb-2 p-3 py-2 rounded-md shadow-sm" key={ind}>
-                                       {element.question}
-                                    </div>
-                                 );
-                              })
-                           ) : (
-                              <div className="h-32 flex items-center justify-center flex-col gap-4">
-                                 <Empty />
-                                 <h3 className="text-muted-text/40">Мэдээлэл байхгүй байна</h3>
-                              </div>
-                           )}
-                        </AccordionContent>
-                     </AccordionItem>
-                  );
-               })}
+                           <AccordionContent className="p-3">
+                              <div className="pb-2 mb-2 text-primary/70 text-xs border-border border-b font-medium">Асуултууд</div>
+                              {item.questions.length > 0 ? (
+                                 item.questions.map((element, ind) => {
+                                    return (
+                                       <div className="bg-card-bg mb-3 p-3 py-2 rounded-md shadow-sm" key={ind}>
+                                          {element.question}
+                                       </div>
+                                    );
+                                 })
+                              ) : (
+                                 <div className="h-32 flex items-center justify-center flex-col gap-4">
+                                    <Empty />
+                                    <h3 className="text-muted-text/40">Мэдээлэл байхгүй байна</h3>
+                                 </div>
+                              )}
+                           </AccordionContent>
+                        </AccordionItem>
+                     );
+                  })}
             </Accordion>
          ) : (
             <div className="h-32 flex items-center justify-center flex-col gap-4">
@@ -138,7 +139,14 @@ const Section = ({ variant_id }: TVairantTabs) => {
             open={action.isOpen}
             onOpenChange={(event) => setAction((prev) => ({ ...prev, isOpen: event }))}
             title="Дэд бүлэг"
-            content={<SectionAction variant_id={variant_id} action={action} setClose={() => setAction((prev) => ({ ...prev, isOpen: false }))} />}
+            content={
+               <SectionAction
+                  sectionList={data?.data?.sort((a, b) => a.sort_number - b.sort_number) ?? []}
+                  variant_id={variant_id}
+                  action={action}
+                  setClose={() => setAction((prev) => ({ ...prev, isOpen: false }))}
+               />
+            }
             className={`py-10 pt-7 max-w-lg`}
          />
       </div>
@@ -146,10 +154,6 @@ const Section = ({ variant_id }: TVairantTabs) => {
 };
 
 export default Section;
-
-// type TSectionAction = {
-//    variant_id?: string;
-// } & TActionProps<TExamSection>;
 
 const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string } & TActionProps<TActionQuestion>) => {
    const { isPending, mutate } = useMutation({
@@ -172,6 +176,7 @@ const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string 
             url: `exam/remove/question`,
             offAlert: true,
             body: {
+               //sort number nem
                question_id: questionId,
                section_id: action?.data?.section_id ?? undefined,
             },
@@ -179,23 +184,28 @@ const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string 
    });
 
    const finalSubmit = (row: RowSelectionState) => {
+
       const finalFunc = () => {
          toast.success('Хүсэлт амжилттай');
          UseReFetch({ queryKey: 'exam/section', queryId: variant_id });
          setClose?.({});
       };
-      const temparr: { id: string; type: 'add' | 'delete' }[] = [];
-      Object.keys(row)?.forEach((item) => {
-         const found = action?.data?.questions?.find((element) => element.id === item);
-         if (!found) {
-            temparr.push({ id: item, type: 'add' });
-         }
-      });
+
+      const temparr: { id: string; type: 'add' | 'delete', sort_number?:number }[] = [];
 
       action?.data?.questions.forEach((item) => {
          const foundRow = Object.keys(row)?.find((element) => element === item.id);
          if (!foundRow) {
             temparr.push({ id: item.id, type: 'delete' });
+         }
+      });
+
+      // const restTotal = action?.data?.questions?.length??0 - temparr.length
+
+      Object.keys(row)?.forEach((item) => {
+         const found = action?.data?.questions?.find((element) => element.id === item);
+         if (!found) {
+            temparr.push({ id: item, type: 'add' });
          }
       });
 
@@ -230,9 +240,10 @@ const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string 
 
 type TSectionAction = {
    variant_id?: string;
+   sectionList: TExamSection[];
 } & TActionProps<TExamSection>;
 
-export const SectionAction = ({ setClose, action, variant_id }: TSectionAction) => {
+export const SectionAction = ({ setClose, action, variant_id, sectionList }: TSectionAction) => {
    const {
       control,
       handleSubmit,
@@ -246,7 +257,7 @@ export const SectionAction = ({ setClose, action, variant_id }: TSectionAction) 
          return;
       }
       reset({ name: '', description: '' });
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
 
    const { mutate, isPending } = useMutation({
@@ -263,8 +274,10 @@ export const SectionAction = ({ setClose, action, variant_id }: TSectionAction) 
       // onSettled:()=> setClose?.({})
    });
 
+   // console.log(sectionList, '---.sectionList');
+
    const onSubmit = (data: TExamSection) => {
-      mutate({ ...data, sort_number: 0 });
+      mutate({ ...data, sort_number: action.type === 'add' ? sectionList.length : data.sort_number });
    };
 
    if (action.type === 'delete') {

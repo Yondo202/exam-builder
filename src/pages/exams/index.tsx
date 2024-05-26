@@ -13,19 +13,19 @@ import { IoArrowForwardSharp } from 'react-icons/io5';
 import { AllTypesQuestionTypes } from '../questions';
 
 export type TExamSection = {
-   id:string,
-   name:string;
-   description:string
-   sort_number:number
-   questions:AllTypesQuestionTypes[]
+   id: string;
+   name: string;
+   description: string;
+   sort_number: number;
+   questions: AllTypesQuestionTypes[];
    // exam_id:string
-}
+};
 export type TVariant = {
-   id:string,
-   name:string;
-   description:string
-   exam_id:string
-}
+   id: string;
+   name: string;
+   description: string;
+   exam_id: string;
+};
 
 export type TExam = {
    id: string;
@@ -51,7 +51,7 @@ export type TExam = {
    created_at: Date;
    updated_at: Date;
 
-   variants:TVariant[]
+   variants: TVariant[];
 };
 
 // {
