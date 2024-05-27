@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import type { DndContextProps, DraggableSyntheticListeners, DropAnimation, UniqueIdentifier } from '@dnd-kit/core';
 import { closestCenter, defaultDropAnimationSideEffects, DndContext, DragOverlay, KeyboardSensor, MouseSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -7,7 +5,6 @@ import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifi
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy, type SortableContextProps } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Slot, type SlotProps } from '@radix-ui/react-slot';
-
 import { composeRefs } from '@/lib/compose-refs';
 import { cn } from '@/lib/utils';
 import Button, { type ButtonProps } from '@/components/ui/button';

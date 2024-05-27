@@ -55,8 +55,6 @@ const Section = ({ variant_id }: TVairantTabs) => {
    //       }),
    // });
 
-
-
    return (
       <div className="wrapper py-5">
          <div className="px-6 pb-5 mb-4 text-muted-text font-medium text-sm flex gap-3 justify-between ">
