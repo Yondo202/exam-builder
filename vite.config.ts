@@ -31,4 +31,5 @@ export default defineConfig(() => {
    };
 });
 
+
 //cd ckeditor5 && rm -rf node_modules && npm install && npm run build && cd .. && npm i ckeditor5-custom-build &&

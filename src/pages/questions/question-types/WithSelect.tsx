@@ -46,7 +46,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
                               fields.map((item) => ({ ...item, is_correct: false, mark: 0 }))
                            );
                         }
-
+                        
                         setValue('score', 0);
                         field.onChange(value as TInputType);
                      }}

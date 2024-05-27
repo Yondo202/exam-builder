@@ -1,16 +1,17 @@
 import React, { ReactNode } from 'react';
 import { Users, Plan, Group, Factcheck } from '@/assets/svg'; //Document //Leaderboard
-// import Category from '@/pages/category';
-// import Questions from '@/pages/questions';
-// import Exams from '@/pages/exams';
-// import ExamAction from '@/pages/exams/Action';
-// import QuestionAction from '@/pages/questions/Action';
+import Category from '@/pages/category';
+import Questions from '@/pages/questions';
+import Exams from '@/pages/exams';
+import ExamAction from '@/pages/exams/Action';
+import QuestionAction from '@/pages/questions/Action';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-const Category = React.lazy(() => import('@/pages/category'));
-const Questions = React.lazy(() => import('@/pages/questions'));
-const Exams = React.lazy(() => import('@/pages/exams'));
-const ExamAction = React.lazy(() => import('@/pages/exams/Action'));
-const QuestionAction = React.lazy(() => import('@/pages/questions/Action'));
+// const Category = React.lazy(() => import('@/pages/category'));
+// const Questions = React.lazy(() => import('@/pages/questions'));
+// const Exams = React.lazy(() => import('@/pages/exams'));
+// const ExamAction = React.lazy(() => import('@/pages/exams/Action'));
+// const QuestionAction = React.lazy(() => import('@/pages/questions/Action'));
+// loading tai ni hiihgui bol aldaa garna
 
 type TRouteStore = {
    to: string;
