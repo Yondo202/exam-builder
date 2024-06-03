@@ -3,6 +3,7 @@ import axios from 'axios';
 // import Notification from '@/utils/hooks/Notification';
 import { toast } from 'sonner';
 import { queryClient } from '@/main';
+import { SignOut } from '../Auth';
 
 export type TRequest<T> = {
    method?: 'get' | 'post' | 'put' | 'delete';
@@ -12,6 +13,7 @@ export type TRequest<T> = {
    filterBody?: unknown;
    queryParams?: unknown;
    offAlert?: boolean;
+   isPublic?: boolean;
 };
 
 // type ResponseType<T> = {
@@ -25,9 +27,25 @@ export const getJwt = () => {
       ?.split('=')[1];
 };
 
-export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody }: TRequest<T>) => {
-      const reqAsset = { headers: { Authorization: `Bearer ${getJwt()}` }, params: queryParams };
-   // const reqAsset = { params: queryParams };
+export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic }: TRequest<T>) => {
+   if (!isPublic) {
+      if (!getJwt()) {
+         SignOut();
+      }
+      try {
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const resdata: any = await axios<T>({ url: `${import.meta.env.VITE_MAIN_URL}auth/verify?token=${getJwt()}`, method: 'get' }); //daraa typescript iin zas
+         if (!resdata?.data?.data?.is_valid) {
+            SignOut();
+         }
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+         toast.error(error?.response?.data?.message);
+         SignOut();
+      }
+   }
+
+   const reqAsset = { headers: { Authorization: `Bearer ${getJwt()}` }, params: queryParams };
    const fullUrl = `${mainUrl ?? import.meta.env.VITE_MAIN_URL}${url}`;
 
    try {
@@ -46,9 +64,10 @@ export const request = async <T>({ mainUrl, url = '', method = 'get', body = und
    } catch (err: any) {
       if (err?.response?.data?.message) {
          toast.error(err?.response?.data?.message);
-         throw err;
+      } else {
+         toast.error('Хүсэлт амжилтгүй');
       }
-      toast.error('Хүсэлт амжилтгүй');
+      throw err;
    }
 };
 

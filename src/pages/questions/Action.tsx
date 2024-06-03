@@ -27,7 +27,7 @@ import { IconType } from 'react-icons/lib';
 import { GoCheckCircle, GoBook } from 'react-icons/go';
 import { BsSave } from 'react-icons/bs';
 // import { IoTextOutline } from 'react-icons/io5';
-import { request } from '@/lib/core/request';
+import { UseReFetch, request } from '@/lib/core/request';
 // import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 // import { PiChatCenteredDotsLight } from "react-icons/pi";
 import { TbMessageCircleQuestion } from 'react-icons/tb';
@@ -114,15 +114,15 @@ export const CategorySelect = <TFieldValues extends FieldValues>({ control, name
 
 // export type TQTypes = keyof typeof qTypes;
 
-const GroupAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+const GroupAction = ({ breadcrumbs, pathId, setClose }: { breadcrumbs?: TBreadCrumb[]; pathId?: string; setClose?: () => void }) => {
    const [search] = useSearchParams({});
    const searchAsObject = Object.fromEntries(new URLSearchParams(search));
 
    return (
       <>
-         <BreadCrumb pathList={[...breadcrumbs.map((item) => ({ ...item, isActive: false })), { to: '#', label: 'Тестийн сан үүсгэх', isActive: true }]} />
+         {!pathId && <BreadCrumb pathList={[...(breadcrumbs?.map((item) => ({ ...item, isActive: false })) ?? []), { to: '#', label: 'Тестийн сан үүсгэх', isActive: true }]} />}
          {/* <Component title={questionAsset[searchAsObject.type as TQTypes]?.label} type={questionAsset[searchAsObject.type as TQTypes]?.type} /> */}
-         <ActionWrapper type={searchAsObject.type as TQuestion} />
+         <ActionWrapper type={searchAsObject.type as TQuestion} pathId={pathId} setCloseDialog={setClose} />
       </>
    );
 };
@@ -147,8 +147,14 @@ const InitialonCreate = ({ type }: { type: TQuestion }) => {
    };
 };
 
-const ActionWrapper = ({ type }: { type: TQuestion }) => {
-   const { typeid } = useParams();
+const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; pathId?: string; setCloseDialog?: () => void }) => {
+   // let typeid = '';
+   let { typeid } = useParams();
+
+   if (pathId) {
+      typeid = pathId;
+   }
+
    const [subType, setSubType] = useState<{ type: TQuestion; index: number }>({ type: 'checkbox', index: 0 });
    const [action, setAction] = useState<TAction<TQuestionTypes>>({ isOpen: false, type: 'add', data: {} as TQuestionTypes });
    const navigate = useNavigate();
@@ -167,7 +173,7 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
 
    const Component = useMemo(() => {
       return questionAsset[watch()?.type as TQuestion]?.component;
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [watch()?.type]);
 
    const { fields, append, remove, update } = useFieldArray({ control, name: 'sub_questions', keyName: '_id' });
@@ -211,6 +217,11 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
             body: body,
          }),
       onSuccess: () => {
+         if (pathId) {
+            setCloseDialog?.();
+            UseReFetch({ queryKey: 'exam/section' });
+            return;
+         }
          navigate('/questions');
       },
    });
@@ -231,6 +242,8 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
 
       if (data.type === 'fill') {
          answers = FillerSubmit({ answers: data.answers });
+      } else {
+         answers = data.answers;
       }
 
       mutate({
@@ -245,7 +258,7 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
       setAction((prev) => ({ ...prev, isOpen: false }));
    };
 
-   UsePrompt({ isBlocked: isDirty && !isPending });
+   UsePrompt?.({ isBlocked: isDirty && !isPending });
 
    // , type: TAction<TQuestionTypes>['type']
    const rowAction = (item: TQuestion, type: TAction<TQuestionTypes>['type'], data?: TAction<TQuestionTypes>['data'], index?: number) => {
@@ -259,7 +272,7 @@ const ActionWrapper = ({ type }: { type: TQuestion }) => {
             <Header
                title={questionAsset[watch()?.type as TQuestion]?.label}
                action={
-                  <Button disabled={!isDirty} isLoading={isPending} type="submit">
+                  <Button onClick={() => (pathId ? onSubmit(watch()) : null)} disabled={!isDirty} isLoading={isPending} type="submit">
                      <BsSave className="text-sm mr-1" />
                      Хадгалах
                   </Button>
@@ -351,8 +364,8 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
       const finalAnswers: TAnswers[] = FillerSetConvert({ data: action?.data as AllTypesQuestionTypes });
 
       reset({ ...action.data, answers: action.data?.type === 'fill' ? finalAnswers : action?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number) });
-    
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [action.type, action.isOpen]);
 
    const Component = questionAsset[type as TQuestion]?.component;
@@ -370,6 +383,8 @@ const SubWrapper = ({ type, action, setClose, append, remove, update, indexKey }
       let answers: TAnswers[] = [];
       if (data.type === 'fill') {
          answers = FillerSubmit({ answers: data.answers });
+      } else {
+         answers = data.answers;
       }
 
       // daraa total_score - iig ni avj hay backend ees

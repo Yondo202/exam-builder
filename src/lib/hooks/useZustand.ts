@@ -9,10 +9,20 @@ interface TAuthState extends TState {
 }
 
 export const useTheme = create<TAuthState>((set) => {
-   const uitheme = localStorage.getItem('ui-theme') ?? 'dark';
+   const uitheme = localStorage.getItem('ui-theme') ?? 'light'; // dark
 
    return {
       theme: uitheme === 'dark' ? 'dark' : 'light',
       setTheme: (theme: TState['theme']) => set((state) => ({ ...state, theme: theme })),
    };
 });
+
+
+
+// export const useAuth = create<TUserEmployee>((set) => {
+
+//    return {
+//       userdata:'',
+//       setUser: (user: TState['theme']) => set((state) => ({ ...state, theme: theme })),
+//    };
+// });

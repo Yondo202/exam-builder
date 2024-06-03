@@ -157,7 +157,7 @@ const GroupAction = ({ current, action, setClose, options }: TActionProps<TCateg
       mutate(data);
    };
 
-   UsePrompt({ isBlocked: isDirty });
+   UsePrompt?.({ isBlocked: isDirty });
 
    if (action.type === 'delete') {
       return <DeleteContent setClose={setClose} submitAction={() => mutate(undefined)} isLoading={isPending} className="pb-6" />;

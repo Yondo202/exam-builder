@@ -13,12 +13,13 @@ type TTabs = {
    activeKey: string;
    onChange: (key: TTabs['activeKey']) => void;
    className?: string;
+   tabClassName?: string;
 };
 
-const AnimatedTabs = ({ items, activeKey, onChange, className }: TTabs) => {
+const AnimatedTabs = ({ items, activeKey, onChange, className, tabClassName }: TTabs) => {
    const [activeBorder, setActiveBorder] = useState({ width: 0, offsetLeft: 0 });
 
-   const itemprops = { activeKey, onChange };
+   const itemprops = { activeKey, onChange, tabClassName };
    //    className={className}
    return (
       <div className={cn('relative flex gap-5 mb-4 border-b', className)}>
@@ -40,16 +41,16 @@ type TTabitems = {
    item: TItems;
    activeKey: TTabs['activeKey'];
    onChange: TTabs['onChange'];
+   tabClassName?: string;
 };
 
-const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => {
+const Tabitems = ({ item, activeKey, onChange, setActiveBorder, tabClassName }: TTabitems) => {
    const elementRef = useRef<HTMLInputElement>(null);
 
    useEffect(() => {
       if (activeKey === item.key) {
          const current = elementRef?.current;
          setActiveBorder({ width: current?.offsetWidth ?? 0, offsetLeft: current?.offsetLeft ?? 0 });
-
 
          // setActiveBorder({ width: 0, offsetLeft: current?.offsetLeft ?? 0 });
          // setTimeout(() => {
@@ -64,8 +65,9 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder }: TTabitems) => 
          onClick={() => onChange(item.key)}
          type="button"
          className={cn(
-            'leading-[48px] text-muted-text font-medium select-none flex justify-center rounded-sm',
-            activeKey === item.key ? 'text-secondary' : '',
+            'leading-[48px] text-muted-text/90  select-none flex justify-center rounded-sm',
+            tabClassName,
+            activeKey === item.key ? 'text-secondary font-medium' : '',
             item?.disabled ? `disabled:opacity-50` : ``
          )}
       >

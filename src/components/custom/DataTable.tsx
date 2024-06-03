@@ -3,7 +3,7 @@ import * as React from 'react';
 import {
    ColumnDef,
    ColumnFiltersState,
-   SortingState,
+   // SortingState,
    VisibilityState,
    flexRender,
    getCoreRowModel,
@@ -12,8 +12,9 @@ import {
    getSortedRowModel,
    useReactTable,
    RowSelectionState,
+   type PaginationState,
    type Row,
-   type Table as TableType,
+   // type Table as TableType,
 } from '@tanstack/react-table';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -36,6 +37,9 @@ import ActionButtons from '@/components/ActionButtons';
 //    type:'edit' | 'delete' | 'add'
 //    data: T
 // }
+export type TPagination = {
+   total: number;
+} & PaginationState;
 
 interface DataTableProps<T> {
    columns: ColumnDef<T>[];
@@ -44,14 +48,26 @@ interface DataTableProps<T> {
    rowAction?: (props: TAction<T>) => void;
    headAction?: React.ReactNode;
    hideAction?: boolean;
+   hidePagination?: boolean;
+   hideColumnVisibleAction?: boolean;
    defaultPageSize?: number;
    defaultSortField?: string;
-
    rowSelection?: RowSelectionState;
    setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
-
+   enableMultiRowSelection?: boolean;
    size?: 'sm' | 'md';
+
+   // server actions
+   manualPagination?: boolean;
+   pagination?: TPagination;
+   setPagination?: React.Dispatch<React.SetStateAction<TPagination>>;
+
+   hideActionButton?: 'delete' | 'edit';
+
+   search?: string;
+   setSearch?: React.Dispatch<React.SetStateAction<string>>;
 }
+
 const defaultSize = 10;
 const colSize = 180.666; // ene value auto oor avagdaj baigaa bolohoor .666 gej speacial oruulsan
 
@@ -65,32 +81,35 @@ export default function DataTable<T extends object>({
    headAction,
    hideAction,
    defaultPageSize = defaultSize,
-   defaultSortField,
+   // defaultSortField,
    size = 'md',
    rowSelection,
    setRowSelection,
+
+   enableMultiRowSelection = true,
+   ...rest
 }: DataTableProps<T>) {
    const [globalFilter, setGlobalFilter] = React.useState('');
-   const [sorting, setSorting] = React.useState<SortingState>([
-      {
-         id: defaultSortField ?? 'updated_at',
-         desc: true,
-      },
-   ]);
+   // const [sorting, setSorting] = React.useState<SortingState>([
+   //    {
+   //       id: defaultSortField ?? 'updated_at',
+   //       desc: true,
+   //    },
+   // ]);
    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
    const checkAcion = {
       id: 'select',
-      header: ({ table }: { table: TableType<T> }) => {
-         return (
-            <Checkbox
-               checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-               onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-               aria-label="Select all"
-            />
-         );
-      },
+      // header: ({ table }: { table: TableType<T> }) => {
+      //    return (
+      //       <Checkbox
+      //          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+      //          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+      //          aria-label="Select all"
+      //       />
+      //    );
+      // },
       cell: ({ row }: { row: Row<T> }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />,
       enableSorting: false,
       enableHiding: false,
@@ -117,18 +136,45 @@ export default function DataTable<T extends object>({
                const action = { data: row.original, isOpen: true };
                return (
                   <div className="relative">
-                     <ActionButtons className="right-3" deleteTrigger={() => rowAction?.({ type: 'delete', ...action })} editTrigger={() => rowAction?.({ type: 'edit', ...action })} />
+                     <ActionButtons
+                        hideActionButton={rest.hideActionButton}
+                        className="right-3"
+                        deleteTrigger={() => rowAction?.({ type: 'delete', ...action })}
+                        editTrigger={() => rowAction?.({ type: 'edit', ...action })}
+                     />
                   </div>
                );
             },
          },
       ],
    };
+   // rest.setPagination
+   const ServerAction = (isManual?: boolean) => {
+      if (isManual && rest.pagination) {
+         return {
+            manualPagination: rest.manualPagination,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onPaginationChange: (state: any) => rest.setPagination?.(state),
+            pageCount: Math.ceil(rest.pagination?.total / rest?.pagination?.pageSize) ?? -1,
+            state: {
+               pagination: rest.pagination,
+            },
+            initialState: {
+               pagination: {
+                  pageIndex: rest.pagination.pageIndex,
+                  pageSize: rest.pagination.pageSize,
+               },
+            },
+         };
+      } else {
+         return {};
+      }
+   };
 
    const table = useReactTable({
       data,
       columns: cols[hideAction ? `withoutAction` : `withAction`],
-      onSortingChange: setSorting,
+      // onSortingChange: setSorting, // daraa eniig butsaaj hii
       onColumnFiltersChange: setColumnFilters,
       getCoreRowModel: getCoreRowModel(),
       getPaginationRowModel: getPaginationRowModel(),
@@ -139,18 +185,24 @@ export default function DataTable<T extends object>({
       onGlobalFilterChange: setGlobalFilter,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getRowId: (row: any) => row?.id,
+      ...ServerAction(rest.manualPagination),
+
+      enableMultiRowSelection: enableMultiRowSelection,
       state: {
-         sorting,
+         ...ServerAction(rest.manualPagination).state,
+         // sorting,
          columnFilters,
          columnVisibility,
          rowSelection: rowSelection ?? {},
          globalFilter,
       },
       initialState: {
-         pagination: {
-            pageIndex: 0,
-            pageSize: defaultPageSize,
-         },
+         pagination: rest.manualPagination
+            ? ServerAction(rest.manualPagination).initialState?.pagination
+            : {
+                 pageIndex: 0,
+                 pageSize: defaultPageSize,
+              },
          // sorting: [
          //    {
          //       id: 'updated_at',
@@ -165,52 +217,48 @@ export default function DataTable<T extends object>({
       },
    });
 
-   console.log(
-      table.getSelectedRowModel().rows?.map((item) => item.original),
-      '===============. table.getIsAllPageRowsSelected()'
-   );
+   // console.log(
+   //    table.getSelectedRowModel().rows?.map((item) => item.original),
+   //    '===============. table.getIsAllPageRowsSelected()'
+   // );
 
    return (
       <div className="w-full">
          <div className="wrapper overflow-hidden">
             <div className="flex items-center justify-between px-4 py-5">
-               <FloatingLabelInput
-                  // label="Нэрээр хайх..."
-                  // value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-                  // onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-                  beforeAddon={<BiSearchAlt className="text-lg" />}
-                  className="w-64 rounded-full"
-                  sizes="sm"
-                  value={globalFilter ?? ''}
-                  onChange={(e) => setGlobalFilter(String(e.target.value))}
-                  label="Бүх талбараар хайх..."
+               <DebouncedInput
+                  value={rest.setSearch ? rest.search ?? '' : globalFilter ?? ''}
+                  onChange={(value) => (rest.setSearch ? rest.setSearch(value) : setGlobalFilter(value))}
+                  debounce={500}
                />
 
                <div className="flex items-center gap-3">
-                  <Popover>
-                     <PopoverTrigger asChild>
-                        <Button variant="outline" size="icon" className="ml-auto rounded-full">
-                           {/* Харагдац <ChevronDownIcon className="ml-2 h-4 w-4" /> */}
-                           <PiPath className="text-secondary" />
-                        </Button>
-                     </PopoverTrigger>
+                  {!rest.hideColumnVisibleAction && (
+                     <Popover>
+                        <PopoverTrigger asChild>
+                           <Button variant="outline" size="icon" className="ml-auto rounded-full">
+                              {/* Харагдац <ChevronDownIcon className="ml-2 h-4 w-4" /> */}
+                              <PiPath className="text-secondary" />
+                           </Button>
+                        </PopoverTrigger>
 
-                     <PopoverContent align="end">
-                        {table
-                           .getAllColumns()
-                           .filter((column) => column.getCanHide())
-                           .map((column) => {
-                              return (
-                                 <div className="flex gap-3.5 py-1.5" key={column.id}>
-                                    <Checkbox checked={column.getIsVisible()} id={column.id} onCheckedChange={(value) => column.toggleVisibility(!!value)} aria-label="Select all" />
-                                    <label className="one_line cursor-pointer" htmlFor={column.id}>
-                                       {column?.columnDef?.header?.toString()}
-                                    </label>
-                                 </div>
-                              );
-                           })}
-                     </PopoverContent>
-                  </Popover>
+                        <PopoverContent align="end">
+                           {table
+                              .getAllColumns()
+                              .filter((column) => column.getCanHide())
+                              .map((column) => {
+                                 return (
+                                    <div className="flex gap-3.5 py-1.5" key={column.id}>
+                                       <Checkbox checked={column.getIsVisible()} id={column.id} onCheckedChange={(value) => column.toggleVisibility(!!value)} aria-label="Select all" />
+                                       <label className="one_line cursor-pointer" htmlFor={column.id}>
+                                          {column?.columnDef?.header?.toString()}
+                                       </label>
+                                    </div>
+                                 );
+                              })}
+                        </PopoverContent>
+                     </Popover>
+                  )}
                   {headAction}
                </div>
 
@@ -310,7 +358,7 @@ export default function DataTable<T extends object>({
             </Table>
          </div>
          {/*table.getRowModel().rows?.length - ene ch bj bolno*/}
-         {table.getPageCount() !== 0 && (
+         {table.getPageCount() !== 0 && !rest.hidePagination && (
             <div className="flex w-full items-center justify-between space-x-2 py-4">
                <Select
                   defaultValue={defaultPageSize.toString()}
@@ -329,6 +377,13 @@ export default function DataTable<T extends object>({
                      ))}
                   </SelectContent>
                </Select>
+
+               {!!rest.pagination?.total && (
+                  <div className="flex items-center gap-2 text-xs2">
+                     <span className="text-muted-text">Нийт:</span>
+                     {rest.pagination?.total}
+                  </div>
+               )}
 
                <Pagination>
                   <PaginationContent>
@@ -393,5 +448,41 @@ export default function DataTable<T extends object>({
             </div>
          )}
       </div>
+   );
+}
+
+import { useEffect, useState } from 'react';
+
+type TBounceProps = {
+   value: string;
+   onChange: (value: string) => void;
+   debounce: number;
+};
+
+export function DebouncedInput({ value: initialValue, onChange, debounce = 700 }: TBounceProps) {
+   const [value, setValue] = useState(initialValue);
+
+   useEffect(() => {
+      setValue(initialValue);
+   }, [initialValue]);
+
+   useEffect(() => {
+      const timeout = setTimeout(() => {
+         onChange(value);
+      }, debounce);
+
+      return () => clearTimeout(timeout);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [debounce, value]);
+
+   return (
+      <FloatingLabelInput
+         beforeAddon={<BiSearchAlt className="text-lg" />}
+         className="w-64 rounded-full"
+         sizes="sm"
+         value={value}
+         onChange={(e) => setValue(e.target.value)}
+         label="Бүх талбараар хайх..."
+      />
    );
 }

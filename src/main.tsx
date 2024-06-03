@@ -17,6 +17,26 @@ export const queryClient = new QueryClient({
    },
 });
 
+// ************* chatgpt 
+
+// const container = document.getElementById('root');
+
+// if (!container._root) {
+//    // If not, create one and store it in the container
+//    container._root = ReactDOMClient.createRoot(container);
+// }
+
+// container._root.render(
+//    <React.StrictMode>
+//       <QueryClientProvider client={queryClient}>
+//          {/* <ReactQueryDevtools initialIsOpen={false} position="bottom" /> */}
+//          <ThemeProvider>
+//             <App />
+//          </ThemeProvider>
+//       </QueryClientProvider>
+//    </React.StrictMode>
+// );
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
    <React.StrictMode>
       <QueryClientProvider client={queryClient}>

@@ -7,10 +7,11 @@ type TActionProps = {
    deleteTrigger?: () => void;
    editTrigger?: () => void;
    className?: string;
+   hideActionButton?: 'delete' | 'edit';
 };
 
 // daraa ni QuestionTypes - iin filler deer bas data table deer nemeed og
-const ActionButtons = ({ deleteTrigger, editTrigger, className }: TActionProps) => {
+const ActionButtons = ({ deleteTrigger, editTrigger, className, hideActionButton }: TActionProps) => {
    return (
       <div
          className={cn(
@@ -18,12 +19,16 @@ const ActionButtons = ({ deleteTrigger, editTrigger, className }: TActionProps) 
             className
          )}
       >
-         <Button onClick={editTrigger} variant="outline" className="rounded-full h-8 w-8 min-w-8 shadow-sm" size="icon" type="button">
-            <BsPencil className="text-xs2" />
-         </Button>
-         <Button onClick={deleteTrigger} variant="outline" className="rounded-full h-8 w-8 min-w-8 shadow-sm" size="icon" type="button">
-            <GoTrash className="text-xs2" />
-         </Button>
+         {hideActionButton !== 'edit' && (
+            <Button onClick={editTrigger} variant="outline" className="rounded-full h-8 w-8 min-w-8 shadow-sm" size="icon" type="button">
+               <BsPencil className="text-xs2" />
+            </Button>
+         )}
+         {hideActionButton !== 'delete' && (
+            <Button onClick={deleteTrigger} variant="outline" className="rounded-full h-8 w-8 min-w-8 shadow-sm" size="icon" type="button">
+               <GoTrash className="text-xs2" />
+            </Button>
+         )}
       </div>
    );
 };

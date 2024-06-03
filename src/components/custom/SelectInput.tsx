@@ -16,10 +16,25 @@ export type TOption = {
 type TSelectProps = {
    options: TOption[];
    label?: string;
+   hideIcon?: boolean;
+   placeholder?: string;
    onChange?: (event: string) => void;
+   triggerClassName?: string;
 } & SelectProps;
 
-const SelectInput = <TFieldValues extends FieldValues>({ options, control, className = '', name, rules, label, onChange, ...props }: TControllerProps<TFieldValues> & TSelectProps) => {
+const SelectInput = <TFieldValues extends FieldValues>({
+   options,
+   control,
+   className = '',
+   name,
+   rules,
+   label,
+   onChange,
+   hideIcon,
+   placeholder,
+   triggerClassName,
+   ...props
+}: TControllerProps<TFieldValues> & TSelectProps) => {
    const id = useId();
    return (
       <div className={cn('w-full', className)}>
@@ -30,9 +45,11 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
             render={({ fieldState, field }) => {
                return (
                   <>
-                     <Label htmlFor={id}>
-                        {label} {rules?.required && <span className="text-danger-color">*</span>}
-                     </Label>
+                     {label && (
+                        <Label htmlFor={id}>
+                           {label} {rules?.required && label && <span className="text-danger-color">*</span>}
+                        </Label>
+                     )}
                      <Select
                         // defaultValue={defaultPageSize.toString()}
                         // onValueChange={(e) => {
@@ -43,20 +60,22 @@ const SelectInput = <TFieldValues extends FieldValues>({ options, control, class
                         {...props}
                      >
                         <SelectTrigger
+                           hideIcon={hideIcon}
                            id={id}
                            ref={field.ref}
                            value={field.value}
+                           disabled={props.disabled}
                            onClear={() => {
-                              console.log('clear');
                               field.onChange('');
                               onChange?.('');
                            }}
                            className={cn(
                               'w-full text-sm p-4 py-1 h-10 relative data-[placeholder]:text-muted-text/50 hover:bg-hover-bg ',
+                              triggerClassName,
                               fieldState.error ? `border-danger-color focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``
                            )}
                         >
-                           <SelectValue placeholder="Сонго..." className="placeholder:text-muted-text/20" />
+                           <SelectValue placeholder={placeholder ?? 'Сонго...'} className="placeholder:text-muted-text/20" />
                         </SelectTrigger>
                         <SelectContent>
                            {options?.length > 0 ? (

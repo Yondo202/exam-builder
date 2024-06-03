@@ -11,8 +11,10 @@ import { Empty } from '@/assets/svg';
 import { type RowSelectionState } from '@tanstack/react-table';
 import ActionButtons from '@/components/ActionButtons';
 import { toast } from 'sonner';
-
+import { HtmlToText } from '@/lib/utils';
+import { GoArrowRight } from 'react-icons/go';
 import Questions from '@/pages/questions';
+import QuestionDetail from '@/pages/questions/Action';
 
 type TVairantTabs = {
    exam_id?: string;
@@ -33,11 +35,12 @@ type TActionQuestion = {
 
 const Section = ({ variant_id }: TVairantTabs) => {
    // const [current, setCurrent] = useState('');
-   const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TExamSection });
+   const [questionDetail, setQuestionDetail] = useState({ isOpen: false, pathId: '' });
 
+   const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TExamSection });
    const [actionQuestion, setActionQuestion] = useState<TAction<TActionQuestion>>({ isOpen: false, type: 'add', data: {} as TActionQuestion });
 
-   const { data } = useQuery({
+   const { data, refetch } = useQuery({
       enabled: !!variant_id,
       queryKey: ['exam/section', variant_id],
       queryFn: () =>
@@ -82,7 +85,10 @@ const Section = ({ variant_id }: TVairantTabs) => {
                               </AccordionTrigger>
                               <div className="flex items-center gap-5">
                                  <div className="text-muted-text">
-                                    Нийт асуултын тоо: <span className="text-text font-medium">{item.questions.length}</span>
+                                    Асуултын тоо: <span className="text-text font-medium">{item.questions.length}</span>
+                                 </div>
+                                 <div className="text-muted-text">
+                                    Авах оноо: <span className="text-primary font-medium">{item.questions?.reduce((a, b) => a + b.score, 0)}</span>
                                  </div>
                                  <Button
                                     size="sm"
@@ -101,8 +107,12 @@ const Section = ({ variant_id }: TVairantTabs) => {
                               {item.questions.length > 0 ? (
                                  item.questions.map((element, ind) => {
                                     return (
-                                       <div className="bg-card-bg mb-3 p-3 py-2 rounded-md shadow-sm" key={ind}>
-                                          {element.question}
+                                       <div className="bg-card-bg mb-3 p-3 py-2 rounded-md shadow-sm max-w-full overflow-hidden grid grid-cols-[1fr_auto] gap-3  items-center" key={ind}>
+                                          <span>{element.input_type === 'richtext' || element.input_type === 'essay' ? HtmlToText({ html: element.question }) : element.question}</span>
+
+                                          <Button onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })} size="sm" variant="link" className="text-primary">
+                                             Дэлгэрэнгүй <GoArrowRight />
+                                          </Button>
                                        </div>
                                     );
                                  })
@@ -123,6 +133,21 @@ const Section = ({ variant_id }: TVairantTabs) => {
                <h3 className="text-muted-text/40">Мэдээлэл байхгүй байна</h3>
             </div>
          )}
+
+         <Dialog
+            isOpen={questionDetail.isOpen}
+            onOpenChange={(event) => setQuestionDetail((prev) => ({ ...prev, isOpen: event }))}
+            title="Асуултын жагсаалт"
+            className={`p-6 pt-0 w-[80dvw]`}
+         >
+            <QuestionDetail
+               pathId={questionDetail.pathId}
+               setClose={() => {
+                  refetch();
+                  setQuestionDetail((prev) => ({ ...prev, isOpen: false }));
+               }}
+            />
+         </Dialog>
 
          <Dialog
             isOpen={actionQuestion.isOpen}
@@ -182,14 +207,17 @@ const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string 
    });
 
    const finalSubmit = (row: RowSelectionState) => {
-
-      const finalFunc = () => {
-         toast.success('Хүсэлт амжилттай');
+      const finalFunc = (fake?: boolean) => {
+         if (fake) {
+            toast.info(`Өөрчлөлт орсонгүй`);
+         } else {
+            toast.success('Хүсэлт амжилттай');
+         }
          UseReFetch({ queryKey: 'exam/section', queryId: variant_id });
          setClose?.({});
       };
 
-      const temparr: { id: string; type: 'add' | 'delete', sort_number?:number }[] = [];
+      const temparr: { id: string; type: 'add' | 'delete'; sort_number?: number }[] = [];
 
       action?.data?.questions.forEach((item) => {
          const foundRow = Object.keys(row)?.find((element) => element === item.id);
@@ -207,13 +235,18 @@ const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string 
          }
       });
 
-      temparr.forEach((item, index) => {
-         if (item.type === 'add') {
-            mutate(item.id, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
-         } else {
-            deleteMutate(item.id, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
-         }
-      });
+      if (temparr.length > 0) {
+         temparr.forEach((item, index) => {
+            if (item.type === 'add') {
+               mutate(item.id, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
+            } else {
+               deleteMutate(item.id, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
+            }
+         });
+         return;
+      }
+
+      finalFunc(true);
    };
 
    return (

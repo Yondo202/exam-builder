@@ -84,3 +84,61 @@ export type FinalRespnse<T> = {
 
 // export type TStatus = keyof typeof statusValues;
 // export type TSubTypes = keyof typeof types;
+
+
+export enum UserRolesEnum {
+   CANDIDATE = 'candidate',
+   SUPER_ADMIN = 'super_admin',
+   COMPANY_ADMIN = 'company_admin',
+   INSPECTOR = 'inspector',
+   //   EMPLYOEE = 'employee_admin',
+}
+
+export const UserRolesAsset = {
+   candidate: {
+      label: 'Оролцогч',
+   },
+   super_admin: {
+      label: 'Супер админ',
+   },
+   company_admin: {
+      label: 'Байгууллагын админ',
+   },
+   inspector: {
+      label: 'Шалгагч',
+   },
+};
+
+export type TUserRoles = keyof typeof UserRolesAsset;
+
+export type TRolesAssetType = {
+   id: string;
+   role: TUserRoles;
+   user_id: string;
+};
+
+export type TUserEmployee = {
+   id: string;
+   firstname: string;
+   lastname: string;
+   company_name: string; // odoo deer - company_name
+   phone: string;
+   dep_name: string;
+   hired_date: string;
+   created_at?: string;
+   email: string;
+   password: string;
+   regno: string;
+   private_number?: string;
+   // gantshan enuugeer ylgana
+   empid: string;
+
+   // candidate
+   position_applied: string;
+   company_applied: string;
+   gender: 'male' | 'female';
+   birth_date: string;
+   age: number;
+
+   roles: TRolesAssetType[];
+};

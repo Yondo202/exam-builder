@@ -40,7 +40,6 @@ export type TExam = {
    avg_score: number;
    duration_min: number;
    take_per_user: number;
-
    category_id: string;
    sub_category_id: string;
    reviewable: boolean;
@@ -50,7 +49,6 @@ export type TExam = {
    active_end_at: string;
    created_at: Date;
    updated_at: Date;
-
    variants: TVariant[];
 };
 
@@ -111,7 +109,7 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             title="Шалгалтын тохиргоо"
             content={<ConfigAction action={action} afterSuccess={afterSuccess} />}
             className="py-2 max-w-4xl"
-            titleClassName="pt-2 pb-3"
+            titleClassName="pt-2 pb-2"
          />
       </div>
    );

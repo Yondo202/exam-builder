@@ -3,10 +3,10 @@ import { Controller, useForm, type Control, type UseFormWatch, type UseFormSetVa
 // import { IoCloseOutline } from 'react-icons/io5';
 import { PiFolderMinusLight } from 'react-icons/pi';
 import { type TExam } from '.';
-import { RxClock } from "react-icons/rx";
+import { RxClock } from 'react-icons/rx';
 import { CategorySelect } from '../questions/Action';
 import { Input } from '@/components/ui/Input';
-import { IoIosCheckmarkCircleOutline } from "react-icons/io";
+import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
 import { type TActionProps, ATypes } from '@/lib/sharedTypes';
 
 type TDateInput = {
@@ -59,10 +59,28 @@ type TConfigResponse = {
    };
 };
 
+// "reviewable": false,
+// "score_visible": false,
+// "scrumble_questions": false,
+// "take_per_user": 1,
+
 const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
    const { control, handleSubmit, watch, setValue, reset } = useForm<TExam>({
-      defaultValues: { name: '', description: '', sub_category_id: '', category_id: '', active_start_at: '', active_end_at: '', reviewable: false, duration_min: 0, pass_score: 0 },
-   });
+      defaultValues: {
+         name: '',
+         description: '',
+         sub_category_id: '',
+         category_id: '',
+         active_start_at: '',
+         active_end_at: '',
+         duration_min: 0,
+         pass_score: 0,
+         take_per_user: 1,
+         reviewable: true,
+         score_visible: false,
+         scrumble_questions: false,
+      },
+   })
 
    useEffect(() => {
       if (action.type !== 'add') {
@@ -85,31 +103,27 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
    }
    return (
       <form onSubmit={handleSubmit(onSubmit)}>
-         <div className="grid grid-cols-[320px_1fr] gap-10 mb-8">
+         <div className="grid grid-cols-[320px_1fr] gap-10 mb-5">
             <div>
                <TextInput
                   floatLabel={false}
                   name="name"
-                  className="mb-6"
+                  className="mb-2"
                   control={control}
                   rules={{ required: 'Шалгалтын нэр оруулна уу' }}
                   label="Шалгалтын нэр"
                   placeholder="Нэр оруулах"
                />
 
-               <Controller
+               <TextInput
+                  floatLabel={false}
+                  name="take_per_user"
+                  className="mb-6"
                   control={control}
-                  name="reviewable"
-                  render={({ field }) => {
-                     return (
-                        <div className="flex items-center gap-3">
-                           <Checkbox id={field.name} checked={field.value} onCheckedChange={(e) => field.onChange(e)} />{' '}
-                           <Label htmlFor={field.name} className="m-0">
-                              Шалгалт дууссаны дараа дүн харуулах
-                           </Label>
-                        </div>
-                     );
-                  }}
+                  rules={{ required: 'Шалгалтын оролдлогын тоо' }}
+                  label="Шалгалтын оролдлогын тоо"
+                  placeholder="Тоо оруулах"
+                  type="number"
                />
             </div>
             <Textarea
@@ -122,7 +136,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
             />
          </div>
 
-         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-8">
+         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6">
             <TextInput
                beforeAddon={<IoIosCheckmarkCircleOutline />}
                className="w-full mb-0"
@@ -150,14 +164,61 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
             </div>
          </div>
 
-         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-8">
+         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6">
             <CategorySelect control={control} name="category_id" current="main_category" label="Үндсэн ангилал" onChange={() => setValue('sub_category_id', '')} />
             <CategorySelect control={control} disabled={!watch('category_id')} idKey={watch('category_id')} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
          </div>
 
-         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-2">
+         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6">
             <DateInputCustom {...{ control, watch, setValue }} fieldName="active_start_at" label="Шалгалт эхлэх огноо" />
             <DateInputCustom {...{ control, watch, setValue }} fieldName="active_end_at" label="Шалгалт дуусах огноо" />
+         </div>
+
+         <div className="grid grid-cols-[1fr_1fr_1fr] gap-5 mb-2">
+            <Controller
+               control={control}
+               name="reviewable"
+               render={({ field }) => {
+                  return (
+                     <div className="flex items-center gap-3">
+                        <Checkbox id={field.name} checked={field.value} onCheckedChange={(e) => field.onChange(e)} />{' '}
+                        <Label htmlFor={field.name} className="m-0">
+                           Өгсөн шалгалтаа харах боломжтой
+                        </Label>
+                     </div>
+                  );
+               }}
+            />
+
+            <Controller
+               control={control}
+               name="score_visible"
+               render={({ field }) => {
+                  return (
+                     <div className="flex items-center gap-3">
+                        <Checkbox id={field.name} checked={field.value} onCheckedChange={(e) => field.onChange(e)} />{' '}
+                        <Label htmlFor={field.name} className="m-0">
+                           Асуултын оноог харах боломжтой
+                        </Label>
+                     </div>
+                  );
+               }}
+            />
+
+            <Controller
+               control={control}
+               name="scrumble_questions"
+               render={({ field }) => {
+                  return (
+                     <div className="flex items-center gap-3">
+                        <Checkbox id={field.name} checked={field.value} onCheckedChange={(e) => field.onChange(e)} />{' '}
+                        <Label htmlFor={field.name} className="m-0">
+                           Асуултыг санамсаргүй байдлаар холих боломжтой
+                        </Label>
+                     </div>
+                  );
+               }}
+            />
          </div>
 
          <div className="pt-7 flex justify-end">

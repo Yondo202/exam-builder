@@ -35,7 +35,7 @@ const SelectTrigger = React.forwardRef<
             </SelectPrimitive.Icon>
          )}
       </SelectPrimitive.Trigger>
-      {props.value && (
+      {props.value && !props.disabled && (
          <div onClick={onClear} className="absolute hidden cursor-pointer top-[1px] right-1.5 z-20 h-[98%] rounded-full aspect-square bg-card-bg group-hover:flex items-center justify-center">
             <IoClose className="text-base opacity-70 text-secondary " />
          </div>
