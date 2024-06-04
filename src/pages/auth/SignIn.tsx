@@ -6,8 +6,10 @@ import { IoKeyOutline } from 'react-icons/io5';
 import { useMutation } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import Cookie from 'js-cookie';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { HiOutlineMail } from 'react-icons/hi';
+import { Link } from 'react-router-dom';
 
 type TUserResponse = {
    data: {
@@ -25,7 +27,7 @@ const catAsset = {
       labelRender: (
          <div className="flex items-center gap-2">
             <HiOutlineMail className="text-base" />
-            Э-Мэйл
+            Э-мэйл
          </div>
       ),
       label: 'Нэвтрэх нэр',
@@ -53,17 +55,26 @@ export type TKeys = keyof typeof catAsset;
 // };
 
 export default function SignIn() {
+   const [search, setSearch] = useSearchParams({});
+   const searchAsObject = Object.fromEntries(new URLSearchParams(search));
    const [current, setCurrent] = useState<TKeys>('email');
    // const [, setCookie] = useCookies(['access_token']);
-   const { control, handleSubmit, setError } = useForm<TUser>({ mode: 'onChange', defaultValues: { username: '', password: '' } });
+   const { control, handleSubmit, setError, reset, formState:{ isDirty } } = useForm<TUser>({ mode: 'onChange', defaultValues: { username: '', password: '' } });
+
+   useEffect(() => {
+      if (searchAsObject.email) {
+         reset({ username: searchAsObject.email, password: '' });
+         setSearch({})
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [searchAsObject.email]);
 
    const { mutate, isPending } = useMutation({
-      mutationFn: (body: TUser) => request<TUser>({ method: 'post', url: `auth/login${current !== 'email' ? `/${current}` : ''}`, body: body, isPublic:true }),
+      mutationFn: (body: TUser) => request<TUser>({ method: 'post', url: `auth/login${current !== 'email' ? `/${current}` : ''}`, body: body, isPublic: true }),
       onSuccess: (resdata) => {
          // console.log("its success")
          Cookie.set('access_token', resdata?.data.access_token ?? '');
          window.location.reload();
-
          // setCookie('access_token', resdata?.data.access_token, {
          //    path: '/',
          //    expires: setDate(),
@@ -76,24 +87,24 @@ export default function SignIn() {
       },
    });
 
-   const onSubmit = async (data: TUser) => {
+   const onSubmit = (data: TUser) => {
       mutate(data);
    };
 
    return (
       <form onSubmit={handleSubmit(onSubmit)} className="w-full h-[100dvh] flex justify-center items-start pt-16 sm:px-2">
-         <div className="w-[440px] max-w-full">
+         <div className="w-[420px] max-w-full">
             <div className="flex justify-center pb-10">
                <TavanbogdLogo className="w-28 h-auto" />{' '}
             </div>
 
-            <div className="rounded-lg bg-card-bg p-12 pt-6 shadow-md border">
+            <div className="rounded-lg bg-card-bg p-12 pt-8 pb-10 shadow-md border">
                {/* <div className="mb-10 flex border-b text-base font-medium text-muted-text">
                   <div className="h-full border-b-2 border-primary pb-2.5">Нэвтрэх</div>
                </div> */}
 
                <AnimatedTabs
-                  className="mb-12"
+                  className="mb-14"
                   tabClassName="flex items-center"
                   items={Object.keys(catAsset)?.map((item) => ({ key: item, labelRender: catAsset[item as TKeys]?.labelRender, disabled: catAsset[item as TKeys]?.disabled }))}
                   activeKey={current}
@@ -119,9 +130,15 @@ export default function SignIn() {
                   label="Нууц үг."
                   rules={{ required: 'Нууц үг' }}
                />
-               <Button isLoading={isPending} type="submit" className="mt-2 w-full">
+               <Button disabled={!isDirty} isLoading={isPending} type="submit" size="lg" className="rounded-full w-full">
                   Нэвтрэх &rarr;
                </Button>
+
+               <div className="flex justify-center pt-5">
+                  <Link className="text-primary/70 hover:text-primary" to="/forgotpassword">
+                     Нууц үг мартсан
+                  </Link>
+               </div>
             </div>
          </div>
       </form>

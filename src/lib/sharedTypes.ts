@@ -139,6 +139,6 @@ export type TUserEmployee = {
    gender: 'male' | 'female';
    birth_date: string;
    age: number;
-
+   force_password_change:boolean
    roles: TRolesAssetType[];
 };

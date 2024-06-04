@@ -1,14 +1,16 @@
-import { Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'; // createBrowserRouter, createRoutesFromElements, RouterProvider,
+import { Route, useNavigate, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom'; // createBrowserRouter, createRoutesFromElements, RouterProvider,
 import PrivateRoute from '@/lib/core/PrivateRoute';
-import SignIn from '@/pages/SignIn';
+import SignIn from '@/pages/auth/SignIn';
+import ForgotPassword from '@/pages/auth/ForgotPassword';
 import { Empty } from '@/assets/richsvg';
 import { TRouteOmit, FilteredRoute } from '@/lib/core/RouteStore';
 // import { CookiesProvider } from 'react-cookie';
 import { FinalRespnse, type TUserEmployee, type TRolesAssetType } from '@/lib/sharedTypes';
 import { request } from '@/lib/core/request';
 import { useQuery } from '@tanstack/react-query';
+import Cookie from 'js-cookie';
+import { useEffect } from 'react';
 // import { Loading } from '@/components/custom';
-
 // import useTheme from '@/hooks/useTheme';
 
 const converSome = (Item: TRouteOmit) => {
@@ -18,49 +20,6 @@ const converSome = (Item: TRouteOmit) => {
 
    return { ...Item, to: Item.to.replace('/:typeid', '') };
 };
-
-// const routers = createBrowserRouter(
-//    createRoutesFromElements(
-//       <>
-//          <Route path="/" element={<PrivateRoute toSign />}>
-//             {RouteStore.map((Item, index) => {
-//                return Item.subMenu ? (
-//                   <Route key={index} path={Item.to}>
-//                      {Item.subMenu?.map((childE, index) => {
-//                         return (
-//                            <Route
-//                               key={index}
-//                               path={childE.to}
-//                               element={childE.component ? <childE.component breadcrumbs={[{ ...converSome(childE), isActive: true }]} /> : <div>{childE.label}</div>}
-//                            />
-//                         );
-//                      })}
-//                   </Route>
-//                ) : (
-//                   <Route key={index} path={Item.to} element={Item.component ? <Item.component breadcrumbs={[{ ...converSome(Item), isActive: true }]} /> : <div>{Item.label}</div>} />
-//                );
-//             })}
-//          </Route>
-
-//          <Route path="/" element={<PrivateRoute />}>
-//             <Route path="/signin" element={<SignIn />} />
-//          </Route>
-
-//          <Route
-//             path="*"
-//             element={
-//                <div className="h-[70dvh] flex items-center justify-center flex-col">
-//                   <Empty />
-//                   <h3 className="text-lg">Хуудас олдсонгүй</h3>
-//                </div>
-//             }
-//          />
-//       </>
-//    )
-// );
-
-import Cookie from 'js-cookie';
-import { useEffect } from 'react';
 
 function App() {
    const { data } = useQuery({
@@ -80,11 +39,11 @@ function App() {
 
    // RouteStore
    return (
-      <BrowserRouter>
-         <Routes>{CustomRoutes({ roles: data?.data?.roles ?? [] })}</Routes>
-      </BrowserRouter>
+      // <BrowserRouter>
+      //    <Routes>{CustomRoutes({ roles: data?.data?.roles ?? [] })}</Routes>
+      // </BrowserRouter>
       // <CookiesProvider>
-      // <RouterProvider router={routers} />
+      <RouterProvider router={createBrowserRouter(createRoutesFromElements(CustomRoutes({ roles: data?.data?.roles ?? [] })))} />
       // </CookiesProvider>
    );
 }
@@ -118,6 +77,7 @@ const CustomRoutes = ({ roles }: { roles: TRolesAssetType[] }) => {
 
          <Route path="/" element={<PrivateRoute />}>
             <Route path="/signin" element={<SignIn />} />
+            <Route path="/forgotpassword" element={<ForgotPassword />} />
          </Route>
 
          <Route path="*" element={<NoutFound />} />

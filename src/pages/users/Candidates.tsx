@@ -2,10 +2,12 @@
 import { useMutation } from '@tanstack/react-query';
 import { request, UseReFetch } from '@/lib/core/request';
 import { useState, useEffect } from 'react';
-import { DataTable, Drawer, Button, TextInput, UsePrompt, SelectInput, Label, DeleteContent } from '@/components/custom';
+import { DataTable, Drawer, Button, TextInput, UsePrompt, SelectInput, Label, DeleteContent, Dialog } from '@/components/custom';
+import ForceChangePass from '../layout/ForceChangePass';
 import { type FinalRespnse, type TAction, type TActionProps, ATypes, type TUserEmployee } from '@/lib/sharedTypes';
 import { ColumnDef } from '@tanstack/react-table';
 import { useForm } from 'react-hook-form';
+import { GoLock } from "react-icons/go";
 import { RowSelectionState } from '@tanstack/react-table';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useQuery } from '@tanstack/react-query';
@@ -155,6 +157,7 @@ type Letters = {
 };
 
 export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<TUserEmployee> & { isFromAdmin?: boolean }) => {
+   const [forcePass, setForcePass] = useState(false);
    const {
       control,
       handleSubmit,
@@ -349,14 +352,24 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
 
             {/* <TextInput floatLabel={false} autoFocus placeholder={`Е-мэйл`} label={`Е-мэйл оруулах`} name="email" control={control} rules={{ required: `Е-мэйл оруулна уу` }} /> */}
 
-            <div className="flex justify-end w-full pt-10">
-               <Button isLoading={isPending} type="submit" disabled={!isDirty || !!action.data?.empid}>
+            <div className="flex justify-between w-full pt-10">
+               <Button className="rounded-full" type="button" variant="outline" onClick={()=>setForcePass(true)}>
+                 <GoLock className='text-base' /> Нууц үг солих
+               </Button>
+
+               <Button className='rounded-full' isLoading={isPending} type="submit" disabled={!isDirty || !!action.data?.empid}>
                   Хадгалах
                </Button>
             </div>
          </form>
 
          {action.type === 'edit' && isFromAdmin && <EmployeeDetail isRoleAction detailData={action.data as TUserEmployee} />}
+
+         {action.type === 'edit' && (
+            <Dialog isOpen={forcePass} onOpenChange={setForcePass} title={`${action.data?.firstname} - нууц үг солих`}>
+               <ForceChangePass userId={action.data?.id} isFromAdmin={isFromAdmin} afterSuccess={() => setForcePass(false)} />
+            </Dialog>
+         )}
       </>
    );
 };

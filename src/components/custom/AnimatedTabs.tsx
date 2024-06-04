@@ -68,7 +68,7 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder, tabClassName }: 
             'leading-[48px] text-muted-text/90  select-none flex justify-center rounded-sm',
             tabClassName,
             activeKey === item.key ? 'text-secondary font-medium' : '',
-            item?.disabled ? `disabled:opacity-50` : ``
+            item?.disabled ? `disabled:opacity-50 disabled:cursor-not-allowed` : ``
          )}
       >
          <div ref={elementRef} className="px-3 hover:bg-hover-bg/50 rounded-t-sm">

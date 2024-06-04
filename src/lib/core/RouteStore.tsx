@@ -10,7 +10,7 @@ import ExamResults from '@/pages/exams/exam_events/ExamResults';
 import QuestionAction from '@/pages/questions/Action';
 import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
-import Profile from '@/pages/Profile';
+import Profile from '@/pages/auth/Profile';
 import Candidate from '@/pages/candidate';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';

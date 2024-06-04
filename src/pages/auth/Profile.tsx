@@ -4,7 +4,7 @@ import { type FinalRespnse } from '@/lib/sharedTypes';
 import { BreadCrumb, Header } from '@/components/custom';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TAction, type TUserEmployee } from '@/lib/sharedTypes';
-import { CandidateAction } from './users/Candidates';
+import { CandidateAction } from '../users/Candidates';
 import { useEffect, useState } from 'react';
 
 const Profile = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {

@@ -13,12 +13,12 @@ const DialogComponent = ({ children, title, isOpen, onOpenChange, className }: T
    return (
       <Dialog onOpenChange={onOpenChange} open={isOpen}>
          {/* <DialogTrigger>Open</DialogTrigger> */}
-         <DialogContent>
+         <DialogContent className='max-sm:w-full'>
             <DialogHeader>
                <DialogTitle>{title}</DialogTitle>
                {/* <DialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</DialogDescription> */}
             </DialogHeader>
-            <div className={cn('w-[600px] max-h-[80dvh] overflow-y-auto p-6 pb-0 relative', className)}>{children}</div>
+            <div className={cn('w-[600px] max-h-[80dvh] max-w-full overflow-y-auto p-6 pb-0 relative max-sm:w-full', className)}>{children}</div>
          </DialogContent>
       </Dialog>
    );
