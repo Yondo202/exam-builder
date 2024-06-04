@@ -10,7 +10,7 @@ import ExamResults from '@/pages/exams/exam_events/ExamResults';
 import QuestionAction from '@/pages/questions/Action';
 import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
-import Profile from '@/pages/auth/Profile';
+// import Profile from '@/pages/auth/Profile';
 import Candidate from '@/pages/candidate';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
@@ -77,13 +77,13 @@ const RouteStore: TRouteOmit[] = [
          { to: 'roles', label: 'Хэрэглэгчийн эрх', component: RolesList },
       ],
    },
-   {
-      to: 'profile', //groups
-      label: 'Өөрийн мэдээлэл',
-      isHide: true,
-      visibleType: ['company_admin', 'inspector'],
-      component: Profile,
-   },
+   // {
+   //    to: 'profile', //groups
+   //    label: 'Өөрийн мэдээлэл',
+   //    isHide: true,
+   //    visibleType: ['company_admin', 'inspector'],
+   //    component: Profile,
+   // },
 
    // { to: '/report', icon: Document, label: 'Тайлан' },
 
@@ -134,9 +134,9 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
             icon: Plan,
             label: 'Засах шалгалтууд',
             component: ActiveExams,
-            subMenu: [],
+            // subMenu: [],
          },
-         { icon: Document, to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, subMenu: [] },
+         { icon: Document, to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, },
       ];
    }
 

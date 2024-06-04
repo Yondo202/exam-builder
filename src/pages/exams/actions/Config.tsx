@@ -9,7 +9,7 @@ import { Button, Drawer, Skeleton } from '@/components/custom';
 import { useGetCategories } from '@/pages/category';
 import { UseReFetch } from '@/lib/core/request';
 
-const Config = ({ data }: { data: FinalRespnse<TExam> | undefined }) => {
+const Config = ({ data, isCompAdmin }: { data: FinalRespnse<TExam> | undefined; isCompAdmin?: boolean }) => {
    const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
 
    const FoundCategoryInfo = ({ current, foundKey }: { current: 'main_category' | 'sub_category'; idKey?: string; foundKey?: string }) => {
@@ -65,9 +65,11 @@ const Config = ({ data }: { data: FinalRespnse<TExam> | undefined }) => {
                         </span>
                      </div>
                   </div>
-                  <Button onClick={() => setAction({ isOpen: true, type: 'edit', data: data?.data })} size="sm" variant="outline" className="rounded-full ml-auto">
-                     <BsPencil className="text-sm" /> Ерөнхий мэдээлэл засах
-                  </Button>
+                  {!isCompAdmin && (
+                     <Button onClick={() => setAction({ isOpen: true, type: 'edit', data: data?.data })} size="sm" variant="outline" className="rounded-full ml-auto">
+                        <BsPencil className="text-sm" /> Ерөнхий мэдээлэл засах
+                     </Button>
+                  )}
                </AccordionContent>
             </AccordionItem>
          </Accordion>

@@ -10,6 +10,7 @@ import { request } from '@/lib/core/request';
 import { useQuery } from '@tanstack/react-query';
 import Cookie from 'js-cookie';
 import { useEffect } from 'react';
+import Profile from './pages/auth/Profile';
 // import { Loading } from '@/components/custom';
 // import useTheme from '@/hooks/useTheme';
 
@@ -73,6 +74,14 @@ const CustomRoutes = ({ roles }: { roles: TRolesAssetType[] }) => {
                     );
                  })
                : null}
+            {/* {
+      to: 'profile', //groups
+      label: 'Өөрийн мэдээлэл',
+      isHide: true,
+      visibleType: ['company_admin', 'inspector'],
+      component: Profile,
+   }, */}
+            <Route path="/profile" element={<Profile breadcrumbs={[{ label: 'Өөрийн мэдээлэл', to: '/profile', isActive: true }]} />} />
          </Route>
 
          <Route path="/" element={<PrivateRoute />}>

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { useState } from 'react';
 import { DataTable, BreadCrumb, Dialog, AnimatedTabs, Badge } from '@/components/custom';
-import { type FinalRespnse, type TAction, type TUserEmployee, type TRolesAssetType, UserRolesAsset, type TUserRoles, } from '@/lib/sharedTypes';
+import { type FinalRespnse, type TAction, type TUserEmployee, type TRolesAssetType, UserRolesAsset, type TUserRoles } from '@/lib/sharedTypes';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { EmployeeDetail } from '../users'; //UserRolesAsset
@@ -63,7 +63,7 @@ const RolesList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 };
 
 export default RolesList;
-
+// private_number
 const columnDef: ColumnDef<TUserEmployee>[] = [
    {
       header: 'Овог нэр',
@@ -73,6 +73,7 @@ const columnDef: ColumnDef<TUserEmployee>[] = [
    {
       header: 'Утас',
       accessorKey: 'phone',
+      cell: ({ row }) => row.original.phone ?? row.original.private_number,
    },
    {
       header: 'Э-мэйл',

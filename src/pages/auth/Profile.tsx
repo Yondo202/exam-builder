@@ -7,16 +7,19 @@ import { type TAction, type TUserEmployee } from '@/lib/sharedTypes';
 import { CandidateAction } from '../users/Candidates';
 import { useEffect, useState } from 'react';
 
-const Profile = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
-   const [action, setAction] = useState<TAction<TUserEmployee>>({ isOpen: false, type: 'add', data: {} as TUserEmployee });
-   const { data, isFetchedAfterMount, refetch } = useQuery({
+export const GetUserMe = () => {
+   return useQuery({
       queryKey: ['user/me'],
       queryFn: () =>
          request<FinalRespnse<TUserEmployee>>({
             url: 'user/profile',
          }),
    });
+};
 
+const Profile = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const [action, setAction] = useState<TAction<TUserEmployee>>({ isOpen: false, type: 'add', data: {} as TUserEmployee });
+   const { data, isFetchedAfterMount, refetch } = GetUserMe();
    useEffect(() => {
       if (isFetchedAfterMount) {
          setAction({ isOpen: true, type: 'edit', data: data?.data });

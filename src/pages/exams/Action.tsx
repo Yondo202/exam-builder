@@ -3,7 +3,7 @@ import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 // import { Drawer, TextInput, Button, Textarea, TabsList, Tabs, TabsContent } from '@/components/custom'; //
 // import { CiSaveUp1 } from 'react-icons/ci';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { type TExam } from '.';
+import { type TExam, onlyCompanyAdmin } from '.';
 import { type FinalRespnse, type TAction, type TUserEmployee } from '@/lib/sharedTypes';
 import { useParams } from 'react-router-dom';
 import { request } from '@/lib/core/request';
@@ -69,10 +69,9 @@ const initialFetch = {
 };
 
 const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const isCompAdmin = onlyCompanyAdmin();
    const [mainInviteType, setMainInviteType] = useState<TMainKeys>('inspector');
-
    const [current, setCurrent] = useState<TKeys>('user');
-
    const [invite, setInvite] = useState<TInviteAsset>({ isOpen: false, type: 'emp' });
    const { typeid } = useParams();
    const [variantId, setVariantId] = useState('');
@@ -134,7 +133,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             <DeleteContent isLoading={isPending} submitAction={() => mutate()} setClose={() => setDeleteAction((prev) => ({ ...prev, isOpen: false }))} />
          </Dialog>
 
-         <BreadCrumb pathList={[...breadcrumbs.map((item) => ({ ...item, isActive: false })), { to: '#', label: data?.data?.name ?? '', isActive: true }]} />
+         <BreadCrumb pathList={[...breadcrumbs.map((item) => ({ ...item, to: isCompAdmin ? '/' : item.to, isActive: false })), { to: '#', label: data?.data?.name ?? '', isActive: true }]} />
          <Header
             title="Шалгалтын материал"
             action={
@@ -171,17 +170,19 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             }
          />
 
-         <Config data={data} />
+         <Config data={data} isCompAdmin={isCompAdmin} />
 
-         <Variants variantId={variantId} setVariantId={setVariantId} exam_id={data?.data?.id} variants={data?.data?.variants ?? []}>
-            {data?.data?.variants?.map((item, index) => {
-               return (
-                  <TabsContent key={index} value={item.id}>
-                     <Section variant_id={variantId} />
-                  </TabsContent>
-               );
-            })}
-         </Variants>
+         {!isCompAdmin && (
+            <Variants variantId={variantId} setVariantId={setVariantId} exam_id={data?.data?.id} variants={data?.data?.variants ?? []}>
+               {data?.data?.variants?.map((item, index) => {
+                  return (
+                     <TabsContent key={index} value={item.id}>
+                        <Section variant_id={variantId} />
+                     </TabsContent>
+                  );
+               })}
+            </Variants>
+         )}
 
          <div className="mt-2">
             <AnimatedTabs

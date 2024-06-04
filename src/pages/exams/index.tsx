@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { finalRenderDate } from '@/lib/utils';
 import { IoArrowForwardSharp } from 'react-icons/io5';
 import { AllTypesQuestionTypes } from '../questions';
+import { GetUserMe } from '@/pages/auth/Profile';
 
 export type TExamSection = {
    id: string;
@@ -61,7 +62,13 @@ export type TExam = {
 
 // eslint-disable-next-line react-refresh/only-export-components
 
+export const onlyCompanyAdmin = () => {
+   const { data: userMe } = GetUserMe();
+   return userMe?.data?.roles?.some((item) => item.role === 'company_admin') && userMe?.data?.roles?.every((item) => item.role !== 'super_admin');
+};
+
 const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const isCompAdmin = onlyCompanyAdmin();
    const navigate = useNavigate();
    const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
 
@@ -87,21 +94,40 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       if (id !== 'delete') {
          navigate(id);
       }
+
+      // row.original?.id ?? '/'
    };
+
+   // console.log(
+   //    userMe?.data?.roles?.some((item) => item.role === 'company_admin'),
+   //    'hehe'
+   // );
+
+   // console.log(isAdmin, "------>isAdmin")
 
    return (
       <div>
          <BreadCrumb pathList={breadcrumbs} />
+         {/* {userData.roles} */}
          <Header
             title={breadcrumbs.find((item) => item.isActive)?.label}
             action={
-               <Button onClick={() => setAction({ isOpen: true, type: 'add' })} className="rounded-full">
-                  <MdOutlineAdd className="text-base" /> Шалгалт үүсгэх
-               </Button>
+               isCompAdmin ? null : (
+                  <Button onClick={() => setAction({ isOpen: true, type: 'add' })} className="rounded-full">
+                     <MdOutlineAdd className="text-base" /> Шалгалт үүсгэх
+                  </Button>
+               )
             }
          />
 
-         <DataTable defaultSortField="active_start_at" rowAction={(data) => setAction(data)} data={data?.data ?? []} columns={columnDef} isLoading={isLoading} />
+         <DataTable
+            hideAction={isCompAdmin}
+            defaultSortField="active_start_at"
+            rowAction={(data) => (isCompAdmin ? navigate(data?.data?.id ?? '/') : setAction(data))}
+            data={data?.data ?? []}
+            columns={columnDef}
+            isLoading={isLoading}
+         />
 
          <Drawer
             open={action.isOpen}
