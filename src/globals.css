@@ -78,7 +78,7 @@
       @apply scroll-smooth font-sans font-normal;
    }
    * {
-      @apply border-muted-border ;
+      @apply border-muted-border;
    }
    body {
       @apply bg-body-bg text-xs2 text-text; /* font-sans  */
@@ -92,6 +92,9 @@
 
    .dialog-footer {
       @apply sticky bottom-0 left-0 bg-card-bg py-4 flex justify-end w-full;
+   }
+   .custom-container {
+      @apply w-full max-w-5xl;
    }
 
    .bg-box-parent {

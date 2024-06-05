@@ -9,11 +9,60 @@ import { useEffect, useState, useRef, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { IoIosArrowForward } from 'react-icons/io';
 import Cookies from 'js-cookie';
-import { TUserEmployee, type TUserRoles, UserRolesAsset } from '@/lib/sharedTypes'; 
+import { TUserEmployee, type TUserRoles, UserRolesAsset } from '@/lib/sharedTypes';
 
 const subHeight = 45;
 
-const LeftMenu = ({ userdata, RouteStore }: { userdata?: TUserEmployee; RouteStore:TRouteOmit[] }) => {
+export const LogoSector = ({ className }: { className?: string }) => {
+   return (
+      <Link to="/" className={cn('p-3 pt-5 flex items-center gap-3 rounded-md hover:bg-primary/10', className)}>
+         <TavanbogdLogo className="w-16 max-w-full" />
+         <div>
+            <div className="font-medium text-xs max-sm:hidden">Таван богд</div>
+            <div className="text-[10px] text-muted-text/80 max-sm:hidden">Шалгалтын платформ</div>
+         </div>
+      </Link>
+   );
+};
+
+export const UserProfileSector = ({ userdata, isHide, className }: { userdata?: TUserEmployee; isHide?: boolean; className?: string }) => {
+   return (
+      <div className={cn('pr-4 gap-4 grid items-center border-t', isHide ? `grid-rows-auto` : `grid-cols-[1fr_auto]`, className)}>
+         <NavLink to="/profile" className="grid p-4 pr-0 gap-3 grid-cols-[auto_1fr] items-center hover:bg-primary/10 rounded-md cursor-pointer">
+            <Avatar className='h-6 w-6'>
+               {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
+               <AvatarFallback>{userdata?.firstname?.slice(0, 1)?.toUpperCase()}</AvatarFallback>
+            </Avatar>
+            {!isHide && <div className="one_line animate-scale duration-300 text-xs max-sm:hidden">{userdata?.firstname}</div>}
+         </NavLink>
+
+         <Popover>
+            <PopoverTrigger asChild>
+               <Button size="icon" variant="outline" className="rotate-180 rounded-full h-7 w-7">
+                  <CiLogout className='text-sm' />
+               </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" side="right" sideOffset={25}>
+               <div className="mb-6 text-base text-muted-text">Та гарахдаа итгэлтэй байна уу?</div>
+               <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                     Cookies.remove('access_token');
+                     window.location.reload();
+                     // removeCookie('access_token')
+                  }}
+               >
+                  {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}
+                  <CiLogout /> Гарах
+               </Button>
+            </PopoverContent>
+         </Popover>
+      </div>
+   );
+};
+
+const LeftMenu = ({ userdata, RouteStore }: { userdata?: TUserEmployee; RouteStore: TRouteOmit[] }) => {
    // const [, , removeCookie] = useCookies(['access_token']);
    const [isHide, setIsHide] = useState(false);
 
@@ -37,16 +86,13 @@ const LeftMenu = ({ userdata, RouteStore }: { userdata?: TUserEmployee; RouteSto
          <ActionButton isHide={isHide} setHide={setHide} />
 
          <div>
-            <div className="p-3 py-5">
-               <TavanbogdLogo className="w-18 max-w-full" />
-            </div>
+            <LogoSector />
             <div className={cn('flex flex-col overflow-y-auto pt-6', isHide ? `px-1.5 items-center justify-center gap-3` : `px-3  gap-0`)}>
                {RouteStore?.filter((item) => !item.isHide).map((Element, index) => {
                   return <NavLinkComponent key={index} isHide={isHide} Element={Element} />;
                })}
             </div>
          </div>
-
          <div>
             <div className="p-4 flex flex-wrap gap-1.5">
                {!isHide &&
@@ -54,44 +100,13 @@ const LeftMenu = ({ userdata, RouteStore }: { userdata?: TUserEmployee; RouteSto
                      ?.filter((el) => userdata?.roles?.some((item) => item.role === el))
                      ?.map((item, index) => {
                         return (
-                           <Badge key={index} className="text-[10px] px-2" variant="secondary">
+                           <Badge key={index} className="text-[10px] px-2 rounded-full" variant="secondary">
                               {UserRolesAsset[item as TUserRoles]?.label}
                            </Badge>
                         );
                      })}
             </div>
-            <div className={cn('pr-4 gap-4 grid  items-center border-t', isHide ? `grid-rows-auto` : `grid-cols-[1fr_auto]`)}>
-               <NavLink to="/profile" className="grid p-4 pr-0 gap-3 grid-cols-[auto_1fr] items-center hover:bg-primary/10 rounded-md cursor-pointer">
-                  <Avatar>
-                     {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
-                     <AvatarFallback>{userdata?.firstname?.slice(0, 1)?.toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  {!isHide && <div className="one_line animate-scale duration-300">{userdata?.firstname}</div>}
-               </NavLink>
-
-               <Popover>
-                  <PopoverTrigger asChild>
-                     <Button size="icon" variant="outline" className="rotate-180 rounded-full">
-                        <CiLogout />
-                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="end" side="right" sideOffset={25}>
-                     <div className="mb-6 text-base text-muted-text">Та гарахдаа итгэлтэй байна уу?</div>
-                     <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => {
-                           Cookies.remove('access_token');
-                           window.location.reload();
-                           // removeCookie('access_token')
-                        }}
-                     >
-                        {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}
-                        <CiLogout /> Гарах
-                     </Button>
-                  </PopoverContent>
-               </Popover>
-            </div>
+            <UserProfileSector userdata={userdata} isHide={isHide} />
          </div>
       </div>
    );

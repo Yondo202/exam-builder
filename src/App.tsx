@@ -23,7 +23,7 @@ const converSome = (Item: TRouteOmit) => {
 };
 
 function App() {
-   const { data } = useQuery({
+   const { data, isLoading } = useQuery({
       enabled: !!Cookie.get('access_token'),
       queryKey: ['user/me', [Cookie.get('access_token')]],
       queryFn: () =>
@@ -44,14 +44,14 @@ function App() {
       //    <Routes>{CustomRoutes({ roles: data?.data?.roles ?? [] })}</Routes>
       // </BrowserRouter>
       // <CookiesProvider>
-      <RouterProvider router={createBrowserRouter(createRoutesFromElements(CustomRoutes({ roles: data?.data?.roles ?? [] })))} />
+      <RouterProvider router={createBrowserRouter(createRoutesFromElements(CustomRoutes({ roles: data?.data?.roles ?? [], isLoading: isLoading })))} />
       // </CookiesProvider>
    );
 }
 
 export default App;
 
-const CustomRoutes = ({ roles }: { roles: TRolesAssetType[] }) => {
+const CustomRoutes = ({ roles, isLoading }: { roles: TRolesAssetType[]; isLoading: boolean }) => {
    return (
       <>
          <Route path="/" element={<PrivateRoute toSign />}>
@@ -74,13 +74,6 @@ const CustomRoutes = ({ roles }: { roles: TRolesAssetType[] }) => {
                     );
                  })
                : null}
-            {/* {
-      to: 'profile', //groups
-      label: 'Өөрийн мэдээлэл',
-      isHide: true,
-      visibleType: ['company_admin', 'inspector'],
-      component: Profile,
-   }, */}
             <Route path="/profile" element={<Profile breadcrumbs={[{ label: 'Өөрийн мэдээлэл', to: '/profile', isActive: true }]} />} />
          </Route>
 
@@ -89,17 +82,19 @@ const CustomRoutes = ({ roles }: { roles: TRolesAssetType[] }) => {
             <Route path="/forgotpassword" element={<ForgotPassword />} />
          </Route>
 
-         <Route path="*" element={<NoutFound />} />
+         <Route path="*" element={<NoutFound isLoading={isLoading} />} />
       </>
    );
 };
 
-const NoutFound = () => {
+const NoutFound = ({ isLoading }: { isLoading: boolean }) => {
    const navigate = useNavigate();
    useEffect(() => {
-      setTimeout(() => navigate('/'), 1000);
+      if (!isLoading) {
+         setTimeout(() => navigate('/'), 1000);
+      }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, []);
+   }, [isLoading]);
    return (
       <div className="h-[70dvh] flex items-center justify-center flex-col">
          <Empty />

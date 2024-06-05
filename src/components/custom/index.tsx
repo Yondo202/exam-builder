@@ -5,6 +5,7 @@ export { default as Header } from './Header';
 export { default as Textarea } from './TextArea';
 export { default as CkEditor } from './CkEditor';
 export { default as Dialog } from './Dialog';
+export { default as ShiftingCountdown } from './CountDown';
 export { default as AnimatedTabs } from './AnimatedTabs';
 export { default as Tooltip } from './Tooltip';
 export { default as CountDown } from './CountDown';

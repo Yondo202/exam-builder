@@ -7,7 +7,7 @@ import { LiaSlashSolid } from 'react-icons/lia';
 import { cn } from '@/lib/utils';
 
 export type TBreadCrumb = {
-   label: string; // daraa enum aas av
+   label?: string; // daraa enum aas av
    isActive?: boolean; // daraa enum aas av
    to: string;
 };

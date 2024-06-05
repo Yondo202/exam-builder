@@ -73,7 +73,7 @@ const Section = ({ variant_id }: TVairantTabs) => {
                   ?.sort((a, b) => a.sort_number - b.sort_number)
                   .map((item, index) => {
                      return (
-                        <AccordionItem key={index} value={item.id} className="border rounded-md bg-primary/10 mb-4 pr-1.5">
+                        <AccordionItem key={index} value={item.id} className="border rounded-md bg-primary/5 mb-4 pr-1.5">
                            <div className="grid items-center grid-cols-[1fr_auto]">
                               <AccordionTrigger className="flex-row-reverse justify-end gap-3 relative group/items">
                                  <span className="truncate max-w-96">{item.name}</span> <span>{index + 1}.</span>

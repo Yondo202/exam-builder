@@ -11,7 +11,8 @@ import QuestionAction from '@/pages/questions/Action';
 import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
 // import Profile from '@/pages/auth/Profile';
-import Candidate from '@/pages/candidate';
+import ExamsList from '@/pages/candidate/ExamsList';
+import ExamStartAction from '@/pages/candidate/ExamStartAction';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
 // const Category = React.lazy(() => import('@/pages/category'));
@@ -24,7 +25,7 @@ import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
 export type TRouteStore = {
    to: string;
    icon?: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
-   label: string;
+   label?: string;
    isHide?: boolean;
    component?: ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => ReactNode;
 
@@ -111,14 +112,14 @@ const filterMenu = (item: TRouteStore, roles?: TRolesAssetType[]) => {
 
 export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
    if (roles?.some((item) => item.role === 'candidate')) {
-      // return <Candidate />;
       return [
          {
             to: '/',
-            icon: Group,
-            label: 'Оролцогч',
-            component: Candidate,
-            subMenu: [],
+            component: ExamsList,
+         },
+         {
+            to: '/:examid',
+            component: ExamStartAction,
          },
       ];
    }
@@ -136,7 +137,7 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
             component: ActiveExams,
             // subMenu: [],
          },
-         { icon: Document, to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, },
+         { icon: Document, to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults },
       ];
    }
 

@@ -28,7 +28,7 @@ export const getJwt = () => {
 };
 
 export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic }: TRequest<T>) => {
-   if (!isPublic) {
+   if (!isPublic && method === "get") {
       if (!getJwt()) {
          SignOut();
       }

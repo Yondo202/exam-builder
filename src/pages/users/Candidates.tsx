@@ -242,7 +242,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
    return (
       <>
          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-2 gap-10 mb-4">
+            <div className="grid grid-cols-2 gap-10 mb-4 max-sm:grid-cols-1 max-sm:gap-3">
                <TextInput
                   disabled={!!action.data?.empid}
                   floatLabel={false}
@@ -255,7 +255,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                />
                <TextInput disabled={!!action.data?.empid} floatLabel={false} placeholder="Нэр" label="Нэр" name="firstname" control={control} rules={{ required: `Нэр оруулна уу` }} />
             </div>
-            <div className="grid grid-cols-2 gap-10 mb-4">
+            <div className="grid grid-cols-2 gap-10 mb-4 max-sm:grid-cols-1 max-sm:gap-3">
                <TextInput
                   disabled={!!action.data?.empid}
                   floatLabel={false}
@@ -276,7 +276,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                />
             </div>
 
-            <div className="grid grid-cols-2 gap-10 mb-5">
+            <div className="grid grid-cols-2 gap-10 mb-5 max-sm:grid-cols-1 max-sm:gap-3">
                {/* <DatePicker label="Төрсөн он сар өдөр" name="birth_date" control={control} rules={{ required: `Төрсөн он сар өдөр оруулна уу` }} /> */}
                {/* <DatePicker label="Төрсөн он сар өдөр" name="birth_date" control={control} rules={{ required: `Төрсөн он сар өдөр оруулна уу` }} /> */}
                <div className="flex items-center gap-2">
@@ -312,6 +312,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                      floatLabel={false}
                      placeholder={`Регистрийн дугаар`}
                      label={`Регистрийн дугаар`}
+                     className=' max-sm:w-full'
                      name="regno"
                      disabled={!!action.data?.empid}
                      // type="number"
@@ -329,7 +330,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                {!action.data?.empid && <SelectInput options={genders} label="Хүйс" name="gender" control={control} rules={{ required: `Хүйс` }} />}
             </div>
 
-            <div className="grid grid-cols-2 gap-10 mb-4">
+            <div className="grid grid-cols-2 gap-10 mb-4 max-sm:grid-cols-1 max-sm:gap-3">
                <TextInput
                   disabled={!!action.data?.empid || !isFromAdmin}
                   floatLabel={false}

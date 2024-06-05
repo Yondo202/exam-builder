@@ -27,7 +27,7 @@ import { IconType } from 'react-icons/lib';
 import { GoCheckCircle, GoBook } from 'react-icons/go';
 import { BsSave } from 'react-icons/bs';
 // import { IoTextOutline } from 'react-icons/io5';
-import { UseReFetch, request } from '@/lib/core/request';
+import { request } from '@/lib/core/request'; //UseReFetch,
 // import { HiOutlineDotsHorizontal } from 'react-icons/hi';
 // import { PiChatCenteredDotsLight } from "react-icons/pi";
 import { TbMessageCircleQuestion } from 'react-icons/tb';
@@ -219,7 +219,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
       onSuccess: () => {
          if (pathId) {
             setCloseDialog?.();
-            UseReFetch({ queryKey: 'exam/section' });
+            // UseReFetch({ queryKey: 'exam/section' });
             return;
          }
          navigate('/questions');
@@ -227,7 +227,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
    });
 
    const onSubmit = (data: TQuestionTypes) => {
-      if (type === 'checkbox') {
+      if (data.type === 'checkbox') {
          if (!watch()?.answers?.some((item) => item.is_correct)) {
             toast.error(errorText);
             setError('answers.0.is_correct', { message: errorText });
@@ -272,7 +272,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
             <Header
                title={questionAsset[watch()?.type as TQuestion]?.label}
                action={
-                  <Button onClick={() => (pathId ? onSubmit(watch()) : null)} disabled={!isDirty} isLoading={isPending} type="submit">
+                  <Button onClick={() => (pathId ? onSubmit(watch()) : null)} disabled={!isDirty} isLoading={isPending} type={pathId ? 'button' : 'submit'}>
                      <BsSave className="text-sm mr-1" />
                      Хадгалах
                   </Button>
