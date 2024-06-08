@@ -22,7 +22,7 @@ function pad(number: number) {
    return number;
 }
 
-export function formatDateToCustomISO(date: Date, timeZoneAbbreviation?: string) {
+export function formatDateToCustomISO(date: Date) {
    const offset = date.getTimezoneOffset();
    const offsetHours = Math.abs(Math.floor(offset / 60));
    const offsetMinutes = Math.abs(offset % 60);
@@ -44,12 +44,17 @@ export function formatDateToCustomISO(date: Date, timeZoneAbbreviation?: string)
       pad(offsetHours) +
       ':' +
       pad(offsetMinutes) +
-      ' ' +
-      timeZoneAbbreviation;
+      ' ';
+   // timeZoneAbbreviation;
 
    return isoString;
 }
 
 export const finalRenderDate = (value: string) => {
    return formatDateToCustomISO(new Date(value))?.slice(0, 16)?.replace('T', ' / ');
+};
+
+export const RenderDateValue = (value: string) => {
+   if (!value) return formatDateToCustomISO(new Date());
+   return formatDateToCustomISO(new Date(value));
 };

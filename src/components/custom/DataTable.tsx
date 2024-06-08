@@ -250,7 +250,7 @@ export default function DataTable<T extends object>({
                                  return (
                                     <div className="flex gap-3.5 py-1.5" key={column.id}>
                                        <Checkbox checked={column.getIsVisible()} id={column.id} onCheckedChange={(value) => column.toggleVisibility(!!value)} aria-label="Select all" />
-                                       <label className="one_line cursor-pointer" htmlFor={column.id}>
+                                       <label className="truncate cursor-pointer" htmlFor={column.id}>
                                           {column?.columnDef?.header?.toString()}
                                        </label>
                                     </div>

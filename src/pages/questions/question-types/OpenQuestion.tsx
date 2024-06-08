@@ -7,7 +7,7 @@ import { type TQTypesProps, ScoreInput } from '../Action';
 
 const SelectInputTypes: TInputTypeTab[] = [
    { label: 'Богино хариулттай', key: 'text' },
-   { label: 'Урт хариулттай', key: 'richtext' },
+   { label: 'Урт хариулт (форматтай)', key: 'richtext' },
    { label: 'Дүрс зурагтай - асуулт / хариулт', key: 'essay' },
 ];
 

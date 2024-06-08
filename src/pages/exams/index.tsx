@@ -26,6 +26,7 @@ export type TVariant = {
    name: string;
    description: string;
    exam_id: string;
+   sections?:TExamSection[]
 };
 
 export type TExam = {

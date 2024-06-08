@@ -1,14 +1,36 @@
 // import React from 'react';
-import { Badge, Button, Header, Skeleton } from '@/components/custom';
+import { Badge, Button, Header, Skeleton, Dialog } from '@/components/custom';
 import { request } from '@/lib/core/request';
 import { FinalRespnse } from '@/lib/sharedTypes';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { PiExam } from 'react-icons/pi';
 import { finalRenderDate } from '@/lib/utils';
+import { type TAction } from '@/lib/sharedTypes';
 import { VscSend } from 'react-icons/vsc';
 import { LiaHourglassStartSolid, LiaArrowRightSolid } from 'react-icons/lia';
+import { useState } from 'react';
 
-type TMyEXam = {
+// enum UserExamStatusEnum {
+//    ongoing = 'ONGOING',
+//    submitted = 'SUBMITTED',
+//    created = 'CREATED',
+//    ended = 'ENDED',
+// }
+
+type StatusTypes = 'ongoing' | 'submitted' | 'created' | 'ended';
+
+type TInviteStatus = { [Key in StatusTypes]: string };
+
+const StatusLabels: TInviteStatus = {
+   created: 'Шинэ',
+   ongoing: 'Үргэлжилж байгаа',
+   submitted: 'Шалгалт өгсөн',
+   ended: 'Дууссан',
+};
+
+// { [Key in TQuestion]: TObjectPettern }
+export type TMyEXam = {
    name: string;
    description: string;
    duration_min: number;
@@ -18,13 +40,16 @@ type TMyEXam = {
    sub_category: { name: string };
 };
 
-type TMyExamAsset = {
+export type TMyExamAsset = {
+   id: string;
    created_at: string;
    exam_id: string;
+   status: StatusTypes;
    exam: TMyEXam;
 };
 
 const ExamsList = () => {
+   const [action, setAction] = useState<TAction<TMyExamAsset>>({ isOpen: false, type: 'add', data: {} as TMyExamAsset });
    const navigate = useNavigate();
    const { data, isLoading } = useQuery<FinalRespnse<TMyExamAsset[]>>({ queryKey: ['my-invites'], queryFn: () => request({ url: 'user/exam/my-invites' }) });
 
@@ -34,18 +59,23 @@ const ExamsList = () => {
          <div className="grid grid-cols-3 gap-6 max-sm:grid-cols-1">
             {isLoading ? (
                <>
-                  <Skeleton className="w-full" />
+                  <Skeleton className="w-full h-60 rounded-lg" />
+                  <Skeleton className="w-full h-60 rounded-lg" />
+                  <Skeleton className="w-full h-60 rounded-lg" />
                </>
             ) : (
                data?.data?.map((item, index) => {
                   return (
                      <div className="wrapper p-0 group hover:shadow-md" key={index}>
                         <div className="text-base font-normal px-5 py-3 border-b">
-                           <div className="one_line font-medium mb-1">{item.exam?.name}</div>
-                           <div className="one_line text-xs text-muted-text">{item.exam?.description}</div>
+                           <div className="truncate font-medium mb-1">{item.exam?.name}</div>
+                           <div className="truncate text-xs text-muted-text">{item.exam?.description}</div>
                         </div>
 
                         <div className="p-5 relative overflow-hidden">
+                           <div className="flex items-center gap-2 text-muted-text mb-3">
+                              Төлөв: <span className="font-medium text-secondary">{StatusLabels[item.status]}</span>
+                           </div>
                            <div className="flex items-center gap-2 text-muted-text mb-3">
                               Үргэлжилэх хугацаа:{' '}
                               <span className="font-medium text-secondary">
@@ -69,17 +99,45 @@ const ExamsList = () => {
                               </Badge>
                            </div>
 
-                           <div className="absolute top-full left-0 w-full h-full transition-all rounded-lg duration-300 opacity-0 group-hover:top-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-sm">
-                              <Button
-                                 size="lg"
-                                 className="group/button rounded-full opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 hover:bg-primary"
-                                 onClick={() => navigate(`/${item.exam_id}`)}
-                              >
-                                 <LiaHourglassStartSolid className="text-lg rotate-180 transition-all group-hover/button:rotate-0" /> Шалгалт эхлүүлэх{' '}
-                                 <VscSend className="mt-0.5 scale-0 opacity-0 -translate-x-full transition-all group-hover/button:scale-100 group-hover/button:opacity-100 group-hover/button:translate-x-0" />
-                              </Button>
-                           </div>
+                           {item.status !== 'ended' && (
+                              <div className="absolute top-full left-0 w-full h-full transition-all rounded-lg duration-300 opacity-0 group-hover:top-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-sm">
+                                 <Button
+                                    size="lg"
+                                    className="group/button rounded-full opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 hover:bg-primary"
+                                    onClick={() => (item.status === 'ongoing' ? navigate(`/${item.id}`) : setAction({ data: item, isOpen: true, type: 'edit' }))}
+                                 >
+                                    <PiExam className="text-lg" />
+                                    <span>{item.status === 'ongoing' ? `Шалгалт үргэлжлүүлэх` : `Шалгалт өгөх`} </span>
+                                    <VscSend className="mt-0.5 scale-0 opacity-0 -translate-x-full transition-all group-hover/button:scale-100 group-hover/button:opacity-100 group-hover/button:translate-x-0" />
+                                 </Button>
+                              </div>
+                           )}
                         </div>
+
+                        {action.data?.id === item.id && (
+                           <Dialog title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
+                              <div className="pb-8">
+                                 <div className="truncate font-medium text-lg">{action?.data?.exam?.name}</div>
+                                 <div className="text-xs2 text-muted-text mb-8">{action.data?.exam?.description}</div>
+
+                                 <div className="flex items-center gap-2 text-muted-text text-sm mb-8">
+                                    Үргэлжилэх хугацаа:
+                                    <span className="font-medium text-secondary">
+                                       {action.data?.exam?.duration_min} <span className="font-normal text-muted-text">- мин</span>{' '}
+                                    </span>
+                                 </div>
+                                 <Button
+                                    size="lg"
+                                    className="group/button rounded-full w-full"
+                                    onClick={() => (setAction((prev) => ({ ...prev, isOpen: false })), navigate(`/${action?.data?.id}`))}
+                                 >
+                                    <LiaHourglassStartSolid className="text-lg rotate-180 transition-all group-hover/button:rotate-0" />
+                                    <span>Шалгалт эхлэх</span>
+                                    <VscSend className="mt-0.5 scale-0 opacity-0 -translate-x-full transition-all group-hover/button:scale-100 group-hover/button:opacity-100 group-hover/button:translate-x-0" />
+                                 </Button>
+                              </div>
+                           </Dialog>
+                        )}
                      </div>
                   );
                })

@@ -118,7 +118,7 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
             component: ExamsList,
          },
          {
-            to: '/:examid',
+            to: '/:inviteid',
             component: ExamStartAction,
          },
       ];
