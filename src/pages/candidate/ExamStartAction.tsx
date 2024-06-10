@@ -16,6 +16,7 @@ import { getJwt } from '@/lib/core/request';
 import { Controller, useForm } from 'react-hook-form';
 import SubQuestions from './SubQuestions';
 import { GiFinishLine } from 'react-icons/gi';
+import { cn } from '@/lib/utils';
 
 // const toConnect = () => {
 //    if (getJwt()) {
@@ -41,13 +42,17 @@ export type TQuestionProps = {
    question: PickedQuestionTypes;
    socket?: Socket;
    progressId?: string;
+
+   // fieldState: ControllerFieldState;
+   // ref: RefCallBack;
+
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    field: any;
    // field: ControllerRenderProps<FieldValues, string> | ControllerRenderProps<FieldValues, number>;
 };
 
 type TObjectPettern = {
-   component: ({ question }: TQuestionProps) => JSX.Element;
+   component: (props: TQuestionProps) => JSX.Element;
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -76,7 +81,14 @@ const ExamStartAction = () => {
    const [isTimeOut, setIsTimeOut] = useState(false);
    // const [socketConnect, setSocketConnect] = useState({ isConnected: false });
    // console.log(socketConnect, "----->socketConnect")
-   const { control, reset } = useForm({ mode: 'onChange' });
+   const {
+      control,
+      reset,
+      watch,
+      setError,
+      clearErrors,
+      // formState: { errors },
+   } = useForm({ mode: 'onSubmit' });
 
    const navigate = useNavigate();
    const { inviteid } = useParams();
@@ -123,9 +135,6 @@ const ExamStartAction = () => {
          navigate('/');
          setIsTimeOut(true);
       },
-      onError: () => {
-         setIsTimeOut(true);
-      },
       onSettled: () => setIsTimeOut(true),
    });
 
@@ -160,14 +169,37 @@ const ExamStartAction = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isFetchedAfterMount, isError]);
 
-   const FinalFinish = () => {
+   const FinalSubmit = () => {
       if (!isTimeOut) {
          mutate();
       }
    };
 
+   const onExamSubmit = () => {
+      let isInValid = false;
+      Object.keys(watch())?.forEach((item) => {
+         if (!watch(item) || watch(item)?.length === 0) {
+            setError(item, { message: 'Хариулт аа оруулна уу', type: 'required' });
+            isInValid = true;
+         }
+      });
+
+      if (!isInValid) {
+         // console.log('its finish');
+         mutate();
+      }
+   };
+
+   // console.log(errors, "----------->")
    // console.log(ProgressData, '-->ProgressData');
    // console.log(data?.data, '-->material');
+
+   // console.log(methods.watch(), "---------------->methods")
+
+   // /user/inspector - shalgalt zasah humuusiin jagsaalt
+   // /user/inspector/exam/list - zasah shalgaltiin jagsaalt
+   // /user/inspector/exam/submittion/list - ter shalgaltiig ogson shalgaltiin jagsaalt
+
 
    return (
       <>
@@ -175,7 +207,7 @@ const ExamStartAction = () => {
          <div className="py-0 grid grid-cols-[minmax(0,270px)_minmax(0,1fr)] gap-6 max-sm:grid-cols-1">
             <div className="wrapper p-0 h-min sticky top-2 z-40">
                {/* <div className="mb-2 text-muted-text absolute">Үлдсэн хугацаа</div> */}
-               {!!ProgressData?.data?.end_at && <ShiftingCountdown isTimeOut={isTimeOut} toFinish={ProgressData?.data?.end_at} FinalFinish={FinalFinish} />}
+               {!!ProgressData?.data?.end_at && <ShiftingCountdown isTimeOut={isTimeOut} toFinish={ProgressData?.data?.end_at} FinalFinish={FinalSubmit} />}
                <div className="p-5">
                   <div className="pb-2 text-muted-text">
                      Вариант: <span className="text-text">{data?.data?.variants?.[0].name}</span>{' '}
@@ -189,7 +221,7 @@ const ExamStartAction = () => {
                {data?.data?.variants?.[0]?.sections?.map((item, index) => {
                   return (
                      <div className="mb-10" key={index}>
-                        <div className="wrapper mb-2.5 p-8 py-5 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
+                        <div className="wrapper mb-2.5 p-8 py-5 pb-2 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
                            <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span> {item.name}
                         </div>
                         <div>
@@ -198,8 +230,8 @@ const ExamStartAction = () => {
                               const subQuestions = ProgressData?.data.progress?.find((el: any) => el.question_id === element.id)?.sub_questions ?? [];
 
                               return (
-                                 <div className="wrapper mb-2.5 p-8 py-6 relative" key={ind}>
-                                    <div className="flex items-center gap-3 justify-between mb-7">
+                                 <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind}>
+                                    <div className="px-8 flex items-center gap-3 justify-between mb-4">
                                        <Badge variant="secondary" className="py-1 text-xs gap-2">
                                           <span className="font-medium font-base">
                                              {index + 1}.{ind + 1}
@@ -219,15 +251,42 @@ const ExamStartAction = () => {
                                        control={control}
                                        name={element.id}
                                        rules={{ required: true }}
-                                       render={({ field }) => {
+                                       render={({ field, fieldState }) => {
+                                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                          const parentOnChange = (value: any) => {
+                                             clearErrors();
+                                             field.onChange(value);
+                                          };
+                                          // if(element?.sub_questions){
+
+                                          // }
                                           return (
                                              <div>
-                                                {questionAsset[element.type]?.component({ question: element, field: field, socket: socket, progressId: ProgressData?.data.id ?? '' })}
+                                                <button
+                                                   className={cn(
+                                                      'border border-transparent rounded-md w-full cursor-default text-start px-8 py-3',
+                                                      fieldState?.error ? `border-danger-color/60 focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``
+                                                   )}
+                                                   type="button"
+                                                   onFocus={fieldState?.error?.ref?.focus?.() as React.FocusEventHandler<HTMLButtonElement> | undefined}
+                                                   // onFocus={!!fieldState?.error}
+                                                   ref={field.ref}
+                                                >
+                                                   {questionAsset[element.type]?.component({
+                                                      question: element,
+                                                      field: { ...field, onChange: parentOnChange },
+                                                      socket: socket,
+                                                      progressId: ProgressData?.data.id ?? '',
+                                                   })}
+
+                                                   {fieldState?.error && <div className="text-danger-color text-end p-3">{fieldState?.error.message}</div>}
+                                                </button>
 
                                                 {element?.sub_questions?.length > 0 && (
                                                    <SubQuestions
                                                       subQuestionsValue={subQuestions}
                                                       parentQuestion={element}
+                                                      parentValue={field.value}
                                                       socket={socket}
                                                       score_visible={data?.data.score_visible}
                                                       progressId={ProgressData?.data.id ?? ''}
@@ -247,13 +306,15 @@ const ExamStartAction = () => {
                <div className="flex justify-end">
                   <Popover>
                      <PopoverTrigger asChild>
-                        <Button>
+                        <Button type="button">
                            Шалгалт дуусгах <VscSend className="mt-0.5" />
                         </Button>
                      </PopoverTrigger>
                      <PopoverContent align="end" side="top" sideOffset={25}>
-                        <div className="mb-8 text-base text-text">Та шалгалтыг дуусгахдаа итгэлтэй байна уу?</div>
-                        <Button variant="outline" className="w-full" onClick={() => mutate()}>
+                        <div className="mb-8 text-sm font-medium text-text">Та шалгалтыг дуусгахдаа итгэлтэй байна уу?</div>
+                        <Button variant="outline" className="w-full" onClick={onExamSubmit}>
+                           {' '}
+                           {/*onClick={() => mutate()}*/}
                            {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}
                            <GiFinishLine className="text-base" /> Дуусгах
                         </Button>
@@ -267,3 +328,7 @@ const ExamStartAction = () => {
 };
 
 export default ExamStartAction;
+
+// (42)[('save_progress', '{"type":"checkbox","input_type":"select","question_id":"c5525625-0e6f-4700-9226-7ee5694d3a7f","choice":"","id":"fd809948-5529-4769-87d2-b68434feda6f"}')];
+// (42)[('save_progress', '{"type":"checkbox","input_type":"select","question_id":"c5525625-0e6f-4700-9226-7ee5694d3a7f","choice":"","id":"fd809948-5529-4769-87d2-b68434feda6f"}')];
+// (42)[('save_progress', '{"type":"checkbox","input_type":"select","question_id":"c5525625-0e6f-4700-9226-7ee5694d3a7f","choice":"","id":"fd809948-5529-4769-87d2-b68434feda6f"}')];

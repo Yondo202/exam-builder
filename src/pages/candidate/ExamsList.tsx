@@ -22,7 +22,8 @@ type StatusTypes = 'ongoing' | 'submitted' | 'created' | 'ended';
 
 type TInviteStatus = { [Key in StatusTypes]: string };
 
-const StatusLabels: TInviteStatus = {
+// eslint-disable-next-line react-refresh/only-export-components
+export const StatusLabels: TInviteStatus = {
    created: 'Шинэ',
    ongoing: 'Үргэлжилж байгаа',
    submitted: 'Шалгалт өгсөн',
@@ -38,6 +39,7 @@ export type TMyEXam = {
    active_end_at: string;
    category: { name: string };
    sub_category: { name: string };
+   take_per_user: number;
 };
 
 export type TMyExamAsset = {
@@ -45,6 +47,7 @@ export type TMyExamAsset = {
    created_at: string;
    exam_id: string;
    status: StatusTypes;
+   attempt: number;
    exam: TMyEXam;
 };
 
@@ -52,6 +55,10 @@ const ExamsList = () => {
    const [action, setAction] = useState<TAction<TMyExamAsset>>({ isOpen: false, type: 'add', data: {} as TMyExamAsset });
    const navigate = useNavigate();
    const { data, isLoading } = useQuery<FinalRespnse<TMyExamAsset[]>>({ queryKey: ['my-invites'], queryFn: () => request({ url: 'user/exam/my-invites' }) });
+
+   // console.log(data?.data, '--------->');
+
+   // dahin {5} oroldlogo hiih bolomjtoi -
 
    return (
       <div className="h-[calc(100dvh-56px)] overflow-y-auto">
@@ -74,7 +81,10 @@ const ExamsList = () => {
 
                         <div className="p-5 relative overflow-hidden">
                            <div className="flex items-center gap-2 text-muted-text mb-3">
-                              Төлөв: <span className="font-medium text-secondary">{StatusLabels[item.status]}</span>
+                              Төлөв:{' '}
+                              <Badge variant="secondary" className="font-medium py-1">
+                                 {StatusLabels[item.status]}
+                              </Badge>
                            </div>
                            <div className="flex items-center gap-2 text-muted-text mb-3">
                               Үргэлжилэх хугацаа:{' '}
@@ -89,18 +99,26 @@ const ExamsList = () => {
                               Дуусах огноо: <span className="text-text">{finalRenderDate(item.exam?.active_end_at)}</span>
                            </div>
 
-                           <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 pt-2">
-                              <Badge variant="secondary" className="py-1 max-w-full">
+                           <div className="flex items-center gap-2 text-muted-text mb-3">
+                              Дахин шалгалт өгөх
+                              <Badge variant="secondary" className="text-[10px] font-medium">
+                                 {item.exam.take_per_user - item.attempt}
+                              </Badge>{' '}
+                              эрх байна
+                           </div>
+
+                           <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 pt-2 opacity-70">
+                              <Badge variant="secondary" className="py-1 max-w-full text-[10px]">
                                  <span className="one_line">{item.exam?.category?.name} </span>
                               </Badge>
                               <LiaArrowRightSolid className="text-muted-text" />
-                              <Badge variant="secondary" className="py-1">
+                              <Badge variant="secondary" className="py-1 text-[10px]">
                                  <span className="one_line">{item.exam?.sub_category?.name} </span>
                               </Badge>
                            </div>
 
-                           {item.status !== 'ended' && (
-                              <div className="absolute top-full left-0 w-full h-full transition-all rounded-lg duration-300 opacity-0 group-hover:top-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-sm">
+                           <div className="absolute top-full left-0 w-full h-full transition-all rounded-lg duration-300 opacity-0 group-hover:top-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-sm">
+                              {item.status !== 'ended' ? (
                                  <Button
                                     size="lg"
                                     className="group/button rounded-full opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 hover:bg-primary"
@@ -110,8 +128,10 @@ const ExamsList = () => {
                                     <span>{item.status === 'ongoing' ? `Шалгалт үргэлжлүүлэх` : `Шалгалт өгөх`} </span>
                                     <VscSend className="mt-0.5 scale-0 opacity-0 -translate-x-full transition-all group-hover/button:scale-100 group-hover/button:opacity-100 group-hover/button:translate-x-0" />
                                  </Button>
-                              </div>
-                           )}
+                              ) : (
+                                 <Button type="button" className='bg-danger-color color-[#FFF] rounded-full hover:bg-danger-color'>Шалгалт өгөх эрх дууссан байна</Button>
+                              )}
+                           </div>
                         </div>
 
                         {action.data?.id === item.id && (

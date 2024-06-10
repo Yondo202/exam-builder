@@ -22,7 +22,10 @@ const SignedInRoot = () => {
    useEffect(() => {
       if (data?.data?.force_password_change) {
          setForcePass(true);
+         return;
       }
+
+      setForcePass(false);
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isFetchedAfterMount, isRefetching]);
 
@@ -40,6 +43,8 @@ const SignedInRoot = () => {
 
    // userdata?.roles?.some((item) => item.role === 'candidate')
 
+   // pass aa solison ch alga bolohgui baigaa
+   
    return (
       <>
          <Dialog isOpen={forcePass} onOpenChange={() => setForcePass(true)} title="Та нууц үгээ солино уу!">

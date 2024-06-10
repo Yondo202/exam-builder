@@ -1,4 +1,4 @@
-import { NavLink, Link, useLocation, useParams } from 'react-router-dom';
+import { NavLink, Link, useLocation, useParams, useNavigate } from 'react-router-dom';
 import { TavanbogdLogo } from '@/assets/svg';
 import { Badge, Button, Tooltip } from '@/components/custom';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
@@ -26,10 +26,11 @@ export const LogoSector = ({ className }: { className?: string }) => {
 };
 
 export const UserProfileSector = ({ userdata, isHide, className }: { userdata?: TUserEmployee; isHide?: boolean; className?: string }) => {
+   const navigate = useNavigate();
    return (
       <div className={cn('pr-4 gap-4 grid items-center border-t', isHide ? `grid-rows-auto` : `grid-cols-[1fr_auto]`, className)}>
          <NavLink to="/profile" className="grid p-4 pr-0 gap-3 grid-cols-[auto_1fr] items-center hover:bg-primary/10 rounded-md cursor-pointer">
-            <Avatar className='h-6 w-6'>
+            <Avatar className="h-6 w-6">
                {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
                <AvatarFallback>{userdata?.firstname?.slice(0, 1)?.toUpperCase()}</AvatarFallback>
             </Avatar>
@@ -39,7 +40,7 @@ export const UserProfileSector = ({ userdata, isHide, className }: { userdata?: 
          <Popover>
             <PopoverTrigger asChild>
                <Button size="icon" variant="outline" className="rotate-180 rounded-full h-7 w-7">
-                  <CiLogout className='text-sm' />
+                  <CiLogout className="text-sm" />
                </Button>
             </PopoverTrigger>
             <PopoverContent align="end" side="right" sideOffset={25}>
@@ -49,6 +50,7 @@ export const UserProfileSector = ({ userdata, isHide, className }: { userdata?: 
                   className="w-full"
                   onClick={() => {
                      Cookies.remove('access_token');
+                     navigate('/');
                      window.location.reload();
                      // removeCookie('access_token')
                   }}

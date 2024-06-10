@@ -5,13 +5,15 @@ import Questions from '@/pages/questions';
 import UsersList from '@/pages/users';
 import Exams from '@/pages/exams';
 import ExamAction from '@/pages/exams/Action';
-import ActiveExams from '@/pages/exams/exam_events/ActiveExams';
+import ActiveExams from '@/pages/exams/exam_events/active_exams';
+import ExamMaterialList from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
 import ExamResults from '@/pages/exams/exam_events/ExamResults';
 import QuestionAction from '@/pages/questions/Action';
 import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
 // import Profile from '@/pages/auth/Profile';
 import ExamsList from '@/pages/candidate/ExamsList';
+// import ExamsList from '@/pages/candidate/ExamsList';
 import ExamStartAction from '@/pages/candidate/ExamStartAction';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
@@ -62,6 +64,7 @@ const RouteStore: TRouteOmit[] = [
       visibleType: ['inspector'],
       subMenu: [
          { to: '', label: 'Засах шалгалтууд', component: ActiveExams, visibleType: ['inspector'] },
+         { to: '/handle/:examid', component: ExamMaterialList, isHide: true },
          { to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, visibleType: ['inspector'] },
          // { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
@@ -78,6 +81,7 @@ const RouteStore: TRouteOmit[] = [
          { to: 'roles', label: 'Хэрэглэгчийн эрх', component: RolesList },
       ],
    },
+
    // {
    //    to: 'profile', //groups
    //    label: 'Өөрийн мэдээлэл',
@@ -135,11 +139,17 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
             icon: Plan,
             label: 'Засах шалгалтууд',
             component: ActiveExams,
-            // subMenu: [],
+         },
+         {
+            to: '/:examid',
+            component: ExamMaterialList,
+            isHide: true,
          },
          { icon: Document, to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults },
       ];
    }
+
+   // ene zowhon inspector bolon company - admin hamt baih ued l uilchilj bn
 
    // company admin deer - exam erh ogj baigaag shalgah
    /// ene function baga zereg static baidaltai baigaa - zowhon - compnay admin ymuu ( inspector && company_admin - 2 uulaa baih ued bolomjtoi )

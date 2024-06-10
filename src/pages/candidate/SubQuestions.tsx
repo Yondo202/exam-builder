@@ -13,9 +13,11 @@ type TSubQuestionProps = {
    score_visible: boolean;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    subQuestionsValue: any;
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   parentValue: any;
 };
 
-const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue }: TSubQuestionProps) => {
+const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue }: TSubQuestionProps) => {
    const { control, watch, reset } = useForm({ mode: 'onChange' });
 
    useEffect(() => {
@@ -37,8 +39,20 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
          });
          reset(settleValue);
       }
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
+
+   const GenerateValue = () => {
+      if (parentQuestion?.input_type === 'multi_select' || parentQuestion?.type === 'fill') {
+         return { choices: parentValue };
+      }
+      if (parentQuestion?.input_type === 'select') {
+         return { choice: parentValue };
+      }
+      if (parentQuestion?.type === 'text') {
+         return { answer: parentValue };
+      }
+   };
 
    useEffect(() => {
       const FinalSubQuestion = Object.keys(watch())
@@ -68,6 +82,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
       socket?.emit(
          'save_progress',
          JSON.stringify({
+            ...GenerateValue(),
             question_id: parentQuestion.id,
             // choices: FillValues,
             id: progressId,
@@ -78,14 +93,14 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
          })
       );
 
-   // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [watch()]);
 
    // console.log(progressId, '----------->progressId');
    // console.log(watch(), '-------------------->watch');
 
    return (
-      <div className="pt-8 pl-10 max-sm:pl-1">
+      <div className="pt-8 pl-12 max-sm:pl-1">
          <div className="wrapper mb-2.5 p-8 py-3 text-sm border-b font-medium truncate border-t-[2px] border-t-primary">
             {/* <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span>  */}
             Нэмэлт асуултууд

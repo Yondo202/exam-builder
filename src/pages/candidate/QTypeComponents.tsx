@@ -26,6 +26,7 @@ export const SelectQuestion = ({ question, field, socket, progressId }: TQuestio
                   question_id: field.name,
                   choices: multiAnswer,
                   id: progressId,
+                  sub_questions: null,
                })
             );
          }
@@ -45,14 +46,18 @@ export const SelectQuestion = ({ question, field, socket, progressId }: TQuestio
                question_id: field.name,
                choice: sinlgeAnswer,
                id: progressId,
+               sub_questions: null,
             })
          );
       }
    };
 
+   // console.log(fRef, '--ref');
+
    return (
       <>
          <div className="mb-4 text-sm leading-6">{question.question}</div>
+
          <div className="pb-4 text-primary/70 flex justify-between items-center">
             <span>Хариулт</span>{' '}
             {question.input_type === 'multi_select' && (
@@ -116,9 +121,10 @@ export const FillQuestion = ({ question, field, socket, progressId }: TQuestionP
                question_id: field.name,
                choices: FillValues,
                id: progressId,
-
                type: question.type,
                input_type: question.input_type,
+
+               sub_questions: null,
             })
          );
       }
@@ -199,6 +205,7 @@ export const OpenQuestion = ({ question, field, socket, progressId }: TQuestionP
                id: progressId,
                type: question.type,
                input_type: question.input_type,
+               sub_questions: null,
             })
          );
       }
@@ -224,3 +231,16 @@ export const OpenQuestion = ({ question, field, socket, progressId }: TQuestionP
       </div>
    );
 };
+
+// const AlertOfError = forwardRef<HTMLButtonElement, { fieldSta }>(() => {
+//    return (
+//       <button
+//          className={cn('border border-transparent rounded-md w-full', fieldState?.error ? `border-danger-color focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``)}
+//          type="button"
+//          onFocus={fieldState?.error?.ref?.focus()}
+//          ref={fRef}
+//       >
+//          <div>{fieldState?.error?.message}</div>
+//       </button>
+//    );
+// });
