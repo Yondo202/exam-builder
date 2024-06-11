@@ -9,7 +9,16 @@ const MINUTE = SECOND * 60;
 const HOUR = MINUTE * 60;
 const DAY = HOUR * 24;
 
-const ShiftingCountdown = ({ toFinish, FinalFinish, isTimeOut }: { toFinish?: string; FinalFinish: () => void; isTimeOut: boolean }) => {
+type TShiftCountProps = {
+   endAt?: string;
+   FinalFinish: () => void;
+   timer: {
+      isStarted: boolean;
+      isDone: boolean;
+   };
+};
+
+const ShiftingCountdown = ({ endAt, FinalFinish, timer }: TShiftCountProps) => {
    const [remaining, setRemaining] = useState({
       minutes: 0,
       seconds: 0,
@@ -25,7 +34,7 @@ const ShiftingCountdown = ({ toFinish, FinalFinish, isTimeOut }: { toFinish?: st
       const minutes = Math.floor((distance % HOUR) / MINUTE);
       const seconds = Math.floor((distance % MINUTE) / SECOND);
 
-      if (minutes <= 0 && seconds <= 0 && hours <= 0) {
+      if (minutes <= 0 && seconds <= 0 && hours <= 0 && timer.isStarted) {
          setRemaining({
             minutes: 0,
             seconds: 0,
@@ -42,21 +51,10 @@ const ShiftingCountdown = ({ toFinish, FinalFinish, isTimeOut }: { toFinish?: st
       });
    }, []);
 
-   const startCountDown = useCallback(() => {
-      if (isTimeOut) {
-         return;
-      }
-      if (!toFinish) {
-         setRemaining({
-            minutes: 0,
-            seconds: 0,
-            hours: 0,
-         });
-         FinalFinish();
-         return;
-      }
+   // console.log(endAt, '------>endAt');
 
-      const customDate = new Date(toFinish ?? '');
+   const startCountDown = useCallback(() => {
+      const customDate = new Date(endAt ?? '');
 
       setInterval(() => {
          getTimeDifference(customDate);

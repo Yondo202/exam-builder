@@ -134,6 +134,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          </Dialog>
 
          <BreadCrumb pathList={[...breadcrumbs.map((item) => ({ ...item, to: isCompAdmin ? '/' : item.to, isActive: false })), { to: '#', label: data?.data?.name ?? '', isActive: true }]} />
+
          <Header
             title="Шалгалтын материал"
             action={

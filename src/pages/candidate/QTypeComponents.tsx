@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 
 // progressId - baihgu bol sub_question l gesen ug
 
-export const SelectQuestion = ({ question, field, socket, progressId }: TQuestionProps) => {
+export const SelectQuestion = ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => {
    const onChangeFunc = (event: boolean, item: TAnswers) => {
       if (question.input_type === 'multi_select') {
          const multiAnswer = event ? (field.value ? [...field.value, item.id] : [item.id]) : field.value.filter((element: string) => element !== item.id);
@@ -52,8 +52,6 @@ export const SelectQuestion = ({ question, field, socket, progressId }: TQuestio
       }
    };
 
-   // console.log(fRef, '--ref');
-
    return (
       <>
          <div className="mb-4 text-sm leading-6">{question.question}</div>
@@ -75,7 +73,7 @@ export const SelectQuestion = ({ question, field, socket, progressId }: TQuestio
                   <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
                      <span className="text-muted-text/70 text-base">{index + 1}.</span>
                      <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
-                        <Checkbox checked={isChecked} disabled={isDisabled} onCheckedChange={(event: boolean) => onChangeFunc(event, item)} id={item.id} />
+                        <Checkbox checked={isChecked} disabled={isDisabled || isFromInspector} onCheckedChange={(event: boolean) => onChangeFunc(event, item)} id={item.id} />
                         <Label htmlFor={item.id} className="mb-0 truncate select-none">
                            {item.answer}
                         </Label>
@@ -93,7 +91,7 @@ type TFillAnswer = {
    fill_index: number;
 };
 
-export const FillQuestion = ({ question, field, socket, progressId }: TQuestionProps) => {
+export const FillQuestion = ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => {
    const [questionArr, setQuestionArr] = useState<string[]>([]);
    useEffect(() => {
       let count = 0;
@@ -146,9 +144,10 @@ export const FillQuestion = ({ question, field, socket, progressId }: TQuestionP
                               className="w-56 mx-2"
                               sizes="sm"
                               placeholder="Хариулт......."
+                              disabled={!!isFromInspector}
                            />
                         ) : (
-                           <Select value={inputValue?.id} onValueChange={(value) => onChangeFunc(value, fieldKey)}>
+                           <Select disabled={!!isFromInspector} value={inputValue?.id} onValueChange={(value) => onChangeFunc(value, fieldKey)}>
                               <SelectTrigger className="w-56 data-[placeholder]:text-muted-text/40 text-xs2">
                                  <SelectValue placeholder={'Сонго...'} className="placeholder:text-muted-text/20 " />
                               </SelectTrigger>
@@ -193,7 +192,7 @@ export const FillQuestion = ({ question, field, socket, progressId }: TQuestionP
    );
 };
 
-export const OpenQuestion = ({ question, field, socket, progressId }: TQuestionProps) => {
+export const OpenQuestion = ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => {
    const onChangeFunc = (value: string) => {
       field?.onChange?.(value);
       if (progressId) {
@@ -224,9 +223,9 @@ export const OpenQuestion = ({ question, field, socket, progressId }: TQuestionP
          </div>
          <div className="pb-3 text-primary/70">Хариулт</div>
          {question.input_type === 'text' ? (
-            <Textarea placeholder="Хариулт оруулах..." value={field.value} onChange={(event) => onChangeFunc(event?.target?.value)} />
+            <Textarea disabled={!!isFromInspector} placeholder="Хариулт оруулах..." value={field.value} onChange={(event) => onChangeFunc(event?.target?.value)} />
          ) : (
-            <CkEditor value={field.value} setValue={(value) => onChangeFunc(value)} />
+            <CkEditor disabled={!!isFromInspector} value={field.value} setValue={(value) => onChangeFunc(value)} />
          )}
       </div>
    );

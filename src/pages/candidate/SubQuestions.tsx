@@ -10,14 +10,15 @@ type TSubQuestionProps = {
    parentQuestion: AllTypesQuestionTypes;
    progressId: string;
    socket: Socket;
-   score_visible: boolean;
+   score_visible?: boolean;
+   isFromInspector?: boolean;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    subQuestionsValue: any;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    parentValue: any;
 };
 
-const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue }: TSubQuestionProps) => {
+const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector }: TSubQuestionProps) => {
    const { control, watch, reset } = useForm({ mode: 'onChange' });
 
    useEffect(() => {
@@ -125,7 +126,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                      name={element.id}
                      rules={{ required: true }}
                      render={({ field }) => {
-                        return <div>{questionAsset[element.type]?.component({ question: element, field: field })}</div>;
+                        return questionAsset[element.type]?.component({ question: element, field: field, isFromInspector: isFromInspector });
                      }}
                   />
                </div>

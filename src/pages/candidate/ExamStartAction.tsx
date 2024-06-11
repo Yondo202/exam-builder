@@ -6,17 +6,19 @@ import { VscSend } from 'react-icons/vsc';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { io, type Socket } from 'socket.io-client';
 import { type TExam } from '@/pages/exams';
+import { FinalRespnse } from '@/lib/sharedTypes';
 import { type TQuestion, type AllTypesQuestionTypes } from '@/pages/questions';
 import { SelectQuestion, OpenQuestion, FillQuestion } from './QTypeComponents';
 import { TMyExamAsset } from './ExamsList';
-import { FinalRespnse } from '@/lib/sharedTypes';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getJwt } from '@/lib/core/request';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, type Control, type FieldValues, type UseFormClearErrors } from 'react-hook-form';
 import SubQuestions from './SubQuestions';
 import { GiFinishLine } from 'react-icons/gi';
 import { cn } from '@/lib/utils';
+import { type TExamSection } from '@/pages/exams';
+import { Input } from '@/components/ui/Input';
 
 // const toConnect = () => {
 //    if (getJwt()) {
@@ -46,6 +48,7 @@ export type TQuestionProps = {
    // fieldState: ControllerFieldState;
    // ref: RefCallBack;
 
+   isFromInspector?: boolean;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    field: any;
    // field: ControllerRenderProps<FieldValues, string> | ControllerRenderProps<FieldValues, number>;
@@ -58,13 +61,13 @@ type TObjectPettern = {
 // eslint-disable-next-line react-refresh/only-export-components
 export const questionAsset: { [Key in TQuestion]: TObjectPettern } = {
    checkbox: {
-      component: ({ question, field, socket, progressId }: TQuestionProps) => <SelectQuestion {...{ question, field, socket, progressId }} />,
+      component: ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => <SelectQuestion {...{ question, field, socket, progressId, isFromInspector }} />,
    },
    text: {
-      component: ({ question, field, socket, progressId }: TQuestionProps) => <OpenQuestion {...{ question, field, socket, progressId }} />,
+      component: ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => <OpenQuestion {...{ question, field, socket, progressId, isFromInspector }} />,
    },
    fill: {
-      component: ({ question, field, socket, progressId }: TQuestionProps) => <FillQuestion {...{ question, field, socket, progressId }} />,
+      component: ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => <FillQuestion {...{ question, field, socket, progressId, isFromInspector }} />,
    },
 };
 
@@ -78,9 +81,10 @@ type TStarted = {
 };
 
 const ExamStartAction = () => {
-   const [isTimeOut, setIsTimeOut] = useState(false);
+   const [timer, setTimer] = useState({ isStarted: false, isDone: false });
    // const [socketConnect, setSocketConnect] = useState({ isConnected: false });
    // console.log(socketConnect, "----->socketConnect")
+
    const {
       control,
       reset,
@@ -133,9 +137,9 @@ const ExamStartAction = () => {
       onSuccess: () => {
          toast.success('Шалгалт амжилттай дууслаа');
          navigate('/');
-         setIsTimeOut(true);
+         // setTimer({ isDone:true, isStarted:false });
       },
-      onSettled: () => setIsTimeOut(true),
+      onSettled: () => setTimer({ isDone: true, isStarted: false }),
    });
 
    useEffect(() => {
@@ -169,11 +173,25 @@ const ExamStartAction = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isFetchedAfterMount, isError]);
 
-   const FinalSubmit = () => {
-      if (!isTimeOut) {
+   // const FinalSubmit = () => {
+   //    if (!isTimeOut) {
+   //       mutate();
+   //    }
+   // };
+
+   useEffect(() => {
+      if (isProgressFetched && !!ProgressData?.data?.end_at) {
+         setTimer({ isStarted: true, isDone: false });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [isProgressFetched]);
+
+   useEffect(() => {
+      if (timer.isDone) {
          mutate();
       }
-   };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [timer.isDone]);
 
    const onExamSubmit = () => {
       let isInValid = false;
@@ -185,21 +203,9 @@ const ExamStartAction = () => {
       });
 
       if (!isInValid) {
-         // console.log('its finish');
          mutate();
       }
    };
-
-   // console.log(errors, "----------->")
-   // console.log(ProgressData, '-->ProgressData');
-   // console.log(data?.data, '-->material');
-
-   // console.log(methods.watch(), "---------------->methods")
-
-   // /user/inspector - shalgalt zasah humuusiin jagsaalt
-   // /user/inspector/exam/list - zasah shalgaltiin jagsaalt
-   // /user/inspector/exam/submittion/list - ter shalgaltiig ogson shalgaltiin jagsaalt
-
 
    return (
       <>
@@ -207,7 +213,9 @@ const ExamStartAction = () => {
          <div className="py-0 grid grid-cols-[minmax(0,270px)_minmax(0,1fr)] gap-6 max-sm:grid-cols-1">
             <div className="wrapper p-0 h-min sticky top-2 z-40">
                {/* <div className="mb-2 text-muted-text absolute">Үлдсэн хугацаа</div> */}
-               {!!ProgressData?.data?.end_at && <ShiftingCountdown isTimeOut={isTimeOut} toFinish={ProgressData?.data?.end_at} FinalFinish={FinalSubmit} />}
+
+               {timer.isStarted && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
+
                <div className="p-5">
                   <div className="pb-2 text-muted-text">
                      Вариант: <span className="text-text">{data?.data?.variants?.[0].name}</span>{' '}
@@ -218,91 +226,13 @@ const ExamStartAction = () => {
                </div>
             </div>
             <div className="mb-14">
-               {data?.data?.variants?.[0]?.sections?.map((item, index) => {
-                  return (
-                     <div className="mb-10" key={index}>
-                        <div className="wrapper mb-2.5 p-8 py-5 pb-2 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
-                           <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span> {item.name}
-                        </div>
-                        <div>
-                           {item.questions?.map((element, ind) => {
-                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                              const subQuestions = ProgressData?.data.progress?.find((el: any) => el.question_id === element.id)?.sub_questions ?? [];
-
-                              return (
-                                 <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind}>
-                                    <div className="px-8 flex items-center gap-3 justify-between mb-4">
-                                       <Badge variant="secondary" className="py-1 text-xs gap-2">
-                                          <span className="font-medium font-base">
-                                             {index + 1}.{ind + 1}
-                                          </span>
-                                          <span className="text-muted-text"> - Асуулт</span>
-                                       </Badge>
-                                       {data?.data.score_visible && (
-                                          <Badge variant="secondary" className="py-1 text-xs gap-2">
-                                             <span className="font-medium font-base">
-                                                {element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score}
-                                             </span>
-                                             <span className="text-muted-text"> - Оноо</span>
-                                          </Badge>
-                                       )}
-                                    </div>
-                                    <Controller
-                                       control={control}
-                                       name={element.id}
-                                       rules={{ required: true }}
-                                       render={({ field, fieldState }) => {
-                                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                          const parentOnChange = (value: any) => {
-                                             clearErrors();
-                                             field.onChange(value);
-                                          };
-                                          // if(element?.sub_questions){
-
-                                          // }
-                                          return (
-                                             <div>
-                                                <button
-                                                   className={cn(
-                                                      'border border-transparent rounded-md w-full cursor-default text-start px-8 py-3',
-                                                      fieldState?.error ? `border-danger-color/60 focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``
-                                                   )}
-                                                   type="button"
-                                                   onFocus={fieldState?.error?.ref?.focus?.() as React.FocusEventHandler<HTMLButtonElement> | undefined}
-                                                   // onFocus={!!fieldState?.error}
-                                                   ref={field.ref}
-                                                >
-                                                   {questionAsset[element.type]?.component({
-                                                      question: element,
-                                                      field: { ...field, onChange: parentOnChange },
-                                                      socket: socket,
-                                                      progressId: ProgressData?.data.id ?? '',
-                                                   })}
-
-                                                   {fieldState?.error && <div className="text-danger-color text-end p-3">{fieldState?.error.message}</div>}
-                                                </button>
-
-                                                {element?.sub_questions?.length > 0 && (
-                                                   <SubQuestions
-                                                      subQuestionsValue={subQuestions}
-                                                      parentQuestion={element}
-                                                      parentValue={field.value}
-                                                      socket={socket}
-                                                      score_visible={data?.data.score_visible}
-                                                      progressId={ProgressData?.data.id ?? ''}
-                                                   />
-                                                )}
-                                             </div>
-                                          );
-                                       }}
-                                    />
-                                 </div>
-                              );
-                           })}
-                        </div>
-                     </div>
-                  );
-               })}
+               <QuestionActionSector
+                  sectionData={data?.data?.variants?.[0]?.sections}
+                  score_visible={data?.data.score_visible}
+                  control={control}
+                  clearErrors={clearErrors}
+                  ProgressData={ProgressData}
+               />
                <div className="flex justify-end">
                   <Popover>
                      <PopoverTrigger asChild>
@@ -312,7 +242,7 @@ const ExamStartAction = () => {
                      </PopoverTrigger>
                      <PopoverContent align="end" side="top" sideOffset={25}>
                         <div className="mb-8 text-sm font-medium text-text">Та шалгалтыг дуусгахдаа итгэлтэй байна уу?</div>
-                        <Button variant="outline" className="w-full" onClick={onExamSubmit}>
+                        <Button variant="outline" className="w-full" onClick={() => onExamSubmit()}>
                            {' '}
                            {/*onClick={() => mutate()}*/}
                            {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}
@@ -329,6 +259,126 @@ const ExamStartAction = () => {
 
 export default ExamStartAction;
 
-// (42)[('save_progress', '{"type":"checkbox","input_type":"select","question_id":"c5525625-0e6f-4700-9226-7ee5694d3a7f","choice":"","id":"fd809948-5529-4769-87d2-b68434feda6f"}')];
-// (42)[('save_progress', '{"type":"checkbox","input_type":"select","question_id":"c5525625-0e6f-4700-9226-7ee5694d3a7f","choice":"","id":"fd809948-5529-4769-87d2-b68434feda6f"}')];
-// (42)[('save_progress', '{"type":"checkbox","input_type":"select","question_id":"c5525625-0e6f-4700-9226-7ee5694d3a7f","choice":"","id":"fd809948-5529-4769-87d2-b68434feda6f"}')];
+type TQuestionActionProps = {
+   sectionData: TExamSection[] | undefined;
+   score_visible?: boolean;
+   clearErrors?: UseFormClearErrors<FieldValues>;
+   ProgressData?: FinalRespnse<TStarted> | undefined;
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   control: Control<FieldValues, any>;
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   scoreController?: Control<FieldValues, any>;
+   isFromInspector?: boolean;
+};
+
+export const QuestionActionSector = ({ sectionData, score_visible, control, clearErrors, ProgressData, isFromInspector, scoreController }: TQuestionActionProps) => {
+   return sectionData?.map((item, index) => {
+      return (
+         <div className="mb-10" key={index}>
+            <div className="wrapper mb-2 p-8 py-4 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
+               <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span> {item.name}
+            </div>
+            <div>
+               {item.questions?.map((element, ind) => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const subQuestions = ProgressData?.data.progress?.find((el: any) => el.question_id === element.id)?.sub_questions ?? [];
+
+                  return (
+                     <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind}>
+                        <div className="px-8 flex items-center gap-3 justify-between mb-4">
+                           <Badge variant="secondary" className="py-1 text-xs gap-2">
+                              <span className="font-medium font-base">
+                                 {index + 1}.{ind + 1}
+                              </span>
+                              <span className="text-muted-text"> - Асуулт</span>
+                           </Badge>
+                           {score_visible && (
+                              <div className="flex gap-2">
+                                 <Badge variant="secondary" className="py-1 text-xs gap-2">
+                                    {isFromInspector && <span className="text-muted-text">Асуутын оноо - </span>}
+                                    <span className="font-medium font-base">
+                                       {element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score}
+                                    </span>
+                                    {!isFromInspector && <span className="text-muted-text"> - Оноо</span>}
+                                 </Badge>
+                                 {isFromInspector && (
+                                    <Controller
+                                       control={scoreController}
+                                       name={`score-${element.id}`}
+                                       rules={{ required: true }}
+                                       render={({ field }) => {
+                                          return (
+                                             <>
+                                                <Input
+                                                   {...field}
+                                                   ref={field.ref}
+                                                   onChange={(event) => field.onChange(event.target.value)}
+                                                   type="number"
+                                                   className="w-46"
+                                                   placeholder="Оноо өгөх..."
+                                                />
+                                             </>
+                                          );
+                                       }}
+                                    />
+                                 )}
+                              </div>
+                           )}
+                        </div>
+                        <Controller
+                           control={control}
+                           name={element.id}
+                           rules={{ required: true }}
+                           render={({ field, fieldState }) => {
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              const parentOnChange = (value: any) => {
+                                 clearErrors?.();
+                                 field.onChange(value);
+                              };
+                              // if(element?.sub_questions){  }
+                              return (
+                                 <>
+                                    <button
+                                       className={cn(
+                                          'border border-transparent rounded-md w-full cursor-default text-start px-8 py-3',
+                                          fieldState?.error ? `border-danger-color/60 focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``
+                                       )}
+                                       type="button"
+                                       onFocus={fieldState?.error?.ref?.focus?.() as React.FocusEventHandler<HTMLButtonElement> | undefined}
+                                       // onFocus={!!fieldState?.error}
+                                       ref={field.ref}
+                                    >
+                                       {questionAsset[element.type]?.component({
+                                          question: element,
+                                          field: { ...field, onChange: parentOnChange },
+                                          socket: socket,
+                                          progressId: ProgressData?.data.id ?? '',
+                                          isFromInspector: isFromInspector,
+                                       })}
+
+                                       {fieldState?.error && <div className="text-danger-color text-end p-3">{fieldState?.error.message}</div>}
+                                    </button>
+
+                                    {element?.sub_questions?.length > 0 && (
+                                       <SubQuestions
+                                          subQuestionsValue={subQuestions}
+                                          parentQuestion={element}
+                                          parentValue={field.value}
+                                          socket={socket}
+                                          score_visible={score_visible}
+                                          progressId={ProgressData?.data.id ?? ''}
+                                          isFromInspector={isFromInspector}
+                                       />
+                                    )}
+                                 </>
+                              );
+                           }}
+                        />
+                     </div>
+                  );
+               })}
+            </div>
+         </div>
+      );
+   });
+};

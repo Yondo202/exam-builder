@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import Cookie from 'js-cookie';
 import { useEffect } from 'react';
 import Profile from './pages/auth/Profile';
+import RedirectRoot from './RedirectRoot';
 // import { Loading } from '@/components/custom';
 // import useTheme from '@/hooks/useTheme';
 
@@ -33,20 +34,7 @@ function App() {
          }),
    });
 
-   // console.log(Cookie.get('access_token'));
-   // if (isLoading) {
-   //    return <Loading load={isLoading} />;
-   // }
-
-   // RouteStore
-   return (
-      // <BrowserRouter>
-      //    <Routes>{CustomRoutes({ roles: data?.data?.roles ?? [] })}</Routes>
-      // </BrowserRouter>
-      // <CookiesProvider>
-      <RouterProvider router={createBrowserRouter(createRoutesFromElements(CustomRoutes({ roles: data?.data?.roles ?? [], isLoading: isLoading })))} />
-      // </CookiesProvider>
-   );
+   return <RouterProvider router={createBrowserRouter(createRoutesFromElements(CustomRoutes({ roles: data?.data?.roles ?? [], isLoading: isLoading })))} />;
 }
 
 export default App;
@@ -55,6 +43,7 @@ const CustomRoutes = ({ roles, isLoading }: { roles: TRolesAssetType[]; isLoadin
    return (
       <>
          <Route path="/" element={<PrivateRoute toSign />}>
+            {!roles?.some((item) => item.role === 'candidate') && <Route path="/" element={<RedirectRoot />} />}
             {roles?.length > 0
                ? FilteredRoute(roles).map((Item, index) => {
                     return Item.subMenu ? (

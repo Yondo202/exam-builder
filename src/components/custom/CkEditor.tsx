@@ -6,9 +6,10 @@ import CustomEditor from 'ckeditor5-custom-build';
 type TCkEditor = {
    value: string;
    setValue: (value: string) => void;
+   disabled?:boolean
 };
 
-const CkEditorComponent = ({ value, setValue }: TCkEditor) => {
+const CkEditorComponent = ({ value, setValue, disabled }: TCkEditor) => {
    // const [value, setValue] = useState('');
    
    return (
@@ -18,6 +19,7 @@ const CkEditorComponent = ({ value, setValue }: TCkEditor) => {
             editor={CustomEditor}
             data={value}
             config={{}}
+            disabled={!!disabled}
             // onReady={(editor) => {
             //    console.log(editor, "============>")
             //    // editor.ui.view.editable.element.style.minHeight = '500px';

@@ -102,7 +102,7 @@ const ExamsList = () => {
                            <div className="flex items-center gap-2 text-muted-text mb-3">
                               Дахин шалгалт өгөх
                               <Badge variant="secondary" className="text-[10px] font-medium">
-                                 {item.exam.take_per_user - item.attempt}
+                                 {item.exam?.take_per_user - item.attempt}
                               </Badge>{' '}
                               эрх байна
                            </div>

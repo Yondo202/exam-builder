@@ -63,17 +63,16 @@ const ExamMaterialList = () => {
    //    }
    // };
 
-   console.log(data, 'data----------->');
+   console.log(data, "------------>data")
 
    return (
       <div>
          <BreadCrumb
             pathList={[
-               { label: 'Засах шалгалтууд', to: '/' },
-               { label: examDAta?.data?.name, isActive: true, to: `/${examDAta?.data?.id}` },
+               { label: 'Засах шалгалтууд', to: '/handle' },
+               { label: examDAta?.data?.name, isActive: true, to: `/handle/${examDAta?.data?.id}` },
             ]}
          />
-
          {/*ene iig daraa nohtsol shalgaj to- giin oorchil*/}
 
          <Header title={examDAta?.data?.name} />

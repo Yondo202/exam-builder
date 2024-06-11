@@ -7,6 +7,7 @@ import Exams from '@/pages/exams';
 import ExamAction from '@/pages/exams/Action';
 import ActiveExams from '@/pages/exams/exam_events/active_exams';
 import ExamMaterialList from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
+import ExamMaterialAction from '@/pages/exams/exam_events/active_exams/ExamMaterialAction';
 import ExamResults from '@/pages/exams/exam_events/ExamResults';
 import QuestionAction from '@/pages/questions/Action';
 import Company from '@/pages/company';
@@ -17,6 +18,7 @@ import ExamsList from '@/pages/candidate/ExamsList';
 import ExamStartAction from '@/pages/candidate/ExamStartAction';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
+
 // const Category = React.lazy(() => import('@/pages/category'));
 // const Questions = React.lazy(() => import('@/pages/questions'));
 // const Exams = React.lazy(() => import('@/pages/exams'));
@@ -46,7 +48,7 @@ const RouteStore: TRouteOmit[] = [
    //    icon: Leaderboard,
    // },
    {
-      to: '/', //groups
+      to: '/category', //groups
       icon: Group,
       label: 'Ангилал',
       component: Category,
@@ -64,7 +66,8 @@ const RouteStore: TRouteOmit[] = [
       visibleType: ['inspector'],
       subMenu: [
          { to: '', label: 'Засах шалгалтууд', component: ActiveExams, visibleType: ['inspector'] },
-         { to: '/handle/:examid', component: ExamMaterialList, isHide: true },
+         { to: '/handle/:examid', component: ExamMaterialList, visibleType: ['inspector'], isHide: true },
+         { to: '/handle/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector'], isHide: true },
          { to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, visibleType: ['inspector'] },
          // { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
@@ -132,34 +135,8 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
       return RouteStore;
    }
 
-   if (roles?.some((item) => item.role === 'inspector') && !roles?.some((item) => item.role === 'company_admin')) {
-      return [
-         {
-            to: '/',
-            icon: Plan,
-            label: 'Засах шалгалтууд',
-            component: ActiveExams,
-         },
-         {
-            to: '/:examid',
-            component: ExamMaterialList,
-            isHide: true,
-         },
-         { icon: Document, to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults },
-      ];
-   }
-
-   // ene zowhon inspector bolon company - admin hamt baih ued l uilchilj bn
-
-   // company admin deer - exam erh ogj baigaag shalgah
-   /// ene function baga zereg static baidaltai baigaa - zowhon - compnay admin ymuu ( inspector && company_admin - 2 uulaa baih ued bolomjtoi )
-   return RouteStore.filter((item) => filterMenu(item, roles))
-      ?.map((item) => ({ ...item, subMenu: item?.subMenu?.filter((sub) => filterMenu(sub, roles)) }))
-      ?.map((item, index) => ({
-         ...item,
-         to: index === 0 ? `/` : item.to === '/exams/:typeid' ? `/:typeid` : item.to,
-         subMenu: item.subMenu?.map((el, ind) => ({ ...el, to: ind === 0 ? `` : el.to })),
-      }));
+   // end zowhon comp admin bolon inspector iig shalgaj baigaa 
+   return RouteStore.filter((item) => filterMenu(item, roles))?.map((item) => ({ ...item, subMenu: item?.subMenu?.filter((sub) => filterMenu(sub, roles)) }));
 };
 
 export default RouteStore;
