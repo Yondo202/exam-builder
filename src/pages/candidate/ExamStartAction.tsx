@@ -1,4 +1,5 @@
 import { Badge, Button, Header, ShiftingCountdown } from '@/components/custom';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useParams, useNavigate } from 'react-router-dom';
 import { request } from '@/lib/core/request';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -124,9 +125,9 @@ const ExamStartAction = () => {
 
    const { data, isFetchedAfterMount: isExamMaterialFetched } = useQuery({
       // shalgaltiin material
-      enabled: !!ProgressData?.data,
+      enabled: !!ProgressData?.data?.id,
       queryKey: ['getmyexam', inviteid],
-      queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/get/${InviteDetail?.data?.exam_id}` }),
+      queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/progress/${ProgressData?.data?.id}` }), // ProgressData?.data?.id
    });
 
    // console.log(data, '------->data');
@@ -197,7 +198,7 @@ const ExamStartAction = () => {
       let isInValid = false;
       Object.keys(watch())?.forEach((item) => {
          if (!watch(item) || watch(item)?.length === 0) {
-            setError(item, { message: 'Хариулт аа оруулна уу', type: 'required' });
+            setError(item, { message: 'Хариулт аа оруулна уу', type: 'required' }, { shouldFocus: true });
             isInValid = true;
          }
       });
@@ -305,19 +306,22 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                     <Controller
                                        control={scoreController}
                                        name={`score-${element.id}`}
-                                       rules={{ required: true }}
-                                       render={({ field }) => {
+                                       rules={{ required: 'Оноо өгнө үү' }}
+                                       render={({ field, fieldState }) => {
                                           return (
-                                             <>
+                                             <div className="relative">
                                                 <Input
                                                    {...field}
                                                    ref={field.ref}
-                                                   onChange={(event) => field.onChange(event.target.value)}
+                                                   onChange={(event) => (isNaN(parseFloat(event.target.value)) ? undefined : field.onChange(parseFloat(event.target.value)))}
                                                    type="number"
+                                                   min={0}
                                                    className="w-46"
                                                    placeholder="Оноо өгөх..."
+                                                   variant={fieldState?.error ? `error` : 'default'}
                                                 />
-                                             </>
+                                                <ErrorMessage error={fieldState?.error} />
+                                             </div>
                                           );
                                        }}
                                     />
@@ -344,7 +348,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                           fieldState?.error ? `border-danger-color/60 focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``
                                        )}
                                        type="button"
-                                       onFocus={fieldState?.error?.ref?.focus?.() as React.FocusEventHandler<HTMLButtonElement> | undefined}
+                                       // onFocus={fieldState?.error?.ref?.focus?.() as React.FocusEventHandler<HTMLButtonElement> | undefined}
                                        // onFocus={!!fieldState?.error}
                                        ref={field.ref}
                                     >
@@ -352,10 +356,9 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                           question: element,
                                           field: { ...field, onChange: parentOnChange },
                                           socket: socket,
-                                          progressId: ProgressData?.data.id ?? '',
+                                          progressId: ProgressData?.data.id,
                                           isFromInspector: isFromInspector,
                                        })}
-
                                        {fieldState?.error && <div className="text-danger-color text-end p-3">{fieldState?.error.message}</div>}
                                     </button>
 
@@ -366,7 +369,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                           parentValue={field.value}
                                           socket={socket}
                                           score_visible={score_visible}
-                                          progressId={ProgressData?.data.id ?? ''}
+                                          progressId={ProgressData?.data.id}
                                           isFromInspector={isFromInspector}
                                        />
                                     )}

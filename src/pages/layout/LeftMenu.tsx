@@ -13,14 +13,16 @@ import { TUserEmployee, type TUserRoles, UserRolesAsset } from '@/lib/sharedType
 
 const subHeight = 45;
 
-export const LogoSector = ({ className }: { className?: string }) => {
+export const LogoSector = ({ className, isHide }: { className?: string; isHide?: boolean }) => {
    return (
       <Link to="/" className={cn('p-3 pt-5 flex items-center gap-3 rounded-md hover:bg-primary/10', className)}>
          <TavanbogdLogo className="w-16 max-w-full" />
-         <div>
-            <div className="font-medium text-xs max-sm:hidden">Таван богд</div>
-            <div className="text-[10px] text-muted-text/80 max-sm:hidden">Шалгалтын платформ</div>
-         </div>
+         {!isHide && (
+            <div>
+               <div className="font-medium text-xs max-sm:hidden">Таван богд</div>
+               <div className="text-[10px] text-muted-text/80 max-sm:hidden">Шалгалтын платформ</div>
+            </div>
+         )}
       </Link>
    );
 };
@@ -88,7 +90,7 @@ const LeftMenu = ({ userdata, RouteStore }: { userdata?: TUserEmployee; RouteSto
          <ActionButton isHide={isHide} setHide={setHide} />
 
          <div>
-            <LogoSector />
+            <LogoSector isHide={isHide} />
             <div className={cn('flex flex-col overflow-y-auto pt-6', isHide ? `px-1.5 items-center justify-center gap-3` : `px-3  gap-0`)}>
                {RouteStore?.filter((item) => !item.isHide).map((Element, index) => {
                   return <NavLinkComponent key={index} isHide={isHide} Element={Element} />;
@@ -200,7 +202,7 @@ const HidedPopover = ({ isActive, trigger, Element, pathname }: THidePop) => {
 };
 
 const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?: () => void }) => {
-   const { typeid } = useParams();
+   const { typeid, examid } = useParams();
 
    return Element.subMenu
       ?.filter((el) => !el.isHide)
@@ -211,7 +213,8 @@ const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?:
                className={({ isActive }) => cn(`w-full flex items-center px-3 text-xs2 rounded-sm hover:bg-primary/5 ${isActive ? `text-text font-medium` : 'text-muted-text'}`)}
                style={{ height: `${subHeight}px`, lineHeight: `${subHeight}px` }}
                to={`${Element.to}${item.to ? `/${item.to}` : ``}`}
-               end={item.to === '' ? (typeid ? false : true) : false}
+               end={item.to === '' ? (typeid || examid ? false : true) : false}
+               // end={false}
                onClick={onClose}
             >
                {item.label}

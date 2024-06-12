@@ -82,6 +82,27 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                );
             })}
          </div>
+
+         {isFromInspector && (
+            <div className="p-5 pt-3 mt-5 border border-y-primary/40 bg-green-200/20 -mx-8">
+               <div className="mb-4 text-secondary">Зөв хариулт</div>
+               <div className="grid grid-cols-2 gap-y-4 gap-x-5 max-sm:grid-cols-1">
+                  {question?.answers?.map((item, index) => {
+                     return (
+                        <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
+                           <span className="text-muted-text/70 text-base">{index + 1}.</span>
+                           <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
+                              <Checkbox checked={item.is_correct} disabled={true || isFromInspector} />
+                              <Label htmlFor={item.id} className="mb-0 truncate select-none">
+                                 {item.answer}
+                              </Label>
+                           </label>
+                        </div>
+                     );
+                  })}
+               </div>
+            </div>
+         )}
       </>
    );
 };
@@ -128,24 +149,36 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
       }
    };
 
-   return (
-      <>
+   const RenderQuestion = ({ correctAnswer }: { correctAnswer?: boolean }) => {
+      return (
          <div className="pb-6 text-sm flex flex-wrap gap-1 gap-y-1.5 items-center">
             {questionArr?.map((item, index) => {
                const fieldKey = item.startsWith('{{answer-') ? +item.replace('{{answer-', '')?.replace('}}', '') : 0;
-               const inputValue = field.value?.find((item: TFillAnswer) => item.fill_index === fieldKey);
+               let inputValue = null;
+               if (!correctAnswer) {
+                  inputValue = field.value?.find((item: TFillAnswer) => item.fill_index === fieldKey);
+               } else {
+                  inputValue = question.answers.find((item) => item.fill_index === fieldKey);
+               }
+
                return (
                   <div className="leading-7" key={index}>
                      {item.startsWith('{{answer-') ? (
                         question.input_type === 'fill' ? (
-                           <Input
-                              value={inputValue?.answer}
-                              onChange={(event) => onChangeFunc(event?.target?.value, fieldKey)}
-                              className="w-56 mx-2"
-                              sizes="sm"
-                              placeholder="Хариулт......."
-                              disabled={!!isFromInspector}
-                           />
+                           isFromInspector ? (
+                              <Badge variant="secondary" className="font-medium mx-1 rounded-md py-1">
+                                 {inputValue?.answer}
+                              </Badge>
+                           ) : (
+                              <Input
+                                 value={inputValue?.answer}
+                                 onChange={(event) => onChangeFunc(event?.target?.value, fieldKey)}
+                                 className="w-56 mx-2"
+                                 sizes="sm"
+                                 placeholder="Хариулт......."
+                                 disabled={!!isFromInspector}
+                              />
+                           )
                         ) : (
                            <Select disabled={!!isFromInspector} value={inputValue?.id} onValueChange={(value) => onChangeFunc(value, fieldKey)}>
                               <SelectTrigger className="w-56 data-[placeholder]:text-muted-text/40 text-xs2">
@@ -167,7 +200,12 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
                );
             })}
          </div>
+      );
+   };
 
+   return (
+      <>
+         <RenderQuestion />
          {question.input_type === 'fill_with_choice' && (
             <>
                <div className="pb-2 mb-2 text-primary/70 flex justify-between items-center">
@@ -187,6 +225,13 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
                   })}
                </div>
             </>
+         )}
+
+         {isFromInspector && (
+            <div className="p-5 pt-3 mt-5 border border-y-primary/40 bg-green-200/20 -mx-8">
+               <div className="mb-4 text-secondary">Зөв хариулт</div>
+               <RenderQuestion correctAnswer />
+            </div>
          )}
       </>
    );
@@ -221,9 +266,17 @@ export const OpenQuestion = ({ question, field, socket, progressId, isFromInspec
                question.question
             )}
          </div>
-         <div className="pb-3 text-primary/70">Хариулт</div>
+         <div className="pb-3 text-primary/70">Хариулт {isFromInspector ? `- шалгуулагчын` : ``}</div>
          {question.input_type === 'text' ? (
-            <Textarea disabled={!!isFromInspector} placeholder="Хариулт оруулах..." value={field.value} onChange={(event) => onChangeFunc(event?.target?.value)} />
+            isFromInspector ? (
+               field.value
+            ) : (
+               <Textarea disabled={!!isFromInspector} placeholder="Хариулт оруулах..." value={field.value} onChange={(event) => onChangeFunc(event?.target?.value)} />
+            )
+         ) : isFromInspector ? (
+            <article className="prose-sm dark:prose-invert">
+               <span dangerouslySetInnerHTML={{ __html: field.value }} />
+            </article>
          ) : (
             <CkEditor disabled={!!isFromInspector} value={field.value} setValue={(value) => onChangeFunc(value)} />
          )}

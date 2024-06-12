@@ -11,7 +11,7 @@ import { GoLock } from "react-icons/go";
 import { RowSelectionState } from '@tanstack/react-table';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useQuery } from '@tanstack/react-query';
-import { EmployeeDetail } from '.';
+// import { EmployeeDetail } from '.';
 
 // type TUserEmployee = {
 //    id: string;
@@ -70,7 +70,7 @@ const Candidates = ({ fromAction }: { fromAction?: (row: RowSelectionState) => R
                <Drawer
                   open={action.isOpen}
                   onOpenChange={(event) => setAction((prev) => ({ ...prev, isOpen: event }))}
-                  title="Ажил горилогч үүсгэх"
+                  title="Ажил горилогч"
                   content={<CandidateAction setClose={setClose} action={action} isFromAdmin />}
                   className={`py-10 max-w-2xl`}
                >
@@ -364,7 +364,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
             </div>
          </form>
 
-         {action.type === 'edit' && isFromAdmin && <EmployeeDetail isRoleAction detailData={action.data as TUserEmployee} />}
+         {/* {action.type === 'edit' && isFromAdmin && <EmployeeDetail isRoleAction detailData={action.data as TUserEmployee} />} */}
 
          {action.type === 'edit' && (
             <Dialog isOpen={forcePass} onOpenChange={setForcePass} title={`${action.data?.firstname} - нууц үг солих`}>

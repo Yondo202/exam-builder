@@ -57,7 +57,6 @@ const ExamsList = () => {
    const { data, isLoading } = useQuery<FinalRespnse<TMyExamAsset[]>>({ queryKey: ['my-invites'], queryFn: () => request({ url: 'user/exam/my-invites' }) });
 
    // console.log(data?.data, '--------->');
-
    // dahin {5} oroldlogo hiih bolomjtoi -
 
    return (

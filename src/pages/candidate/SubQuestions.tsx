@@ -3,12 +3,16 @@ import { Controller, useForm } from 'react-hook-form';
 import { type Socket } from 'socket.io-client';
 import { type AllTypesQuestionTypes } from '@/pages/questions';
 import { questionAsset } from './ExamStartAction';
+import { Input } from '@/components/ui/Input';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useEffect } from 'react';
+import { userAnswerToProgress } from '../exams/exam_events/active_exams/ExamMaterialAction';
+import { useSubQuestion } from '@/lib/hooks/useZustand';
 
 type TSubQuestionProps = {
    // questions: PickedQuestionTypes[];
    parentQuestion: AllTypesQuestionTypes;
-   progressId: string;
+   progressId?: string;
    socket: Socket;
    score_visible?: boolean;
    isFromInspector?: boolean;
@@ -19,9 +23,36 @@ type TSubQuestionProps = {
 };
 
 const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector }: TSubQuestionProps) => {
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const sub: any = useSubQuestion();
    const { control, watch, reset } = useForm({ mode: 'onChange' });
+   const { control: scoreController, watch: scoreWatch, setError, clearErrors } = useForm({ mode: 'all' });
+
+   // useEffect(()=>{
+   //    if(isFromInspector){
+   //       setSubValue(scoreWatch())
+   //    }
+   // },[scoreWatch()])
 
    useEffect(() => {
+      if (isFromInspector) {
+         // zowhon shalgagch erhtei hund zorulsan ****
+
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const settleValue: any = {};
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const subValues: any = {};
+         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         parentQuestion?.sub_questions?.forEach((item: any) => {
+            settleValue[item.id] = userAnswerToProgress(item);
+            subValues[`score-${item.id}`] = undefined;
+         });
+         sub.setSubValue({ [parentQuestion.id]: subValues });
+         sub.setErrors({ [parentQuestion.id]: setError });
+         reset(settleValue);
+         return;
+      }
+
       if (subQuestionsValue) {
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
          const settleValue: any = {};
@@ -40,6 +71,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
          });
          reset(settleValue);
       }
+      // useSubQuestion
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, []);
 
@@ -56,43 +88,39 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
    };
 
    useEffect(() => {
-      const FinalSubQuestion = Object.keys(watch())
-         ?.filter((item) => !!watch(item))
-         .map((item) => {
-            const found = parentQuestion.sub_questions?.find((element) => element.id === item);
-            const subAssets = { type: found?.type, input_type: found?.input_type, question_id: item };
-            if (found?.type === 'text') {
-               return { ...subAssets, answer: watch(item) };
-            }
+      if (!isFromInspector) {
+         const FinalSubQuestion = Object.keys(watch())
+            ?.filter((item) => !!watch(item))
+            .map((item) => {
+               const found = parentQuestion.sub_questions?.find((element) => element.id === item);
+               const subAssets = { type: found?.type, input_type: found?.input_type, question_id: item };
+               if (found?.type === 'text') {
+                  return { ...subAssets, answer: watch(item) };
+               }
 
-            if (found?.type === 'fill' || found?.input_type === 'multi_select') {
-               return { ...subAssets, choices: watch(item) };
-            }
+               if (found?.type === 'fill' || found?.input_type === 'multi_select') {
+                  return { ...subAssets, choices: watch(item) };
+               }
 
-            if (found?.input_type === 'select') {
-               return { ...subAssets, choice: watch(item) };
-            }
+               if (found?.input_type === 'select') {
+                  return { ...subAssets, choice: watch(item) };
+               }
+            });
 
-            // return {};
-            // if (found?.type === "fill") {
-            //    return { ...subAssets, [found.input_type === ""  `answer`]: watch(item) };
-            // }
-            // return { type: found?.type, input_type: found?.input_type, question_id: item };
-         });
+         socket?.emit(
+            'save_progress',
+            JSON.stringify({
+               ...GenerateValue(),
+               question_id: parentQuestion.id,
+               // choices: FillValues,
+               id: progressId,
+               type: parentQuestion.type,
+               input_type: parentQuestion.input_type,
 
-      socket?.emit(
-         'save_progress',
-         JSON.stringify({
-            ...GenerateValue(),
-            question_id: parentQuestion.id,
-            // choices: FillValues,
-            id: progressId,
-            type: parentQuestion.type,
-            input_type: parentQuestion.input_type,
-
-            sub_questions: FinalSubQuestion ?? [],
-         })
-      );
+               sub_questions: FinalSubQuestion ?? [],
+            })
+         );
+      }
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [watch()]);
@@ -114,12 +142,46 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                         <span className="font-medium font-base">{ind + 1}</span>
                         <span className="text-muted-text"> - Асуулт</span>
                      </Badge>
-                     {score_visible && (
-                        <Badge variant="secondary" className="py-1 text-xs gap-2">
-                           <span className="font-medium font-base">{element.score}</span>
-                           <span className="text-muted-text"> - Оноо</span>
-                        </Badge>
-                     )}
+                     <div className="flex gap-2">
+                        {score_visible && (
+                           <Badge variant="secondary" className="py-1 text-xs gap-2">
+                              <span className="font-medium font-base">{element.score}</span>
+                              <span className="text-muted-text"> - Оноо</span>
+                           </Badge>
+                        )}
+                        {isFromInspector && (
+                           <Controller
+                              control={scoreController}
+                              name={`score-${element.id}`}
+                              rules={{ required: 'Оноо өгнө үү' }}
+                              render={({ field, fieldState }) => {
+                                 console.log(fieldState?.error, '------->fieldState?.error');
+                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                 const CustomOnchange = (value: any) => {
+                                    // setSubValue(scoreWatch())
+                                    clearErrors();
+                                    sub.setSubValue({ [parentQuestion.id]: { ...scoreWatch(), [field.name]: isNaN(parseFloat(value)) ? undefined : parseFloat(value) } });
+                                    field.onChange(value);
+                                 };
+                                 return (
+                                    <div className="relative">
+                                       <Input
+                                          {...field}
+                                          ref={field.ref}
+                                          onChange={(event) => CustomOnchange(event.target.value)}
+                                          type="number"
+                                          // onFocus={fieldState?.error?.ref?.focus() as React.FocusEventHandler<HTMLInputElement> | undefined}
+                                          className="w-46"
+                                          placeholder="Оноо өгөх..."
+                                          variant={fieldState?.error ? `error` : 'default'}
+                                       />
+                                       <ErrorMessage error={fieldState?.error} />
+                                    </div>
+                                 );
+                              }}
+                           />
+                        )}
+                     </div>
                   </div>
                   <Controller
                      control={control}

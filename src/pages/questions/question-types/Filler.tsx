@@ -52,10 +52,14 @@ export const FillerSetConvert = ({ data }: { data?: AllTypesQuestionTypes }) => 
    let finalAnswers: TAnswers[] = [];
 
    if (data?.type === 'fill') {
+      let count = 0;
+
       const questionWithCorrectAnswer = FillConverter({ input: data?.question })?.map((item) => {
          if (item.temp_type === 'answer') {
             const foundAnswer = data?.answers.find((el) => el.answer === item.answer);
-            return { ...item, ...foundAnswer };
+            const temp = { ...item, ...foundAnswer, fill_index: count };
+            count++;
+            return temp;
          }
          return item;
       });

@@ -24,3 +24,18 @@ export const useTheme = create<TAuthState>((set) => {
 //       setUser: (user: TState['theme']) => set((state) => ({ ...state, theme: theme })),
 //    };
 // });
+
+export const useSubQuestion = create((set) => {
+   // const uitheme = localStorage.getItem('ui-theme') ?? 'light'; // dark
+
+   return {
+      subValue: {},
+      getErrors: {},
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setInitial: () => set(() => ({ subValue: {}, getErrors: {} })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setErrors: (value: any) => set((state: any) => ({ ...state, getErrors: { ...state.getErrors, ...value } })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setSubValue: (value: any) => set((state: any) => ({ ...state, subValue: { ...state.subValue, ...value } })),
+   };
+});

@@ -25,18 +25,22 @@ type TMaterialList = {
    user_exam: TUserInfo;
 };
 
-const ExamMaterialList = () => {
-   const navigate = useNavigate();
-   const { examid } = useParams();
-   // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
-
-   const { data: examDAta } = useQuery({
+export const GetExamDetial = ({ examid }: { examid?: string }) => {
+   return useQuery({
       queryKey: ['exam', examid],
       queryFn: () =>
          request<FinalRespnse<TExam>>({
             url: `exam/id/${examid}`,
          }),
    });
+};
+
+const ExamMaterialList = () => {
+   const navigate = useNavigate();
+   const { examid } = useParams();
+   // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
+
+   const { data: examDAta } = GetExamDetial({ examid: examid });
 
    const { data, isLoading } = useQuery({
       queryKey: ['exam/inspector', examid],
@@ -63,7 +67,7 @@ const ExamMaterialList = () => {
    //    }
    // };
 
-   console.log(data, "------------>data")
+   // console.log(data, "------------>data")
 
    return (
       <div>
