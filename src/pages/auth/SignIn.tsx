@@ -91,6 +91,8 @@ export default function SignIn() {
       mutate(data);
    };
 
+   // disabled: catAsset[item as TKeys]?.disabled
+   
    return (
       <form onSubmit={handleSubmit(onSubmit)} className="w-full h-[100dvh] flex justify-center items-start pt-16 sm:px-2">
          <div className="w-[420px] max-w-full">
@@ -106,7 +108,7 @@ export default function SignIn() {
                <AnimatedTabs
                   className="mb-14"
                   tabClassName="flex items-center"
-                  items={Object.keys(catAsset)?.map((item) => ({ key: item, labelRender: catAsset[item as TKeys]?.labelRender, disabled: catAsset[item as TKeys]?.disabled }))}
+                  items={Object.keys(catAsset)?.map((item) => ({ key: item, labelRender: catAsset[item as TKeys]?.labelRender }))}
                   activeKey={current}
                   onChange={(value) => setCurrent(value as TKeys)}
                />

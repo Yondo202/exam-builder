@@ -149,18 +149,12 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
       }
    };
 
-   const RenderQuestion = ({ correctAnswer }: { correctAnswer?: boolean }) => {
-      return (
+   return (
+      <>
          <div className="pb-6 text-sm flex flex-wrap gap-1 gap-y-1.5 items-center">
             {questionArr?.map((item, index) => {
                const fieldKey = item.startsWith('{{answer-') ? +item.replace('{{answer-', '')?.replace('}}', '') : 0;
-               let inputValue = null;
-               if (!correctAnswer) {
-                  inputValue = field.value?.find((item: TFillAnswer) => item.fill_index === fieldKey);
-               } else {
-                  inputValue = question.answers.find((item) => item.fill_index === fieldKey);
-               }
-
+               const inputValue = field.value?.find((item: TFillAnswer) => item.fill_index === fieldKey);
                return (
                   <div className="leading-7" key={index}>
                      {item.startsWith('{{answer-') ? (
@@ -200,12 +194,6 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
                );
             })}
          </div>
-      );
-   };
-
-   return (
-      <>
-         <RenderQuestion />
          {question.input_type === 'fill_with_choice' && (
             <>
                <div className="pb-2 mb-2 text-primary/70 flex justify-between items-center">
@@ -230,7 +218,61 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
          {isFromInspector && (
             <div className="p-5 pt-3 mt-5 border border-y-primary/40 bg-green-200/20 -mx-8">
                <div className="mb-4 text-secondary">Зөв хариулт</div>
-               <RenderQuestion correctAnswer />
+
+               <div className="pb-6 text-sm flex flex-wrap gap-1 gap-y-1.5 items-center">
+                  {questionArr?.map((item, index) => {
+                     const fieldKey = item.startsWith('{{answer-') ? +item.replace('{{answer-', '')?.replace('}}', '') : 0;
+                     const inputValue = question.answers.find((item) => item.fill_index === fieldKey);
+
+                     // console.log(fieldKey, '------------->tem');
+
+                     // if (!correctAnswer) {
+                     //    inputValue = field.value?.find((item: TFillAnswer) => item.fill_index === fieldKey);
+                     // } else {
+                     //    inputValue = question.answers.find((item) => item.fill_index === fieldKey);
+                     // }
+
+                     // console.log(inputValue, '---------------->inputValue');
+
+                     return (
+                        <div className="leading-7" key={index}>
+                           {item.startsWith('{{answer-') ? (
+                              question.input_type === 'fill' ? (
+                                 isFromInspector ? (
+                                    <Badge variant="secondary" className="font-medium mx-1 rounded-md py-1">
+                                       {inputValue?.answer}
+                                    </Badge>
+                                 ) : (
+                                    <Input
+                                       value={inputValue?.answer}
+                                       onChange={(event) => onChangeFunc(event?.target?.value, fieldKey)}
+                                       className="w-56 mx-2"
+                                       sizes="sm"
+                                       placeholder="Хариулт......."
+                                       disabled={true}
+                                    />
+                                 )
+                              ) : (
+                                 <Select disabled={true} value={inputValue?.id} onValueChange={(value) => onChangeFunc(value, fieldKey)}>
+                                    <SelectTrigger className="w-56 data-[placeholder]:text-muted-text/40 text-xs2">
+                                       <SelectValue placeholder={'Сонго...'} className="placeholder:text-muted-text/20 " />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                       {question.answers?.map((item, index) => (
+                                          <SelectItem key={index} value={item.id ?? ''}>
+                                             {item.answer}
+                                          </SelectItem>
+                                       ))}
+                                    </SelectContent>
+                                 </Select>
+                              )
+                           ) : (
+                              item
+                           )}
+                        </div>
+                     );
+                  })}
+               </div>
             </div>
          )}
       </>
