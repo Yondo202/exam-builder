@@ -6,7 +6,7 @@ import { MdOutlineAdd } from 'react-icons/md';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { UseReFetch, request } from '@/lib/core/request';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { type TExamSection } from '..'; // type TVariant,
+import { type TExamSection, type TExam } from '..'; // type TVariant,
 import { Empty } from '@/assets/svg';
 import { type RowSelectionState } from '@tanstack/react-table';
 import ActionButtons from '@/components/ActionButtons';
@@ -14,11 +14,15 @@ import { toast } from 'sonner';
 import { HtmlToText } from '@/lib/utils';
 import { GoArrowRight } from 'react-icons/go';
 import Questions from '@/pages/questions';
+import { queryClient } from '@/main';
 import QuestionDetail from '@/pages/questions/Action';
+import { SelectQuestionType } from '@/pages/questions';
 
 type TVairantTabs = {
-   exam_id?: string;
+   // exam_id?: string;
    variant_id: string;
+   setValidInvite: React.Dispatch<React.SetStateAction<boolean>>;
+   parentData: TExam;
    //   sections?: TExamSection[];
    //    variantId: string;
    //    setVariantId: (id: string) => void;
@@ -33,14 +37,14 @@ type TActionQuestion = {
    // "sort_number": 0
 };
 
-const Section = ({ variant_id }: TVairantTabs) => {
+const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
    // const [current, setCurrent] = useState('');
    const [questionDetail, setQuestionDetail] = useState({ isOpen: false, pathId: '' });
 
    const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TExamSection });
    const [actionQuestion, setActionQuestion] = useState<TAction<TActionQuestion>>({ isOpen: false, type: 'add', data: {} as TActionQuestion });
 
-   const { data, refetch } = useQuery({
+   const { data, isFetchedAfterMount, isRefetching } = useQuery({
       enabled: !!variant_id,
       queryKey: ['exam/section', variant_id],
       queryFn: () =>
@@ -48,6 +52,25 @@ const Section = ({ variant_id }: TVairantTabs) => {
             url: `exam/list/section/${variant_id}`,
          }),
    });
+
+   useEffect(() => {
+      if (isFetchedAfterMount && data?.data) {
+         if (data?.data?.length > 0) {
+            const quetions = data?.data?.filter((element) => element.questions?.length > 0);
+            if (quetions?.length > 0) {
+               setValidInvite(true);
+               return;
+            }
+            setValidInvite(false);
+            // console.log(data?.data?.map(element=>element.questions))
+
+            return;
+         }
+
+         setValidInvite(false);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [isFetchedAfterMount, isRefetching]);
 
    // const { data: dataOne } = useQuery({
    //    enabled: !!variant_id,
@@ -60,13 +83,7 @@ const Section = ({ variant_id }: TVairantTabs) => {
 
    return (
       <div className="wrapper py-5">
-         <div className="px-6 pb-5 mb-4 text-muted-text font-medium text-sm flex gap-3 justify-between ">
-            Асуумжын жагсаалт
-            <Button onClick={() => setAction({ type: 'add', isOpen: true })} size="sm" className="rounded-full" type="button">
-               <MdOutlineAdd className="text-base" />
-               Дэд гарчиг нэмэх
-            </Button>
-         </div>
+         <div className="px-6 pb-5 mb-4 text-muted-text font-medium text-sm flex gap-3 justify-between ">Асуумжын жагсаалт</div>
          {(data?.data?.length ?? 0) > 0 ? (
             <Accordion type="multiple" className="px-6">
                {data?.data
@@ -134,6 +151,13 @@ const Section = ({ variant_id }: TVairantTabs) => {
             </div>
          )}
 
+         <div className="px-6">
+            <Button onClick={() => setAction({ type: 'add', isOpen: true })} className="rounded-full" variant="outline" type="button">
+               <MdOutlineAdd className="text-base" />
+               Дэд хэсэг нэмэх
+            </Button>
+         </div>
+
          <Dialog
             isOpen={questionDetail.isOpen}
             onOpenChange={(event) => setQuestionDetail((prev) => ({ ...prev, isOpen: event }))}
@@ -143,7 +167,8 @@ const Section = ({ variant_id }: TVairantTabs) => {
             <QuestionDetail
                pathId={questionDetail.pathId}
                setClose={() => {
-                  refetch();
+                  // refetch();
+                  queryClient.resetQueries({ queryKey: ['exam/section', variant_id], exact: true });
                   setQuestionDetail((prev) => ({ ...prev, isOpen: false }));
                }}
             />
@@ -155,7 +180,7 @@ const Section = ({ variant_id }: TVairantTabs) => {
             title="Асуултын жагсаалт"
             className={`p-6 pt-0 w-[80dvw]`}
          >
-            <SelectRowAction variant_id={variant_id} action={actionQuestion} setClose={() => setActionQuestion((prev) => ({ ...prev, isOpen: false }))} />
+            <SelectRowAction variant_id={variant_id} action={actionQuestion} setClose={() => setActionQuestion((prev) => ({ ...prev, isOpen: false }))} parentData={parentData} />
          </Dialog>
 
          <Drawer
@@ -178,7 +203,20 @@ const Section = ({ variant_id }: TVairantTabs) => {
 
 export default Section;
 
-const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string } & TActionProps<TActionQuestion>) => {
+import { type TQuestion } from '@/pages/questions';
+import { useSearchParams } from 'react-router-dom';
+
+// type TActionAdd<T> = {
+//    isOpen: boolean;
+//    type: TQuestion;
+//    data?: T | undefined;
+// };
+
+const SelectRowAction = ({ action, setClose, variant_id, parentData }: { variant_id: string; parentData: TExam } & TActionProps<TActionQuestion>) => {
+   // const [actionAdd, setActionAdd] = useState<TActionAdd<AllTypesQuestionTypes>>({ isOpen: false, type: 'checkbox', data: {} as AllTypesQuestionTypes });
+   const [isAddOpen, setIsAddOpen] = useState(false);
+   const [, setSearch] = useSearchParams({});
+
    const { isPending, mutate } = useMutation({
       mutationFn: (questionId: TActionQuestion['question_id']) =>
          request<Pick<TActionQuestion, 'question_id' | 'section_id'>>({
@@ -249,18 +287,54 @@ const SelectRowAction = ({ action, setClose, variant_id }: { variant_id: string 
       finalFunc(true);
    };
 
+   const rowAction = (item: TQuestion) => {
+      setSearch({ type: item, category_id: parentData?.category_id, sub_category_id: parentData?.sub_category_id });
+      setIsAddOpen(true);
+   };
+
    return (
       <Questions
          breadcrumbs={[]}
-         fromAction={(row) => {
+         parentData={parentData}
+         fromAction={(row, refetch) => {
             return (
-               <div className="sticky z-20 top-0 left-0 bg-card-bg flex justify-between items-center mb-2 py-2">
+               <div className="sticky z-20 top-0 left-0 bg-card-bg flex justify-between items-center mb-3 py-2">
                   <div className="text-muted-text">
                      Нийт сонгогдсон асуултын тоо: <span className="text-primary font-semibold">{Object.keys(row)?.length}</span>
                   </div>
-                  <Button isLoading={isPending || deletePending} onClick={() => finalSubmit(row)} className="rounded-full">
-                     Сонгогдсон асуулт хадгалах
-                  </Button>
+
+                  <div className="flex gap-3">
+                     <SelectQuestionType rowAction={rowAction}>
+                        <Button className="rounded-full" variant="outline">
+                           <MdOutlineAdd className="text-base" /> Асуулт нэмэх
+                        </Button>
+                     </SelectQuestionType>
+
+                     <Button isLoading={isPending || deletePending} onClick={() => finalSubmit(row)} className="rounded-full">
+                        Сонгогдсон асуулт хадгалах
+                     </Button>
+                  </div>
+
+                  <Dialog
+                     title="Асуулт нэмэх"
+                     className={`p-6 pt-0 w-[80dvw]`}
+                     isOpen={isAddOpen}
+                     onOpenChange={(e) => {
+                        if (!e) {
+                           setSearch({});
+                        }
+                        setIsAddOpen(e);
+                     }}
+                  >
+                     <QuestionDetail
+                        isFromExam={true}
+                        setClose={() => {
+                           refetch?.();
+                           setIsAddOpen(false);
+                           setSearch({});
+                        }}
+                     />
+                  </Dialog>
                </div>
             );
          }}

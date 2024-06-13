@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { GoDotFill } from 'react-icons/go';
 import { type TInputTypeTab, type TInputType } from '..';
 import { cn } from '@/lib/utils';
-import {  type TQTypesProps, InitialAnswer, ScoreInput } from '../Action';
+import { type TQTypesProps, InitialAnswer, ScoreInput } from '../Action';
 import { PiDotsSixVerticalBold } from 'react-icons/pi';
 import { MarkTotal } from '../components/utils';
 
@@ -16,7 +16,7 @@ const SelectTypes: TInputTypeTab[] = [
 ];
 
 export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: TQTypesProps) => {
-   const { fields, append, remove, move } = useFieldArray({ control, keyName:'_id', name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
+   const { fields, append, remove, move } = useFieldArray({ control, keyName: '_id', name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
 
    useEffect(() => {
       if (watch?.('input_type') === 'multi_select') {
@@ -25,8 +25,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [JSON.stringify(watch?.('answers')), watch?.('input_type')]);
 
-   // console.log(, "watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0)")÷
-   // const TotalValue;
+   // console.log(, "watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0)")
 
    return (
       <div className={cn('wrapper p-7 pt-0 mb-4 relative', idPrefix ? `p-0 mb-4 border-none shadow-none` : ``)}>
@@ -46,7 +45,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
                               fields.map((item) => ({ ...item, is_correct: false, mark: 0 }))
                            );
                         }
-                        
+
                         setValue('score', 0);
                         field.onChange(value as TInputType);
                      }}
@@ -68,7 +67,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
          </div>
          {/* <div className={cn('grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6', watch?.()?.input_type === 'multi_select' && 'grid-cols-[1fr]')}> */}
          <Sortable
-            value={fields.map(item=>({ ...item, id:item._id }))}
+            value={fields.map((item) => ({ ...item, id: item._id }))}
             onMove={({ activeIndex, overIndex }) => move(activeIndex, overIndex)}
             overlay={
                <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
@@ -123,6 +122,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
                                                       : element
                                                 );
                                                 setValue('answers', newValue ?? []);
+                                                field.onChange(event);
                                              }}
                                           />
                                           <Label htmlFor={`${idPrefix ?? ''}${field.name}`} className={cn('m-0', fieldState.error ? `text-danger-color` : ``)}>

@@ -1,4 +1,4 @@
-import { BreadCrumb, Button, Dialog, Header, TabsContent, AnimatedTabs, DataTable, DeleteContent } from '@/components/custom';
+import { BreadCrumb, Button, Dialog, Header, TabsContent, AnimatedTabs, DataTable, DeleteContent, Tooltip } from '@/components/custom';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 // import { Drawer, TextInput, Button, Textarea, TabsList, Tabs, TabsContent } from '@/components/custom'; //
 // import { CiSaveUp1 } from 'react-icons/ci';
@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import Employee, { empColumnDef } from '@/pages/users';
 import Candidates, { canditateColumnDef } from '@/pages/users/Candidates';
 import { RiUserSearchLine, RiUserStarLine } from 'react-icons/ri';
+import { cn } from '@/lib/utils';
 
 type inviteTypes = 'user' | 'emp' | 'inspector';
 type TInviteAsset = { isOpen: boolean; type: inviteTypes };
@@ -70,12 +71,13 @@ const initialFetch = {
 
 const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const isCompAdmin = onlyCompanyAdmin();
+   const [validInvite, setValidInvite] = useState(false);
    const [mainInviteType, setMainInviteType] = useState<TMainKeys>('inspector');
    const [current, setCurrent] = useState<TKeys>('user');
    const [invite, setInvite] = useState<TInviteAsset>({ isOpen: false, type: 'emp' });
    const { typeid } = useParams();
    const [variantId, setVariantId] = useState('');
-   const { data, isFetchedAfterMount, isRefetching } = useQuery({
+   const { data, isFetchedAfterMount, isRefetching, isLoading } = useQuery({
       queryKey: ['exam', typeid],
       queryFn: () =>
          request<FinalRespnse<TExam>>({
@@ -123,6 +125,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       if (data.type !== 'delete') return;
       setDeleteAction({ isOpen: true, data: data.data as TUserEmployee });
    };
+   const isValidInviteUser = data?.data?.variants && data?.data?.variants?.length > 0 && validInvite;
 
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
@@ -139,12 +142,12 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             title="Шалгалтын материал"
             action={
                <div className="flex gap-4">
-                  <Button onClick={() => setInvite({ isOpen: true, type: 'inspector' })} className="rounded-full" variant="outline">
+                  <Button onClick={() => setInvite({ isOpen: true, type: 'inspector' })} className="rounded-full" variant="outline" disabled={!isValidInviteUser}>
                      Шалгагч урих
                   </Button>
                   <Popover>
                      <PopoverTrigger asChild>
-                        <Button className="rounded-full" variant="outline">
+                        <Button className="rounded-full" variant="outline" disabled={!isValidInviteUser}>
                            Оролцогч урих
                         </Button>
                      </PopoverTrigger>
@@ -178,14 +181,19 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                {data?.data?.variants?.map((item, index) => {
                   return (
                      <TabsContent key={index} value={item.id}>
-                        <Section variant_id={variantId} />
+                        <Section variant_id={variantId} setValidInvite={setValidInvite} parentData={data?.data} />
                      </TabsContent>
                   );
                })}
             </Variants>
          )}
 
-         <div className="mt-2">
+         {!isLoading && <div className={cn('mt-5 relative')}>
+            {!isValidInviteUser && (
+               <Tooltip content="Та эхлээд асуултаа оруулна уу">
+                  <div className="absolute top-0 left-0 w-full h-full bg-white/70 rounded-md z-50" />
+               </Tooltip>
+            )}
             <AnimatedTabs
                items={Object.keys(mainInviteTabs)?.map((item) => ({ label: mainInviteTabs[item as TMainKeys]?.label, key: item }))}
                activeKey={mainInviteType}
@@ -221,7 +229,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                   columns={empColumnDef}
                />
             )}
-         </div>
+         </div>}
 
          <Dialog title="Шалгалтанд урих" className={`p-6 pt-0 w-[80dvw]`} isOpen={invite.isOpen} onOpenChange={(e) => setInvite((prev) => ({ ...prev, isOpen: e }))}>
             {invite.type === 'user' ? (

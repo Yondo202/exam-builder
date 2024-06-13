@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Header, BreadCrumb, Button } from '@/components/custom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { type TExam, type TVariant } from '@/pages/exams';
 import { FinalRespnse } from '@/lib/sharedTypes';
 import { request } from '@/lib/core/request';
@@ -45,11 +45,12 @@ export const userAnswerToProgress = (item: any) => {
 };
 // daraa barag - QuestionActionSector - ene component iig tusad ni ashiglasan deer ym bn
 const ExamMaterialAction = () => {
+   const navigate = useNavigate();
    // const [userAnswer, setUserAnswer] = useState([]);
    const sub: any = useSubQuestion();
    const { materialid, examid } = useParams();
    const { control, reset } = useForm();
-   const { control: scoreController, handleSubmit } = useForm({ mode: 'onSubmit' });
+   const { control: scoreController, handleSubmit, reset: scoreReset } = useForm({ mode: 'onSubmit' });
    const { data: examDAta } = GetExamDetial({ examid: examid });
 
    const { data, isFetchedAfterMount } = useQuery<FinalRespnse<Omit<TExam, 'variants' | 'user_exam'> & { variant: TVariant; user_exam: TUserExam }>>({
@@ -59,6 +60,7 @@ const ExamMaterialAction = () => {
 
    const { mutate, isPending } = useMutation({
       mutationFn: (body) => request({ url: 'user/inspector/submittions/grade', method: 'post', body: { exam_given_id: materialid, question_answers: body } }),
+      onSuccess: () => navigate(`/handle/${examDAta?.data?.id}`),
    });
 
    useEffect(() => {
@@ -72,13 +74,16 @@ const ExamMaterialAction = () => {
          data?.data?.variant.sections?.forEach((item) => questions.push(...item.questions));
 
          const settleValue: any = {};
-         // const scoreValue: any = {};
+         const scoreValues: any = {};
 
          questions?.forEach((item: any) => {
-            // scoreValue[item.id] = 
-            settleValue[item.id] = userAnswerToProgress(item);
+            const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
+            scoreValues[`score-${item.id}`] = totalScore === 0 ? undefined : totalScore;
 
+            settleValue[item.id] = userAnswerToProgress(item);
          });
+
+         scoreReset(scoreValues);
          reset(settleValue);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -108,7 +113,7 @@ const ExamMaterialAction = () => {
                finalSubmitData.push({ question_id: item?.replace('score-', ''), score: data[item], sub_question_answers: subQuestionAnswers });
             }
 
-            finalSubmitData.push({ question_id: item?.replace('score-', ''), score: data[item], sub_question_answers:[] });
+            finalSubmitData.push({ question_id: item?.replace('score-', ''), score: data[item] });
          });
          // sub_question_answers:[]
          mutate(finalSubmitData);

@@ -94,17 +94,29 @@ export const questionAsset: TQuestionTypesInFront = {
    },
 };
 
+type TActionWrapperProps = { type: TQuestion; pathId?: string; setCloseDialog?: () => void; isFromExam?: boolean; searchParams?: { category_id: string; sub_category_id: string } };
+
 const errorText = 'Зөв хариултаа сонгоно уу!';
 
-type TSelectProps = { current: TKeys; label: string; disabled?: boolean; idKey?: string; onChange?: (name: string) => void };
+type TSelectProps = { current: TKeys; label: string; disabled?: boolean; idKey?: string; onChange?: (name: string) => void; triggerClassName?: string };
 
-export const CategorySelect = <TFieldValues extends FieldValues>({ control, name, current, label, disabled, idKey, onChange }: TControllerProps<TFieldValues> & TSelectProps) => {
+export const CategorySelect = <TFieldValues extends FieldValues>({
+   control,
+   name,
+   current,
+   label,
+   disabled,
+   idKey,
+   onChange,
+   triggerClassName,
+}: TControllerProps<TFieldValues> & TSelectProps) => {
    const { data, isLoading } = useGetCategories({ current, idKey });
    return isLoading ? (
       <Skeleton className="h-12 w-full" />
    ) : (
       <SelectInput
          disabled={disabled}
+         triggerClassName={triggerClassName}
          options={data?.data ? data.data?.map((item) => ({ value: item.id, label: item.name })) : []}
          rules={{ required: 'Ангилалаа сонгоно уу' }}
          {...{ label, name, control, onChange }}
@@ -114,15 +126,23 @@ export const CategorySelect = <TFieldValues extends FieldValues>({ control, name
 
 // export type TQTypes = keyof typeof qTypes;
 
-const GroupAction = ({ breadcrumbs, pathId, setClose }: { breadcrumbs?: TBreadCrumb[]; pathId?: string; setClose?: () => void }) => {
+const GroupAction = ({ breadcrumbs, pathId, setClose, isFromExam }: { breadcrumbs?: TBreadCrumb[]; pathId?: string; setClose?: () => void; isFromExam?: boolean }) => {
    const [search] = useSearchParams({});
    const searchAsObject = Object.fromEntries(new URLSearchParams(search));
 
    return (
       <>
-         {!pathId && <BreadCrumb pathList={[...(breadcrumbs?.map((item) => ({ ...item, isActive: false })) ?? []), { to: '#', label: 'Тестийн сан үүсгэх', isActive: true }]} />}
+         {!pathId && !isFromExam && (
+            <BreadCrumb pathList={[...(breadcrumbs?.map((item) => ({ ...item, isActive: false })) ?? []), { to: '#', label: 'Тестийн сан үүсгэх', isActive: true }]} />
+         )}
          {/* <Component title={questionAsset[searchAsObject.type as TQTypes]?.label} type={questionAsset[searchAsObject.type as TQTypes]?.type} /> */}
-         <ActionWrapper type={searchAsObject.type as TQuestion} pathId={pathId} setCloseDialog={setClose} />
+         <ActionWrapper
+            searchParams={searchAsObject as TActionWrapperProps['searchParams']}
+            type={searchAsObject.type as TQuestion}
+            pathId={pathId}
+            setCloseDialog={setClose}
+            isFromExam={isFromExam}
+         />
       </>
    );
 };
@@ -147,7 +167,7 @@ const InitialonCreate = ({ type }: { type: TQuestion }) => {
    };
 };
 
-const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; pathId?: string; setCloseDialog?: () => void }) => {
+const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams }: TActionWrapperProps) => {
    // let typeid = '';
    let { typeid } = useParams();
 
@@ -171,6 +191,8 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
       defaultValues: inititalState, //answers: InitialAnswer
    });
 
+   const isCreate = isFromExam || typeid === 'create';
+
    const Component = useMemo(() => {
       return questionAsset[watch()?.type as TQuestion]?.component;
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -179,7 +201,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
    const { fields, append, remove, update } = useFieldArray({ control, name: 'sub_questions', keyName: '_id' });
 
    const { data, isFetchedAfterMount, isFetched } = useQuery({
-      enabled: typeid !== 'create',
+      enabled: !isCreate,
       queryKey: [`questions`, typeid],
       queryFn: () =>
          request<{ data: AllTypesQuestionTypes }>({
@@ -188,8 +210,12 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
    });
 
    useEffect(() => {
-      if (typeid === 'create') {
+      if (isCreate) {
          // reset({ type: type, answers: type === 'checkbox' ? [InitialAnswer, InitialAnswer] : [], sub_questions: [], input_type: questionAsset[type as TQuestion]?.input_type });
+         if (isFromExam) {
+            reset({ ...InitialonCreate({ type }), category_id: searchParams?.category_id ?? '', sub_category_id: searchParams?.sub_category_id ?? '' });
+            return;
+         }
          reset({ ...InitialonCreate({ type }) });
          return;
       }
@@ -212,16 +238,18 @@ const ActionWrapper = ({ type, pathId, setCloseDialog }: { type: TQuestion; path
       // mutationFn: (body?: Omit<TQuestionTypes, 'id'> | undefined) =>
       mutationFn: (body: TQuestionTypes) =>
          request<TQuestionTypes>({
-            method: typeid === 'create' ? 'post' : 'put',
-            url: `exam/question-with-answers${typeid !== 'create' ? `/${typeid}` : ``}`,
+            method: isCreate ? 'post' : 'put',
+            url: `exam/question-with-answers${!isCreate ? `/${typeid}` : ``}`,
             body: body,
          }),
       onSuccess: () => {
-         if (pathId) {
+         if (pathId || isFromExam) {
             setCloseDialog?.();
+            // UseReFetch({ queryKey: })
             // UseReFetch({ queryKey: 'exam/section' });
             return;
          }
+
          navigate('/questions');
       },
    });
@@ -432,7 +460,7 @@ type TScoreInputProps = {
 
    disabled?: boolean;
 };
-
+// idPrefix  - baih ued sub question l gesen ug
 export const ScoreInput = ({ control, idPrefix, watch, isLine = false, className, disabled }: TScoreInputProps) => {
    return (
       <div className={cn('', className)}>
@@ -443,7 +471,7 @@ export const ScoreInput = ({ control, idPrefix, watch, isLine = false, className
             disabled={disabled}
             control={control}
             // beforeAddon={<GoDotFill className="text-xs" />}
-            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: watch?.()?.sub_questions?.length ?? 0 > 0 ? 0 : 0.001 } }}
             label="Асуултанд авах оноо"
             placeholder="Оноо оруулах"
             type="number"

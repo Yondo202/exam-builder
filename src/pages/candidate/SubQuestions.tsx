@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Badge } from '@/components/custom';
 import { Controller, useForm } from 'react-hook-form';
 import { type Socket } from 'socket.io-client';
@@ -26,37 +27,31 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const sub: any = useSubQuestion();
    const { control, watch, reset } = useForm({ mode: 'onChange' });
-   const { control: scoreController, watch: scoreWatch, setError, clearErrors } = useForm({ mode: 'all' });
-
-   // useEffect(()=>{
-   //    if(isFromInspector){
-   //       setSubValue(scoreWatch())
-   //    }
-   // },[scoreWatch()])
+   const { control: scoreController, watch: scoreWatch, setError, clearErrors, reset: scoreReset } = useForm({ mode: 'all' });
 
    useEffect(() => {
       if (isFromInspector) {
          // zowhon shalgagch erhtei hund zorulsan ****
-
-         // eslint-disable-next-line @typescript-eslint/no-explicit-any
          const settleValue: any = {};
-         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-         const subValues: any = {};
-         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         const scoreValues: any = {};
          parentQuestion?.sub_questions?.forEach((item: any) => {
+            const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
+            // setValue(`score-${item.id}`, totalScore === 0 ? undefined : totalScore);
+            scoreValues[`score-${item.id}`] = totalScore === 0 ? undefined : totalScore;
+
             settleValue[item.id] = userAnswerToProgress(item);
-            subValues[`score-${item.id}`] = undefined;
          });
-         sub.setSubValue({ [parentQuestion.id]: subValues });
+
+         sub.setSubValue({ [parentQuestion.id]: scoreValues });
          sub.setErrors({ [parentQuestion.id]: setError });
+
+         scoreReset(scoreValues);
          reset(settleValue);
          return;
       }
 
       if (subQuestionsValue) {
-         // eslint-disable-next-line @typescript-eslint/no-explicit-any
          const settleValue: any = {};
-         // eslint-disable-next-line @typescript-eslint/no-explicit-any
          subQuestionsValue?.forEach((item: any) => {
             // const item = tempArr.find((elem) => elem.id === item.question_id);
             if (item?.input_type === 'multi_select' || item?.type === 'fill') {
@@ -125,9 +120,6 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [watch()]);
 
-   // console.log(progressId, '----------->progressId');
-   // console.log(watch(), '-------------------->watch');
-
    return (
       <div className="pt-8 pl-12 max-sm:pl-1">
          <div className="wrapper mb-2.5 p-8 py-3 text-sm border-b font-medium truncate border-t-[2px] border-t-primary">
@@ -155,10 +147,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                               name={`score-${element.id}`}
                               rules={{ required: 'Оноо өгнө үү' }}
                               render={({ field, fieldState }) => {
-                                 console.log(fieldState?.error, '------->fieldState?.error');
-                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                  const CustomOnchange = (value: any) => {
-                                    // setSubValue(scoreWatch())
                                     clearErrors();
                                     sub.setSubValue({ [parentQuestion.id]: { ...scoreWatch(), [field.name]: isNaN(parseFloat(value)) ? undefined : parseFloat(value) } });
                                     field.onChange(value);
@@ -170,7 +159,8 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                                           ref={field.ref}
                                           onChange={(event) => CustomOnchange(event.target.value)}
                                           type="number"
-                                          // onFocus={fieldState?.error?.ref?.focus() as React.FocusEventHandler<HTMLInputElement> | undefined}
+                                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                          onWheel={(e: any) => e.target.blur()}
                                           className="w-46"
                                           placeholder="Оноо өгөх..."
                                           variant={fieldState?.error ? `error` : 'default'}

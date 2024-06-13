@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueries } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueries, type RefetchOptions, type QueryObserverResult } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { type FinalRespnse, type TAction } from '@/lib/sharedTypes';
 import { BreadCrumb, Header, Button, DataTable, Badge, Dialog, DeleteContent } from '@/components/custom'; // DataTable
@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { questionAsset, CategorySelect } from './Action';
 import { useEffect, useState } from 'react';
 import { type RowSelectionState } from '@tanstack/react-table';
+import { type TExam } from '../exams';
 import { HtmlToText, cn } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 export type TQuestion = 'text' | 'checkbox' | 'fill';
@@ -56,9 +57,18 @@ export type TQuestionTypes = Omit<AllTypesQuestionTypes, 'created_at' | 'total_s
 
 type Tfilter = TQuestion | 'all';
 
-const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadCrumb[]; fromAction?: (row: RowSelectionState) => React.ReactNode; prevData?: AllTypesQuestionTypes[] }) => {
+type TRefetchQuestion = (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<FinalRespnse<AllTypesQuestionTypes[]>, Error>>;
+
+type TQuestionProps = {
+   breadcrumbs: TBreadCrumb[];
+   fromAction?: (row: RowSelectionState, refetch?: TRefetchQuestion) => React.ReactNode;
+   prevData?: AllTypesQuestionTypes[];
+   parentData?: TExam;
+};
+
+const Questions = ({ breadcrumbs, fromAction, prevData, parentData }: TQuestionProps) => {
    const [filterTypes, setFilterTypes] = useState<Tfilter>('all');
-   const { control, setValue, watch } = useForm({ defaultValues: { category_id: '', sub_category_id: '' } });
+   const { control, setValue, watch, reset } = useForm({ defaultValues: { category_id: '', sub_category_id: '' } });
 
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -108,8 +118,6 @@ const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadC
       }
    }, [isFetchedAfterMount]);
 
-   // console.log(rowSelection);
-
    const { isPending, mutate } = useMutation({
       mutationFn: () =>
          request<TQuestionTypes>({
@@ -133,8 +141,6 @@ const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadC
    //       rowMutate(item)
    //    })
    // }
-
-   // console.log(rowSelection, '------------>prevData');
 
    // const {
    //    data: dataOne,
@@ -161,6 +167,12 @@ const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadC
       }),
    });
 
+   useEffect(() => {
+      if (fromAction) {
+         reset({ category_id: parentData?.category_id, sub_category_id: parentData?.sub_category_id });
+      }
+   }, []);
+
    return (
       <>
          {!fromAction && <BreadCrumb pathList={breadcrumbs} />}
@@ -177,7 +189,7 @@ const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadC
             />
          )}
 
-         {fromAction?.(rowSelection)}
+         {fromAction?.(rowSelection, refetch)}
 
          <div className={cn('grid transition-all grid-cols-1 gap-0', fromAction ? ` grid-cols-[60%_1fr] gap-8` : ``)}>
             <div>
@@ -188,14 +200,23 @@ const Questions = ({ breadcrumbs, fromAction, prevData }: { breadcrumbs: TBreadC
                         name="category_id"
                         current="main_category"
                         label="Үндсэн ангилал"
+                        triggerClassName="rounded-full h-8"
                         onChange={() => {
                            setValue('sub_category_id', '');
                         }}
                      />
-                     <CategorySelect control={control} disabled={!watch('category_id')} idKey={watch('category_id')} name="sub_category_id" current="sub_category" label="Дэд ангилал" />
+                     <CategorySelect
+                        triggerClassName="rounded-full h-8"
+                        control={control}
+                        disabled={!watch('category_id')}
+                        idKey={watch('category_id')}
+                        name="sub_category_id"
+                        current="sub_category"
+                        label="Дэд ангилал"
+                     />
                   </div>
 
-                  <div className="flex flex-wrap gap-2 pb-1">
+                  <div className="flex flex-wrap gap-2 pb-1 justify-end">
                      <Button
                         onClick={() => setFilterTypes('all')}
                         size="sm"

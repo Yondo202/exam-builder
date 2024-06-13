@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import { Users, Plan, Group, Factcheck, Document } from '@/assets/svg'; //Document //Leaderboard
 import Category from '@/pages/category';
 import Questions from '@/pages/questions';
+import QuestionAction from '@/pages/questions/Action';
 import UsersList from '@/pages/users';
 import Exams from '@/pages/exams';
 import ExamAction from '@/pages/exams/Action';
@@ -9,7 +10,6 @@ import ActiveExams from '@/pages/exams/exam_events/active_exams';
 import ExamMaterialList from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
 import ExamMaterialAction from '@/pages/exams/exam_events/active_exams/ExamMaterialAction';
 import ExamResults from '@/pages/exams/exam_events/ExamResults';
-import QuestionAction from '@/pages/questions/Action';
 import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
 // import Profile from '@/pages/auth/Profile';
@@ -67,8 +67,11 @@ const RouteStore: TRouteOmit[] = [
       subMenu: [
          { to: '', label: 'Засах шалгалтууд', component: ActiveExams, visibleType: ['inspector'] },
          { to: '/handle/:examid', component: ExamMaterialList, visibleType: ['inspector'], isHide: true },
+
          { to: '/handle/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector'], isHide: true },
-         { to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, visibleType: ['inspector'] },
+         // { to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, visibleType: ['inspector'] },
+
+
          // { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],

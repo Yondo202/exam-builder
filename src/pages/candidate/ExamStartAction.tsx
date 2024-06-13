@@ -321,8 +321,10 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                                 <Input
                                                    {...field}
                                                    ref={field.ref}
-                                                   onChange={(event) => (isNaN(parseFloat(event.target.value)) ? undefined : field.onChange(parseFloat(event.target.value)))}
+                                                   onChange={(event) => field.onChange(event.target.value !== '' ? parseFloat(event.target.value) : undefined)}
                                                    type="number"
+                                                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                   onWheel={(e:any) => e.target.blur()}
                                                    min={0}
                                                    className="w-46"
                                                    placeholder="Оноо өгөх..."

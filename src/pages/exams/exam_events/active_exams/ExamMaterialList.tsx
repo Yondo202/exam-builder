@@ -4,7 +4,7 @@ import { type FinalRespnse } from '@/lib/sharedTypes';
 import { DataTable, BreadCrumb, Header, Badge } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import Config from '@/pages/exams/actions/Config';
-import { finalRenderDate } from '@/lib/utils';
+import { cn, finalRenderDate } from '@/lib/utils';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { TExam } from '@/pages/exams';
 import { LuPencil } from 'react-icons/lu';
@@ -18,11 +18,19 @@ type TUserInfo = {
    user: { firstname: string; lastname: string };
 };
 
+// [ graded, not_graded_yet, regraded ]
+const SubmissionTypes = {
+   graded: 'Шалгасан',
+   not_graded_yet: 'Шалгаагүй',
+   regraded: 'Дахин шалгасан',
+} as const;
+
 type TMaterialList = {
    id: string;
    start_date: string;
    end_date: string;
    user_exam: TUserInfo;
+   status: keyof typeof SubmissionTypes;
 };
 
 export const GetExamDetial = ({ examid }: { examid?: string }) => {
@@ -67,7 +75,7 @@ const ExamMaterialList = () => {
    //    }
    // };
 
-   // console.log(data, "------------>data")
+   console.log(data, '------------>data');
 
    return (
       <div>
@@ -100,6 +108,17 @@ export default ExamMaterialList;
 
 const columnDef: ColumnDef<TMaterialList>[] = [
    {
+      header: 'Төлөв',
+      accessorKey: 'status',
+      cell: ({ row }) => {
+         return (
+            <Badge variant="secondary" className={cn('font-normal py-1', row.original?.status !== 'not_graded_yet' ? `bg-green-200/30 text-green-600` : ``)}>
+               {SubmissionTypes?.[row.original?.status]}
+            </Badge>
+         );
+      },
+   },
+   {
       header: 'Оролцогч',
       accessorKey: 'user_exam.user.firstname',
       cell: ({ row }) => {
@@ -112,28 +131,28 @@ const columnDef: ColumnDef<TMaterialList>[] = [
       },
    },
    {
-      header: 'Төлөв',
+      header: 'Шалгалтын явц',
       accessorKey: 'user_exam',
       cell: ({ row }) => {
          return (
-            <Badge variant="secondary" className="font-medium py-1">
+            <Badge variant="secondary" className="py-1">
                {StatusLabels?.[row.original?.user_exam?.status]}
             </Badge>
          );
       },
    },
 
-   {
-      header: 'Дахин өгсөн тоо',
-      accessorKey: 'user_exam.status',
-      cell: ({ row }) => {
-         return (
-            <Badge variant="secondary" className="font-medium py-1">
-               {row.original.user_exam?.attempt}
-            </Badge>
-         );
-      },
-   },
+   // {
+   //    header: 'Дахин өгсөн тоо',
+   //    accessorKey: 'user_exam.status',
+   //    cell: ({ row }) => {
+   //       return (
+   //          <Badge variant="secondary" className="font-medium py-1">
+   //             {row.original.user_exam?.attempt}
+   //          </Badge>
+   //       );
+   //    },
+   // },
    {
       header: 'Шалгалт эхлүүлсэн',
       accessorKey: 'start_date',

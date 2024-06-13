@@ -62,7 +62,6 @@ export type TExam = {
 //  },
 
 // eslint-disable-next-line react-refresh/only-export-components
-
 export const onlyCompanyAdmin = () => {
    const { data: userMe } = GetUserMe();
    return userMe?.data?.roles?.some((item) => item.role === 'company_admin') && userMe?.data?.roles?.every((item) => item.role !== 'super_admin');
