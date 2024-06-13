@@ -20,6 +20,7 @@ import { GiFinishLine } from 'react-icons/gi';
 import { cn } from '@/lib/utils';
 import { type TExamSection } from '@/pages/exams';
 import { Input } from '@/components/ui/Input';
+import { queryKeyOfEXam } from './ExamsList';
 
 // const toConnect = () => {
 //    if (getJwt()) {
@@ -85,7 +86,6 @@ const ExamStartAction = () => {
    const [timer, setTimer] = useState({ isStarted: false, isDone: false });
    // const [socketConnect, setSocketConnect] = useState({ isConnected: false });
    // console.log(socketConnect, "----->socketConnect")
-
    const {
       control,
       reset,
@@ -104,29 +104,37 @@ const ExamStartAction = () => {
    // }, [socket?.connected]);
 
    const { data: InviteDetail, isFetchedAfterMount } = useQuery({
-      queryKey: ['getinvite', inviteid],
+      refetchOnMount: true,
+      refetchOnReconnect: true,
+      queryKey: [queryKeyOfEXam.getinvite], //inviteid
       queryFn: () => request<FinalRespnse<TMyExamAsset>>({ url: `user/exam/my-invites/id/${inviteid}` }),
    });
+
+   console.log(InviteDetail?.data.exam, '--->exam id');
+   console.log(isFetchedAfterMount, '-------------isFetchedAfterMount');
 
    const {
       data: ProgressData,
       isError,
       isFetchedAfterMount: isProgressFetched,
    } = useQuery({
-      enabled: !!InviteDetail?.data?.exam_id,
-      queryKey: ['start-exam', inviteid],
+      staleTime: 0,
+      enabled: isFetchedAfterMount,
+      queryKey: [queryKeyOfEXam.startexam], //InviteDetail?.data?.exam_id
       queryFn: () =>
          request<FinalRespnse<TStarted>>({
             offAlert: true,
             method: 'post',
-            url: `user/exam/${InviteDetail?.data?.status === 'ongoing' ? `continue` : `start`}/${InviteDetail?.data?.exam_id}`,
+            url: `user/exam/start/${InviteDetail?.data?.exam_id}`,
          }),
    }); // shalgaltiin yvts
 
+   console.log(ProgressData?.data?.id, '-------------> ProgressData?.data?.id');
+
    const { data, isFetchedAfterMount: isExamMaterialFetched } = useQuery({
       // shalgaltiin material
-      enabled: !!ProgressData?.data?.id,
-      queryKey: ['getmyexam', inviteid],
+      enabled: isProgressFetched,
+      queryKey: [queryKeyOfEXam.getmyexam], //ProgressData?.data?.id
       queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/progress/${ProgressData?.data?.id}` }), // ProgressData?.data?.id
    });
 
@@ -243,7 +251,7 @@ const ExamStartAction = () => {
                      </PopoverTrigger>
                      <PopoverContent align="end" side="top" sideOffset={25}>
                         <div className="mb-8 text-sm font-medium text-text">Та шалгалтыг дуусгахдаа итгэлтэй байна уу?</div>
-                        <Button variant="outline" className="w-full" onClick={() => onExamSubmit()}>
+                        <Button type="button" variant="outline" className="w-full" onClick={() => onExamSubmit()}>
                            {' '}
                            {/*onClick={() => mutate()}*/}
                            {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}

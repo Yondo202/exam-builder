@@ -72,9 +72,12 @@ const ExamMaterialAction = () => {
          data?.data?.variant.sections?.forEach((item) => questions.push(...item.questions));
 
          const settleValue: any = {};
+         // const scoreValue: any = {};
 
          questions?.forEach((item: any) => {
+            // scoreValue[item.id] = 
             settleValue[item.id] = userAnswerToProgress(item);
+
          });
          reset(settleValue);
       }

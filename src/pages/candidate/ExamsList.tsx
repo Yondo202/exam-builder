@@ -9,7 +9,8 @@ import { finalRenderDate } from '@/lib/utils';
 import { type TAction } from '@/lib/sharedTypes';
 import { VscSend } from 'react-icons/vsc';
 import { LiaHourglassStartSolid, LiaArrowRightSolid } from 'react-icons/lia';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { queryClient } from '@/main';
 
 // enum UserExamStatusEnum {
 //    ongoing = 'ONGOING',
@@ -51,13 +52,37 @@ export type TMyExamAsset = {
    exam: TMyEXam;
 };
 
+
+type TQueryKeyOfEXamTypes = "getinvite" | 'startexam' | 'getmyexam'
+type TQuestionTypesInFront = { [Key in TQueryKeyOfEXamTypes]?: string };
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const queryKeyOfEXam: TQuestionTypesInFront = {
+   getinvite: "getinvite",
+   startexam: 'startexam',
+   getmyexam: 'getmyexam',
+} as const
+
 const ExamsList = () => {
    const [action, setAction] = useState<TAction<TMyExamAsset>>({ isOpen: false, type: 'add', data: {} as TMyExamAsset });
    const navigate = useNavigate();
    const { data, isLoading } = useQuery<FinalRespnse<TMyExamAsset[]>>({ queryKey: ['my-invites'], queryFn: () => request({ url: 'user/exam/my-invites' }) });
 
+   useEffect(() => {
+      queryClient.removeQueries({ queryKey: [queryKeyOfEXam.getinvite], exact: true });
+      queryClient.removeQueries({ queryKey: [queryKeyOfEXam.startexam], exact: true });
+      queryClient.removeQueries({ queryKey: [queryKeyOfEXam.getmyexam], exact: true });
+
+      queryClient.resetQueries({ queryKey: ['my-invites'], exact: true });
+   }, []);
+
    // console.log(data?.data, '--------->');
    // dahin {5} oroldlogo hiih bolomjtoi -
+
+   const StartExamNavigate = ({ id }: { id: string }) => {
+      navigate(id);
+      // queryClient.removeQueries({ queryKey, exact: true })
+   };
 
    return (
       <div className="h-[calc(100dvh-56px)] overflow-y-auto">
@@ -121,14 +146,16 @@ const ExamsList = () => {
                                  <Button
                                     size="lg"
                                     className="group/button rounded-full opacity-0 scale-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 hover:bg-primary"
-                                    onClick={() => (item.status === 'ongoing' ? navigate(`/${item.id}`) : setAction({ data: item, isOpen: true, type: 'edit' }))}
+                                    onClick={() => (item.status === 'ongoing' ? StartExamNavigate({ id: `/${item.id}` }) : setAction({ data: item, isOpen: true, type: 'edit' }))}
                                  >
                                     <PiExam className="text-lg" />
                                     <span>{item.status === 'ongoing' ? `Шалгалт үргэлжлүүлэх` : `Шалгалт өгөх`} </span>
                                     <VscSend className="mt-0.5 scale-0 opacity-0 -translate-x-full transition-all group-hover/button:scale-100 group-hover/button:opacity-100 group-hover/button:translate-x-0" />
                                  </Button>
                               ) : (
-                                 <Button type="button" className='bg-danger-color color-[#FFF] rounded-full hover:bg-danger-color'>Шалгалт өгөх эрх дууссан байна</Button>
+                                 <Button type="button" className="bg-danger-color color-[#FFF] rounded-full hover:bg-danger-color">
+                                    Шалгалт өгөх эрх дууссан байна
+                                 </Button>
                               )}
                            </div>
                         </div>
@@ -148,7 +175,7 @@ const ExamsList = () => {
                                  <Button
                                     size="lg"
                                     className="group/button rounded-full w-full"
-                                    onClick={() => (setAction((prev) => ({ ...prev, isOpen: false })), navigate(`/${action?.data?.id}`))}
+                                    onClick={() => (setAction((prev) => ({ ...prev, isOpen: false })), StartExamNavigate({ id: `/${action?.data?.id}` }))}
                                  >
                                     <LiaHourglassStartSolid className="text-lg rotate-180 transition-all group-hover/button:rotate-0" />
                                     <span>Шалгалт эхлэх</span>

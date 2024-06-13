@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ThemeProvider from '@/lib/core/ThemeProvider.tsx';
 import App from './App.tsx';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import './globals.css';
 
 export const queryClient = new QueryClient({
@@ -44,6 +45,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
          <ThemeProvider>
             <App />
          </ThemeProvider>
+         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
    </React.StrictMode>
 );
