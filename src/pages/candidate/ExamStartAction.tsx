@@ -110,8 +110,8 @@ const ExamStartAction = () => {
       queryFn: () => request<FinalRespnse<TMyExamAsset>>({ url: `user/exam/my-invites/id/${inviteid}` }),
    });
 
-   console.log(InviteDetail?.data.exam, '--->exam id');
-   console.log(isFetchedAfterMount, '-------------isFetchedAfterMount');
+   // console.log(InviteDetail?.data.exam, '--->exam id');
+   // console.log(isFetchedAfterMount, '-------------isFetchedAfterMount');
 
    const {
       data: ProgressData,
@@ -129,7 +129,7 @@ const ExamStartAction = () => {
          }),
    }); // shalgaltiin yvts
 
-   console.log(ProgressData?.data?.id, '-------------> ProgressData?.data?.id');
+   // console.log(ProgressData?.data?.id, '-------------> ProgressData?.data?.id');
 
    const { data, isFetchedAfterMount: isExamMaterialFetched } = useQuery({
       // shalgaltiin material
@@ -169,7 +169,7 @@ const ExamStartAction = () => {
                settleValue[item.question_id ?? ''] = item.answer;
             }
          });
-         reset(settleValue);
+         reset(settleValue)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isProgressFetched, isExamMaterialFetched]);

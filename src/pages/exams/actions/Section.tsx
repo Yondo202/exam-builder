@@ -11,7 +11,7 @@ import { Empty } from '@/assets/svg';
 import { type RowSelectionState } from '@tanstack/react-table';
 import ActionButtons from '@/components/ActionButtons';
 import { toast } from 'sonner';
-import { HtmlToText } from '@/lib/utils';
+import { HtmlToText, cn } from '@/lib/utils';
 import Questions from '@/pages/questions';
 import { queryClient } from '@/main';
 import QuestionDetail from '@/pages/questions/Action';
@@ -192,12 +192,12 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
          ) : (
             <div className="h-32 flex items-center justify-center flex-col gap-4">
                <Empty />
-               <h3 className="text-muted-text/40">Мэдээлэл байхгүй байна</h3>
+               <h3 className="text-muted-text/40">Асуумж байхгүй байна</h3>
             </div>
          )}
 
          <div className="px-6">
-            <Button onClick={() => setAction({ type: 'add', isOpen: true })} className="rounded-full" variant="outline" type="button">
+            <Button onClick={() => setAction({ type: 'add', isOpen: true })} className={cn('rounded-full', data?.data?.length ?? 0 > 0 ? `` : `w-full`)} variant="outline" type="button">
                <MdOutlineAdd className="text-base" />
                Дэд хэсэг нэмэх
             </Button>

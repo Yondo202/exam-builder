@@ -125,6 +125,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       if (data.type !== 'delete') return;
       setDeleteAction({ isOpen: true, data: data.data as TUserEmployee });
    };
+   
    const isValidInviteUser = data?.data?.variants && data?.data?.variants?.length > 0 && validInvite;
 
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction }; // hideAction: true,

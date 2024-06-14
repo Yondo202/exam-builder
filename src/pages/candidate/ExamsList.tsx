@@ -11,6 +11,7 @@ import { VscSend } from 'react-icons/vsc';
 import { LiaHourglassStartSolid, LiaArrowRightSolid } from 'react-icons/lia';
 import { useEffect, useState } from 'react';
 import { queryClient } from '@/main';
+import { Empty } from '@/assets/svg';
 
 // enum UserExamStatusEnum {
 //    ongoing = 'ONGOING',
@@ -52,16 +53,15 @@ export type TMyExamAsset = {
    exam: TMyEXam;
 };
 
-
-type TQueryKeyOfEXamTypes = "getinvite" | 'startexam' | 'getmyexam'
+type TQueryKeyOfEXamTypes = 'getinvite' | 'startexam' | 'getmyexam';
 type TQuestionTypesInFront = { [Key in TQueryKeyOfEXamTypes]?: string };
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const queryKeyOfEXam: TQuestionTypesInFront = {
-   getinvite: "getinvite",
+   getinvite: 'getinvite',
    startexam: 'startexam',
    getmyexam: 'getmyexam',
-} as const
+} as const;
 
 const ExamsList = () => {
    const [action, setAction] = useState<TAction<TMyExamAsset>>({ isOpen: false, type: 'add', data: {} as TMyExamAsset });
@@ -94,7 +94,7 @@ const ExamsList = () => {
                   <Skeleton className="w-full h-60 rounded-lg" />
                   <Skeleton className="w-full h-60 rounded-lg" />
                </>
-            ) : (
+            ) : data?.data?.length ?? 0 > 0 ? (
                data?.data?.map((item, index) => {
                   return (
                      <div className="wrapper p-0 group hover:shadow-md" key={index}>
@@ -187,6 +187,11 @@ const ExamsList = () => {
                      </div>
                   );
                })
+            ) : (
+               <div className="h-[70dvh] flex items-center justify-center flex-col">
+                  <Empty />
+                  <h3 className="text-lg">Шалгалт байхгүй байна</h3>
+               </div>
             )}
 
             {/* <div className='wrapper p-4'>Бизнесийн удирдлага</div>

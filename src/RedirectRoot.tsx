@@ -7,7 +7,8 @@ const RedirectRoot = () => {
    const navigate = useNavigate();
    useEffect(() => {
       if (data?.data.roles?.some((item) => item.role === 'super_admin')) {
-         navigate('/dashboard');
+         // navigate('/dashboard');
+         navigate('/category');
          return;
       }
       // comp admin turulj unshih uchiraas hamt bsan ued ch exam - iig l duudna
