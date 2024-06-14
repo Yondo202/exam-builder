@@ -381,6 +381,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                           score_visible={score_visible}
                                           progressId={ProgressData?.data.id}
                                           isFromInspector={isFromInspector}
+                                          questionIndex={`${index + 1}.${ind + 1}`}
                                        />
                                     )}
                                  </>

@@ -46,7 +46,7 @@ const catAsset = {
 
 export type TKeys = keyof typeof catAsset;
 
-const Users = ({ breadcrumbs, fromAction }: { breadcrumbs: TBreadCrumb[]; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
+const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadCrumb[]; is_inspector?:boolean; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
    const [search, setSearch] = useState('');
    const [current, setCurrent] = useState<TKeys>('employees');
@@ -56,6 +56,8 @@ const Users = ({ breadcrumbs, fromAction }: { breadcrumbs: TBreadCrumb[]; fromAc
       pageSize: 10,
       total: 0,
    });
+
+   console.log(is_inspector, "--------->is_inspector")
 
    const { data, isLoading, isFetchedAfterMount } = useQuery({
       enabled: catAsset[current]?.enabled,
@@ -67,6 +69,7 @@ const Users = ({ breadcrumbs, fromAction }: { breadcrumbs: TBreadCrumb[]; fromAc
             offAlert: true,
             filterBody: {
                query: search,
+               is_inspector: !!is_inspector,
                pagination: {
                   page: pagination.pageIndex + 1,
                   page_size: pagination.pageSize,

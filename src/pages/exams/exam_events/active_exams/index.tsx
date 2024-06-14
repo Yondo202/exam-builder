@@ -8,8 +8,9 @@ import { useNavigate } from 'react-router-dom';
 import { finalRenderDate } from '@/lib/utils';
 import { useGetCategories } from '@/pages/category';
 import { TExam } from '@/pages/exams';
+import { SubmissionTypes } from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
 
-const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {   
    const navigate = useNavigate();
    // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
    const { data: CategoryData } = useGetCategories({ current: 'main_category' });
@@ -47,6 +48,20 @@ const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             defaultSortField="active_start_at"
             rowAction={(data) => navigate(data?.data?.id ?? '')}
             hideActionButton="delete"
+            headAction={
+               <div className="flex items-center gap-3">
+                  {data?.meta.grading_status?.map((item, index) => {
+                     return (
+                        <Badge key={index} className="py-1.5 rounded-full flex gap-1" variant="secondary">
+                           <span className='text-muted-text'>{SubmissionTypes?.[item.status]}: </span>
+                           <span className='font-medium'>{item.count}</span>
+                        </Badge>
+                     );
+                  })}
+
+                  {/* <Badge>hehehe</Badge> */}
+               </div>
+            }
             columns={[
                {
                   header: 'Шалгалтын нэр',
@@ -116,7 +131,7 @@ const columnDef: ColumnDef<TExam>[] = [
       header: 'Код',
       accessorKey: 'code',
       enableSorting: false,
-      size: 100,
+      size: 120,
       cell: ({ row }) => {
          return (
             row.original.code && (

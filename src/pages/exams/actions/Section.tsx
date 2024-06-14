@@ -12,7 +12,6 @@ import { type RowSelectionState } from '@tanstack/react-table';
 import ActionButtons from '@/components/ActionButtons';
 import { toast } from 'sonner';
 import { HtmlToText } from '@/lib/utils';
-import { GoArrowRight } from 'react-icons/go';
 import Questions from '@/pages/questions';
 import { queryClient } from '@/main';
 import QuestionDetail from '@/pages/questions/Action';
@@ -37,14 +36,38 @@ type TActionQuestion = {
    // "sort_number": 0
 };
 
+const UseDeleteMutate = () => {
+   return useMutation({
+      mutationFn: ({ questionId, section_id }: { section_id?: string; questionId?: TActionQuestion['question_id'] }) =>
+         request<Pick<TActionQuestion, 'question_id' | 'section_id'>>({
+            method: 'delete',
+            url: `exam/remove/question`,
+            offAlert: true,
+            body: {
+               //sort number nem
+               question_id: questionId,
+               section_id: section_id ?? undefined,
+            },
+         }),
+   });
+};
+
+type TActionDelete = {
+   isOpen: boolean;
+   // type: keyof typeof ATypes;
+   data?: { questionId: string; section_id: string };
+};
+
 const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
-   // const [current, setCurrent] = useState('');
+   const [deleteAction, setDeleteAction] = useState<TActionDelete>({ isOpen: false, data: {} as TActionDelete['data'] });
    const [questionDetail, setQuestionDetail] = useState({ isOpen: false, pathId: '' });
+
+   // const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TQuestion });
 
    const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TExamSection });
    const [actionQuestion, setActionQuestion] = useState<TAction<TActionQuestion>>({ isOpen: false, type: 'add', data: {} as TActionQuestion });
 
-   const { data, isFetchedAfterMount, isRefetching } = useQuery({
+   const { data, isFetchedAfterMount, isRefetching, refetch } = useQuery({
       enabled: !!variant_id,
       queryKey: ['exam/section', variant_id],
       queryFn: () =>
@@ -52,6 +75,8 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
             url: `exam/list/section/${variant_id}`,
          }),
    });
+
+   const { mutate, isPending } = UseDeleteMutate();
 
    useEffect(() => {
       if (isFetchedAfterMount && data?.data) {
@@ -80,6 +105,15 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
    //          url: `exam/section/48cf75ea-780e-47d7-8559-23bf457a9e68`,
    //       }),
    // });
+
+   const DeleteSubmit = () => {
+      mutate(deleteAction.data ?? {}, {
+         onSuccess: () => {
+            refetch();
+            setDeleteAction({ isOpen: false, data: { section_id: '', questionId: '' } });
+         },
+      });
+   };
 
    return (
       <div className="wrapper py-5">
@@ -124,12 +158,23 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
                               {item.questions.length > 0 ? (
                                  item.questions.map((element, ind) => {
                                     return (
-                                       <div className="bg-card-bg mb-3 p-3 py-2 rounded-md shadow-sm max-w-full overflow-hidden grid grid-cols-[1fr_auto] gap-3  items-center" key={ind}>
-                                          <span>{element.input_type === 'richtext' || element.input_type === 'essay' ? HtmlToText({ html: element.question }) : element.question}</span>
+                                       <div
+                                          className="bg-card-bg mb-3 px-6 py-3 rounded-md shadow-sm max-w-full overflow-hidden grid grid-cols-[1fr_auto] gap-3 group/items relative items-center transition-all hover:shadow-lg cursor-pointer"
+                                          key={ind}
+                                       >
+                                          <span className="group-hover/items:opacity-60">
+                                             {element.input_type === 'richtext' || element.input_type === 'essay' ? HtmlToText({ html: element.question }) : element.question}
+                                          </span>
 
-                                          <Button onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })} size="sm" variant="link" className="text-primary">
+                                          {/* <Button onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })} size="sm" variant="link" className="text-primary">
                                              Дэлгэрэнгүй <GoArrowRight />
-                                          </Button>
+                                          </Button> */}
+
+                                          <ActionButtons // ene component oos bolj aldaa ogj baigaa browser deer
+                                             editTrigger={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
+                                             deleteTrigger={() => setDeleteAction({ data: { questionId: element.id, section_id: item.id }, isOpen: true })}
+                                             // className="relative"
+                                          />
                                        </div>
                                     );
                                  })
@@ -172,6 +217,10 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
                   setQuestionDetail((prev) => ({ ...prev, isOpen: false }));
                }}
             />
+         </Dialog>
+
+         <Dialog isOpen={deleteAction.isOpen} onOpenChange={(event) => setDeleteAction((prev) => ({ ...prev, isOpen: event }))}>
+            <DeleteContent isLoading={isPending} submitAction={DeleteSubmit} />
          </Dialog>
 
          <Dialog
@@ -230,19 +279,7 @@ const SelectRowAction = ({ action, setClose, variant_id, parentData }: { variant
          }),
    });
 
-   const { isPending: deletePending, mutate: deleteMutate } = useMutation({
-      mutationFn: (questionId: TActionQuestion['question_id']) =>
-         request<Pick<TActionQuestion, 'question_id' | 'section_id'>>({
-            method: 'delete',
-            url: `exam/remove/question`,
-            offAlert: true,
-            body: {
-               //sort number nem
-               question_id: questionId,
-               section_id: action?.data?.section_id ?? undefined,
-            },
-         }),
-   });
+   const { isPending: deletePending, mutate: deleteMutate } = UseDeleteMutate();
 
    const finalSubmit = (row: RowSelectionState) => {
       const finalFunc = (fake?: boolean) => {
@@ -278,7 +315,7 @@ const SelectRowAction = ({ action, setClose, variant_id, parentData }: { variant
             if (item.type === 'add') {
                mutate(item.id, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
             } else {
-               deleteMutate(item.id, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
+               deleteMutate({ questionId: item.id, section_id: action?.data?.section_id ?? '' }, { onSuccess: () => (temparr.length === index + 1 ? finalFunc() : null) });
             }
          });
          return;

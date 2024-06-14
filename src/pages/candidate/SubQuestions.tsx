@@ -5,6 +5,7 @@ import { type Socket } from 'socket.io-client';
 import { type AllTypesQuestionTypes } from '@/pages/questions';
 import { questionAsset } from './ExamStartAction';
 import { Input } from '@/components/ui/Input';
+// import { IoIosArrowRoundForward } from 'react-icons/io';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useEffect } from 'react';
 import { userAnswerToProgress } from '../exams/exam_events/active_exams/ExamMaterialAction';
@@ -17,13 +18,14 @@ type TSubQuestionProps = {
    socket: Socket;
    score_visible?: boolean;
    isFromInspector?: boolean;
+   questionIndex: string;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    subQuestionsValue: any;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    parentValue: any;
 };
 
-const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector }: TSubQuestionProps) => {
+const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector, questionIndex }: TSubQuestionProps) => {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const sub: any = useSubQuestion();
    const { control, watch, reset } = useForm({ mode: 'onChange' });
@@ -123,17 +125,25 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
    return (
       <div className="pt-8 pl-12 max-sm:pl-1">
          <div className="wrapper mb-2.5 p-8 py-3 text-sm border-b font-medium truncate border-t-[2px] border-t-primary">
-            {/* <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span>  */}
+            <span className="text-primary/80 font-semibold mr-3">{questionIndex} -</span>
             Нэмэлт асуултууд
          </div>
          {parentQuestion?.sub_questions?.map((element, ind) => {
             return (
                <div className="wrapper mb-2.5 p-8 py-6 relative" key={ind}>
                   <div className="flex items-center gap-3 justify-between mb-7">
-                     <Badge variant="secondary" className="py-1 text-xs gap-2">
-                        <span className="font-medium font-base">{ind + 1}</span>
-                        <span className="text-muted-text"> - Асуулт</span>
-                     </Badge>
+                     <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="py-1 text-xs gap-2">
+                           <span className="font-medium font-base">{questionIndex}</span>
+                           {/* <span className="text-muted-text"> - Асуулт</span> */}
+                        </Badge>
+                        <span className="text-muted-text">/</span>
+                        <Badge variant="secondary" className="py-1 text-xs gap-2">
+                           <span className="font-medium font-base">{ind + 1}</span>
+                           <span className="text-muted-text"> - Асуулт</span>
+                        </Badge>
+                     </div>
+
                      <div className="flex gap-2">
                         {score_visible && (
                            <Badge variant="secondary" className="py-1 text-xs gap-2">

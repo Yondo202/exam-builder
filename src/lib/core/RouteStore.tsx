@@ -9,15 +9,17 @@ import ExamAction from '@/pages/exams/Action';
 import ActiveExams from '@/pages/exams/exam_events/active_exams';
 import ExamMaterialList from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
 import ExamMaterialAction from '@/pages/exams/exam_events/active_exams/ExamMaterialAction';
-import ExamResults from '@/pages/exams/exam_events/ExamResults';
+// import ExamResults from '@/pages/exams/exam_events/ExamResults';
 import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
 // import Profile from '@/pages/auth/Profile';
 import ExamsList from '@/pages/candidate/ExamsList';
+// import HistoryOfExam from '@/pages/candidate/HistoryOfExam';
 // import ExamsList from '@/pages/candidate/ExamsList';
 import ExamStartAction from '@/pages/candidate/ExamStartAction';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
+// import Dashboard from '@/pages/dashboard';
 
 // const Category = React.lazy(() => import('@/pages/category'));
 // const Questions = React.lazy(() => import('@/pages/questions'));
@@ -44,8 +46,9 @@ export type TRouteOmit = TRouteStore & { subMenu?: Omit<TRouteStore, 'icon'>[] }
 const RouteStore: TRouteOmit[] = [
    // {
    //    label: 'Хянах самбар',
-   //    to: '/',
+   //    to: '/dashboard',
    //    icon: Leaderboard,
+   //    component: Dashboard,
    // },
    {
       to: '/category', //groups
@@ -67,11 +70,12 @@ const RouteStore: TRouteOmit[] = [
       subMenu: [
          { to: '', label: 'Засах шалгалтууд', component: ActiveExams, visibleType: ['inspector'] },
          { to: '/handle/:examid', component: ExamMaterialList, visibleType: ['inspector'], isHide: true },
-
          { to: '/handle/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector'], isHide: true },
-         // { to: 'examresults', label: 'Шалгалтын үр дүн', component: ExamResults, visibleType: ['inspector'] },
 
-
+         // tur haruulahiin tuld hiileee
+         { to: 'examresults', label: 'Шалгалтын үр дүн', component: ActiveExams, visibleType: ['inspector'] },
+         { to: 'examresults/:examid', component: ExamMaterialList, visibleType: ['inspector'], isHide: true },
+         { to: 'examresults/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector'], isHide: true },
          // { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],
@@ -131,6 +135,10 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
             to: '/:inviteid',
             component: ExamStartAction,
          },
+         // {
+         //    to: '/history',
+         //    component: HistoryOfExam,
+         // },
       ];
    }
 
@@ -138,7 +146,7 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
       return RouteStore;
    }
 
-   // end zowhon comp admin bolon inspector iig shalgaj baigaa 
+   // end zowhon comp admin bolon inspector iig shalgaj baigaa
    return RouteStore.filter((item) => filterMenu(item, roles))?.map((item) => ({ ...item, subMenu: item?.subMenu?.filter((sub) => filterMenu(sub, roles)) }));
 };
 

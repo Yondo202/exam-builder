@@ -20,7 +20,7 @@ import { RiUserSearchLine, RiUserStarLine } from 'react-icons/ri';
 import { cn } from '@/lib/utils';
 
 type inviteTypes = 'user' | 'emp' | 'inspector';
-type TInviteAsset = { isOpen: boolean; type: inviteTypes };
+type TInviteAsset = { isOpen: boolean; type: inviteTypes; is_inspector?: boolean };
 
 const userType = {
    user: {
@@ -74,7 +74,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const [validInvite, setValidInvite] = useState(false);
    const [mainInviteType, setMainInviteType] = useState<TMainKeys>('inspector');
    const [current, setCurrent] = useState<TKeys>('user');
-   const [invite, setInvite] = useState<TInviteAsset>({ isOpen: false, type: 'emp' });
+   const [invite, setInvite] = useState<TInviteAsset>({ isOpen: false, type: 'emp', is_inspector: false });
    const { typeid } = useParams();
    const [variantId, setVariantId] = useState('');
    const { data, isFetchedAfterMount, isRefetching, isLoading } = useQuery({
@@ -142,7 +142,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             title="Шалгалтын материал"
             action={
                <div className="flex gap-4">
-                  <Button onClick={() => setInvite({ isOpen: true, type: 'inspector' })} className="rounded-full" variant="outline" disabled={!isValidInviteUser}>
+                  <Button onClick={() => setInvite({ isOpen: true, type: 'inspector', is_inspector: true })} className="rounded-full" variant="outline" disabled={!isValidInviteUser}>
                      Шалгагч урих
                   </Button>
                   <Popover>
@@ -188,54 +188,56 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             </Variants>
          )}
 
-         {!isLoading && <div className={cn('mt-5 relative')}>
-            {!isValidInviteUser && (
-               <Tooltip content="Та эхлээд асуултаа оруулна уу">
-                  <div className="absolute top-0 left-0 w-full h-full bg-white/70 rounded-md z-50" />
-               </Tooltip>
-            )}
-            <AnimatedTabs
-               items={Object.keys(mainInviteTabs)?.map((item) => ({ label: mainInviteTabs[item as TMainKeys]?.label, key: item }))}
-               activeKey={mainInviteType}
-               onChange={(value) => setMainInviteType(value as TMainKeys)}
-            />
-            {mainInviteType === 'candidate' && (
+         {!isLoading && (
+            <div className={cn('mt-5 relative')}>
+               {!isValidInviteUser && (
+                  <Tooltip content="Та эхлээд асуултаа оруулна уу">
+                     <div className="absolute top-0 left-0 w-full h-full bg-white/70 rounded-md z-50" />
+                  </Tooltip>
+               )}
                <AnimatedTabs
-                  className="text-xs"
-                  items={Object.keys(userType)?.map((item) => ({
-                     key: item,
-                     labelRender: (
-                        <div className="flex items-center gap-2">
-                           {userType[item as TKeys]?.icon} {userType[item as TKeys]?.label}
-                        </div>
-                     ),
-                  }))}
-                  activeKey={current}
-                  onChange={(value) => setCurrent(value as TKeys)}
+                  items={Object.keys(mainInviteTabs)?.map((item) => ({ label: mainInviteTabs[item as TMainKeys]?.label, key: item }))}
+                  activeKey={mainInviteType}
+                  onChange={(value) => setMainInviteType(value as TMainKeys)}
                />
-            )}
-            {current === 'user' && mainInviteType === 'candidate' ? (
-               <DataTable
-                  {...invitedTable}
-                  hideActionButton="edit"
-                  data={invitedUsers?.data?.filter((item) => !!item.user)?.map((item) => ({ invited_date: item.created_at, ...item.user })) ?? []}
-                  columns={canditateColumnDef}
-               />
-            ) : (
-               <DataTable
-                  {...invitedTable}
-                  hideActionButton="edit"
-                  data={invitedUsers?.data?.filter((item) => !!item.employee)?.map((item) => ({ invited_date: item.created_at, ...item.employee })) ?? []}
-                  columns={empColumnDef}
-               />
-            )}
-         </div>}
+               {mainInviteType === 'candidate' && (
+                  <AnimatedTabs
+                     className="text-xs"
+                     items={Object.keys(userType)?.map((item) => ({
+                        key: item,
+                        labelRender: (
+                           <div className="flex items-center gap-2">
+                              {userType[item as TKeys]?.icon} {userType[item as TKeys]?.label}
+                           </div>
+                        ),
+                     }))}
+                     activeKey={current}
+                     onChange={(value) => setCurrent(value as TKeys)}
+                  />
+               )}
+               {current === 'user' && mainInviteType === 'candidate' ? (
+                  <DataTable
+                     {...invitedTable}
+                     hideActionButton="edit"
+                     data={invitedUsers?.data?.filter((item) => !!item.user)?.map((item) => ({ invited_date: item.created_at, ...item.user })) ?? []}
+                     columns={canditateColumnDef}
+                  />
+               ) : (
+                  <DataTable
+                     {...invitedTable}
+                     hideActionButton="edit"
+                     data={invitedUsers?.data?.filter((item) => !!item.employee)?.map((item) => ({ invited_date: item.created_at, ...item.employee })) ?? []}
+                     columns={empColumnDef}
+                  />
+               )}
+            </div>
+         )}
 
          <Dialog title="Шалгалтанд урих" className={`p-6 pt-0 w-[80dvw]`} isOpen={invite.isOpen} onOpenChange={(e) => setInvite((prev) => ({ ...prev, isOpen: e }))}>
             {invite.type === 'user' ? (
                <Candidates fromAction={(row) => <FromActionComponent row={row} {...inviteActionProps} />} />
             ) : (
-               <Employee breadcrumbs={[]} fromAction={(row) => <FromActionComponent row={row} {...inviteActionProps} />} />
+               <Employee is_inspector={invite.is_inspector} breadcrumbs={[]} fromAction={(row) => <FromActionComponent row={row} {...inviteActionProps} />} />
             )}
          </Dialog>
       </>

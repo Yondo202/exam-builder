@@ -5,7 +5,7 @@ import { DataTable, BreadCrumb, Header, Badge } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import Config from '@/pages/exams/actions/Config';
 import { cn, finalRenderDate } from '@/lib/utils';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import { TExam } from '@/pages/exams';
 import { LuPencil } from 'react-icons/lu';
 import { StatusLabels } from '@/pages/candidate/ExamsList';
@@ -19,13 +19,13 @@ type TUserInfo = {
 };
 
 // [ graded, not_graded_yet, regraded ]
-const SubmissionTypes = {
+export const SubmissionTypes = {
    graded: 'Шалгасан',
    not_graded_yet: 'Шалгаагүй',
    regraded: 'Дахин шалгасан',
 } as const;
 
-type TMaterialList = {
+export type TMaterialList = {
    id: string;
    start_date: string;
    end_date: string;
@@ -44,6 +44,7 @@ export const GetExamDetial = ({ examid }: { examid?: string }) => {
 };
 
 const ExamMaterialList = () => {
+   const isResult = useLocation()?.pathname?.startsWith('/handle/examresults');
    const navigate = useNavigate();
    const { examid } = useParams();
    // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
@@ -75,8 +76,6 @@ const ExamMaterialList = () => {
    //    }
    // };
 
-   console.log(data, '------------>data');
-
    return (
       <div>
          <BreadCrumb
@@ -92,7 +91,7 @@ const ExamMaterialList = () => {
          <Config data={examDAta} isCompAdmin />
 
          <DataTable
-            data={data?.data ?? []}
+            data={data?.data?.filter((item) => (isResult ? item.status !== 'not_graded_yet' : item.status === 'not_graded_yet')) ?? []}
             defaultSortField="active_start_at"
             rowAction={(data) => navigate(data?.data?.id ?? '')}
             // hideActionButton="delete"

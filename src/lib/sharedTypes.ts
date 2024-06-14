@@ -1,5 +1,5 @@
 import { type Control, type RegisterOptions, type FieldValues, type FieldPath } from 'react-hook-form';
-
+import { SubmissionTypes } from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
 export const ATypes = {
    add: {
       apiMethod: 'post',
@@ -32,10 +32,13 @@ export type TControllerProps<TFieldValues extends FieldValues = FieldValues> = {
    className?: string;
 };
 
+type TAdditionMeta = { count: string; status: keyof typeof SubmissionTypes };
+
 type TMeta = {
    page: number;
    page_size: number;
    total: number;
+   grading_status?: TAdditionMeta[];
 };
 
 export type FinalRespnse<T> = {
@@ -84,7 +87,6 @@ export type FinalRespnse<T> = {
 
 // export type TStatus = keyof typeof statusValues;
 // export type TSubTypes = keyof typeof types;
-
 
 export enum UserRolesEnum {
    CANDIDATE = 'candidate',
@@ -139,6 +141,6 @@ export type TUserEmployee = {
    gender: 'male' | 'female';
    birth_date: string;
    age: number;
-   force_password_change:boolean
+   force_password_change: boolean;
    roles: TRolesAssetType[];
 };
