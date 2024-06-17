@@ -194,6 +194,7 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
                );
             })}
          </div>
+
          {question.input_type === 'fill_with_choice' && (
             <>
                <div className="pb-2 mb-2 text-primary/70 flex justify-between items-center">
@@ -218,7 +219,6 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
          {isFromInspector && (
             <div className="p-5 pt-3 mt-5 border border-y-primary/40 bg-green-200/20 -mx-8">
                <div className="mb-4 text-secondary">Зөв хариулт</div>
-
                <div className="pb-6 text-sm flex flex-wrap gap-1 gap-y-1.5 items-center">
                   {questionArr?.map((item, index) => {
                      const fieldKey = item.startsWith('{{answer-') ? +item.replace('{{answer-', '')?.replace('}}', '') : 0;
@@ -297,6 +297,8 @@ export const OpenQuestion = ({ question, field, socket, progressId, isFromInspec
       }
    };
 
+   const questionScore = question?.sub_questions?.length > 0 ? question.score - question?.sub_questions.reduce((a, b) => a + b.score, 0) : question.score;
+
    return (
       <div>
          <div className="mb-4 text-sm leading-6">
@@ -308,19 +310,24 @@ export const OpenQuestion = ({ question, field, socket, progressId, isFromInspec
                question.question
             )}
          </div>
-         <div className="pb-3 text-primary/70">Хариулт {isFromInspector ? `- шалгуулагчын` : ``}</div>
-         {question.input_type === 'text' ? (
-            isFromInspector ? (
-               field.value
-            ) : (
-               <Textarea disabled={!!isFromInspector} placeholder="Хариулт оруулах..." value={field.value} onChange={(event) => onChangeFunc(event?.target?.value)} />
-            )
-         ) : isFromInspector ? (
-            <article className="prose-sm dark:prose-invert">
-               <span dangerouslySetInnerHTML={{ __html: field.value }} />
-            </article>
-         ) : (
-            <CkEditor disabled={!!isFromInspector} value={field.value} setValue={(value) => onChangeFunc(value)} />
+
+         {questionScore !== 0 && (
+            <>
+               <div className="pb-3 text-primary/70">Хариулт {isFromInspector ? `- шалгуулагчын` : ``}</div>
+               {question.input_type === 'text' ? (
+                  isFromInspector ? (
+                     field.value
+                  ) : (
+                     <Textarea disabled={!!isFromInspector} placeholder="Хариулт оруулах..." value={field.value} onChange={(event) => onChangeFunc(event?.target?.value)} />
+                  )
+               ) : isFromInspector ? (
+                  <article className="prose-sm dark:prose-invert">
+                     <span dangerouslySetInnerHTML={{ __html: field.value }} />
+                  </article>
+               ) : (
+                  <CkEditor disabled={!!isFromInspector} value={field.value} setValue={(value) => onChangeFunc(value)} />
+               )}
+            </>
          )}
       </div>
    );

@@ -142,9 +142,9 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
       ];
    }
 
-   // if (roles?.some((item) => item.role === 'super_admin')) {
+   if (roles?.some((item) => item.role === 'super_admin')) {
       return RouteStore;
-   // }
+   }
 
    // end zowhon comp admin bolon inspector iig shalgaj baigaa
    return RouteStore.filter((item) => filterMenu(item, roles))?.map((item) => ({ ...item, subMenu: item?.subMenu?.filter((sub) => filterMenu(sub, roles)) }));

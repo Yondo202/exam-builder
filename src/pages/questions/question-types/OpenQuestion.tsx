@@ -32,14 +32,15 @@ export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
             }}
          />
 
-         <ScoreInput {...{ watch, control, idPrefix }} className="flex items-center gap-0 mb-8" isLine />
+         <ScoreInput {...{ watch, control, idPrefix, isPossibleZero:true }} className="flex items-center gap-0 mb-8" isLine />
 
          {watch?.()?.input_type === 'essay' ? (
             <>
                <Controller
                   control={control}
                   name="question"
-                  rules={{ required: 'Асуулт оруулах' }}
+                  // rules={{ required: 'Асуулт оруулах' }}
+                  rules={{ required: false }}
                   render={({ field, fieldState }) => {
                      return (
                         <>
@@ -60,7 +61,7 @@ export const OpenQuestion = ({ control, watch, idPrefix }: TQTypesProps) => {
                control={control}
                label="Асуулт оруулах"
                placeholder="Асуултаа дэлгэрэнгүй оруулах"
-               rules={{ required: 'Асуулт оруулах' }}
+               // rules={{ required: 'Асуулт оруулах' }}
                idPrefix={idPrefix}
             />
          )}

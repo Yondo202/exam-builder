@@ -57,8 +57,6 @@ const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadC
       total: 0,
    });
 
-   console.log(is_inspector, "--------->is_inspector")
-
    const { data, isLoading, isFetchedAfterMount } = useQuery({
       enabled: catAsset[current]?.enabled,
       queryKey: [`users`, [pagination.pageIndex, pagination.pageSize, search]],

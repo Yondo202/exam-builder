@@ -2,9 +2,10 @@
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { request, UseReFetch } from '@/lib/core/request';
 import { useEffect, useState } from 'react';
-import { DataTable, BreadCrumb, AnimatedTabs, Drawer, Button, TextInput, DeleteContent, SelectInput, type TOption, Badge, UsePrompt } from '@/components/custom';
+import { DataTable, BreadCrumb, AnimatedTabs, Drawer, Button, TextInput, DeleteContent, SelectInput, type TOption, Badge, UsePrompt, Tooltip } from '@/components/custom';
 import { type FinalRespnse, type TAction, type TActionProps, ATypes } from '@/lib/sharedTypes';
 import { ColumnDef } from '@tanstack/react-table';
+import { BsListNested } from 'react-icons/bs';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { useForm } from 'react-hook-form';
 import { MdOutlineAdd } from 'react-icons/md';
@@ -14,8 +15,10 @@ export type TCategory = {
    name: string;
    created_at?: string;
    updated_at?: string;
-
+   sub_categories?: TCategory[];
    category_id?: string;
+
+   created_employee?: { lastname: string; firstname: string };
    // org_id:string
 };
 
@@ -81,7 +84,27 @@ const Groups = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             data={data?.data ?? []}
             columns={
                current === 'main_category'
-                  ? columnDef
+                  ? [
+                       ...columnDef,
+                       {
+                          header: 'Дэд ангилалын тоо',
+                          size: 128,
+                          accessorKey: 'sub_categories',
+                          cell: ({ row }) => (
+                             <Tooltip
+                                content={
+                                   <div className='flex gap-3'>
+                                      {row.original.sub_categories?.map((item, index) => {
+                                         return <div key={index}>{item.name},</div>
+                                      })}
+                                   </div>
+                                }
+                             >
+                                <Badge variant="secondary">{row.original.sub_categories?.length}</Badge>
+                             </Tooltip>
+                          ),
+                       },
+                    ]
                   : [
                        ...columnDef,
                        {
@@ -185,11 +208,24 @@ const GroupAction = ({ current, action, setClose, options }: TActionProps<TCateg
             control={control}
             rules={{ required: `${catAsset[current]?.label} оруулна уу` }}
          />
-         <div className="flex justify-end w-full pt-10">
+         <div className="flex justify-end w-full pt-6">
             <Button isLoading={isPending} type="submit" disabled={!isDirty}>
                Хадгалах
             </Button>
          </div>
+
+         {current !== 'sub_category' &&<div className="mt-3">
+            <div className="text-primary mb-2 flex gap-2 items-center">
+               <BsListNested className="text-base" /> Дэд бүлэгийн жагсаалт
+            </div>
+            {action.data?.sub_categories?.map((item, index) => {
+               return (
+                  <div key={index} className="flex items-center gap-2 border border-primary/10 rounded-md px-4 py-2 mb-2">
+                     <span className="text-primary"> {index + 1}.</span> {item.name}
+                  </div>
+               );
+            })}
+         </div>}
       </form>
    );
 };
@@ -206,8 +242,8 @@ const columnDef: ColumnDef<TCategory>[] = [
       cell: ({ row }) => row.original?.created_at?.slice(0, 16).replace('T', ' '),
    },
    {
-      header: 'Өөрчилсөн огноо',
-      accessorKey: 'updated_at',
-      cell: ({ row }) => row.original?.updated_at?.slice(0, 16).replace('T', ' '),
+      header: 'Үүсгэсэн',
+      accessorKey: 'created_employee.firstname',
+      cell: ({ row }) => `${row.original?.created_employee?.lastname?.slice(0, 1)}. ${row.original?.created_employee?.firstname}`,
    },
 ];

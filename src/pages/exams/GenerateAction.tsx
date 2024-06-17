@@ -34,17 +34,11 @@ type inititalSelect = {
    section_number: number;
 };
 
-const GenerateAction = ({
-   examData,
-//    refetch,
-}: {
-   examData?: TExam;
-//    refetch?: (options?: RefetchOptions | undefined) => Promise<QueryObserverResult<FinalRespnse<TInvitedCandidate[]>, Error>>;
-}) => {
+const GenerateAction = ({ examData, isLoading }: { examData?: TExam; isLoading?:boolean }) => {
    const { typeid } = useParams();
    const [initialAction, setInitialAction] = useState<Omit<TAction<TInitialType>, 'type'>>({ isOpen: false, data: 'manual' });
-
    const { control, handleSubmit } = useForm<inititalSelect>({ mode: 'onSubmit', defaultValues: { question_number: 10, variant_number: 1, section_number: 1 } });
+
 
    const { mutate: generateMutate, isPending: generateLoading } = useMutation({
       mutationFn: (body: inititalSelect) =>
@@ -59,18 +53,21 @@ const GenerateAction = ({
          }),
       onSuccess: () => {
          queryClient.resetQueries({ queryKey: ['exam', typeid] });
-        //  setInitialAction({ isOpen: false });
+         //  setInitialAction({ isOpen: false });
       },
    });
 
    useEffect(() => {
+      if(isLoading){
+         return
+      }
       if (examData?.variants?.length ?? 0 > 0) {
          return;
       }
 
       setInitialAction((prev) => ({ ...prev, isOpen: true }));
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, []);
+   }, [isLoading]);
 
    const onSubmit = (data: inititalSelect) => {
       generateMutate(data);

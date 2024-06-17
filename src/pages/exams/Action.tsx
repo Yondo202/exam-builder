@@ -78,7 +78,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const [invite, setInvite] = useState<TInviteAsset>({ isOpen: false, type: 'emp', is_inspector: false });
    const { typeid } = useParams();
    const [variantId, setVariantId] = useState('');
-   
+
    const { data, isFetchedAfterMount, isRefetching, isLoading } = useQuery({
       queryKey: ['exam', typeid],
       queryFn: () =>
@@ -132,9 +132,11 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
 
+   console.log(data, "------>data?.data")
+
    return (
       <>
-         {isFetchedAfterMount && variantId === '' && <GenerateAction examData={data?.data} />}
+         {variantId === '' && <GenerateAction examData={data?.data} isLoading={isLoading} />}
          <Dialog isOpen={deleteAction.isOpen} onOpenChange={(e) => setDeleteAction((prev) => ({ ...prev, isOpen: e }))}>
             <DeleteContent isLoading={isPending} submitAction={() => mutate()} setClose={() => setDeleteAction((prev) => ({ ...prev, isOpen: false }))} />
          </Dialog>

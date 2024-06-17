@@ -169,7 +169,7 @@ const ExamStartAction = () => {
                settleValue[item.question_id ?? ''] = item.answer;
             }
          });
-         reset(settleValue)
+         reset(settleValue);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isProgressFetched, isExamMaterialFetched]);
@@ -292,6 +292,8 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const subQuestions = ProgressData?.data.progress?.find((el: any) => el.question_id === element.id)?.sub_questions ?? [];
 
+                  const questionScore = element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score;
+
                   return (
                      <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind}>
                         <div className="px-8 flex items-center gap-3 justify-between mb-4">
@@ -301,13 +303,11 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                               </span>
                               <span className="text-muted-text"> - Асуулт</span>
                            </Badge>
-                           {score_visible && (
+                           {score_visible && questionScore !== 0 && (
                               <div className="flex gap-2">
                                  <Badge variant="secondary" className="py-1 text-xs gap-2">
                                     {isFromInspector && <span className="text-muted-text">Асуутын оноо - </span>}
-                                    <span className="font-medium font-base">
-                                       {element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score}
-                                    </span>
+                                    <span className="font-medium font-base">{questionScore}</span>
                                     {!isFromInspector && <span className="text-muted-text"> - Оноо</span>}
                                  </Badge>
                                  {isFromInspector && (
@@ -324,7 +324,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                                    onChange={(event) => field.onChange(event.target.value !== '' ? parseFloat(event.target.value) : undefined)}
                                                    type="number"
                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                   onWheel={(e:any) => e.target.blur()}
+                                                   onWheel={(e: any) => e.target.blur()}
                                                    min={0}
                                                    className="w-46"
                                                    placeholder="Оноо өгөх..."
@@ -342,7 +342,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                         <Controller
                            control={control}
                            name={element.id}
-                           rules={{ required: true }}
+                           rules={{ required: questionScore !== 0 ? true : false }}
                            render={({ field, fieldState }) => {
                               // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               const parentOnChange = (value: any) => {

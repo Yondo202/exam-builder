@@ -1,141 +1,202 @@
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-import { Header, BreadCrumb } from '@/components/custom'; //BreadCrumb
-import { Pie, Line, Bar } from 'react-chartjs-2';
-import { useRef } from 'react';
+import { Header, BreadCrumb, DatePicker, Loading } from '@/components/custom'; //BreadCrumb
+import { Bar, Pie } from 'react-chartjs-2'; //Pie, Line
 import 'chart.js/auto'; // ADD THIS
+import { useQuery } from '@tanstack/react-query';
+import { request } from '@/lib/core/request';
+import { formatDateToCustomISO } from '@/lib/utils';
+import { FinalRespnse } from '@/lib/sharedTypes';
+import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
+import { subDays, endOfDay, startOfDay } from 'date-fns';
 
-const options = {
-   responsive: true,
-   plugins: {
-      legend: {
-         position: 'top' as const,
-      },
-      // title: {
-      //    display: true,
-      //    text: 'Шалгалтын үр дүн',
-      // },
-   },
+type TExamResult = {
+   exam_count: string;
+   invited_user_count: string;
+   given_exam_count: string;
+
+   exam_name: string;
+   category: string;
+   sub_category: string;
+
+   status: string;
 };
 
-const labels = ['January', 'February', 'March', 'April'];
-
-const barData = {
-   labels,
-   datasets: [
-      {
-         label: 'Dataset 1',
-         data: [33, 53, 85, 41],
-         // backgroundColor: 'rgba(255, 99, 132, 0.5)',
-      },
-      {
-         label: 'Dataset 2',
-         data: [10, 20, 55, 100],
-         // backgroundColor: 'rgba(53, 162, 235, 0.5)',
-      },
-   ],
+type TDashboard = {
+   exam_result: TExamResult[];
+   category_result: TExamResult[];
+   sub_category_result: TExamResult[];
+   alt_result: TExamResult[]; // status uusiig enum aas av
 };
 
+type RangeFilter = {
+   start_range: string;
+   end_range: string;
+};
+
+// https://back-exam.tavanbogd.mn/dashboard
 const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
-   const ref = useRef();
-   const data = {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr'],
-      datasets: [
-         {
-            label: 'First dataset',
-            data: [15, 53, 85, 41],
-            fill: true,
-            // backgroundColor: 'rgba(75,192,192,0.2)',
-            // borderColor: 'rgba(75,192,192,1)',
-         },
-      ],
+   const { control, watch, reset } = useForm<RangeFilter>({ defaultValues: { start_range: '', end_range: '' } });
+   const { data, isPending } = useQuery({
+      enabled: watch('end_range') !== '' && watch('start_range') !== '',
+      queryKey: ['dashboard', watch()],
+      queryFn: () =>
+         request<FinalRespnse<TDashboard>>({
+            url: 'dashboard',
+            method: 'post',
+            offAlert: true,
+            filterBody: {
+               range: watch(),
+            },
+         }),
+   });
+
+   const generateColors = (num: number) => {
+      const colors = [];
+      for (let i = 0; i < num; i++) {
+         const r = Math.floor(Math.random() * 255);
+         const g = Math.floor(Math.random() * 255);
+         const b = Math.floor(Math.random() * 255);
+         colors.push(`rgba(${r}, ${g}, ${b}, 0.3)`);
+      }
+      return colors;
    };
+
+   useEffect(() => {
+      const currentDate = new Date();
+      const pastDate = startOfDay(subDays(currentDate, 7));
+      const Today = endOfDay(currentDate);
+
+      reset({ start_range: formatDateToCustomISO(pastDate, true), end_range: formatDateToCustomISO(Today, true) });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, []);
+
+   const examResults = data?.data.exam_result ?? [];
+   const backgroundColors = generateColors(examResults.length);
+   const borderColors = backgroundColors.map((color) => color.replace('0.2', '1'));
+
    return (
       <div>
+         <Loading load={isPending} />
          <BreadCrumb pathList={breadcrumbs} />
          <Header title={breadcrumbs.find((item) => item.isActive)?.label} />
-         {/* <Header title="Шалгалтын явц" /> */}
-         <div className="grid grid-cols-[1fr_40%] gap-5">
+         <div className="grid grid-cols-2 gap-5 mb-5">
             <div>
-               <div className="grid grid-cols-2 mb-5 gap-5">
-                  <div className="wrapper p-3 text-center">
-                     <div className="text-muted-text mb-3 text-xs">Оролцсон ажилчдын тоо</div>
-                     <div className="text-xl font-semibold">200</div>
+               <div className="mb-5 wrapper">
+                  <div className="px-5 py-2 border-b text-xs2">Огноогоор шүүх</div>
+                  <div className="grid grid-cols-2 items-center gap-5 p-5 pt-3">
+                     <DatePicker hideClose className="w-full" name="start_range" label="Эхлэх огноо" control={control} />
+                     <DatePicker hideClose className="w-full" name="end_range" label="Дуусах огноо" control={control} />
                   </div>
-                  <div className="wrapper p-3 text-center">
-                     <div className="text-muted-text mb-3 text-xs">Оролцсон ажил горилогчийн тоо</div>
-                     <div className="text-xl font-semibold">200</div>
-                  </div>
+
+                  {/* <div className="p-5 pt-0">sdgkjsdkgj</div> */}
                </div>
                <div className="wrapper p-0">
-                  <div className="px-5 py-2 border-b text-xs2">Шалгалтын дундаж үзүүлэлт</div>
+                  <div className="px-5 py-2 border-b text-xs2">Шалгалтанд уригдсан хүний тоо</div>
                   <div className="p-5">
-                     <Line
-                        // options={options}
-                        // data={barData}
+                     <Bar
+                        height={230}
+                        options={{
+                           responsive: true,
+                           plugins: {
+                              legend: {
+                                 display: false,
+                              },
+                           },
+                        }}
                         data={{
-                           labels: labels,
-                           datasets: [
-                              {
-                                 label: 'Dataset 1',
-                                 data: [33, 53, 85, 41],
-                                 // borderColor: 'rgb(255, 99, 132)',
-                                 // backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                              },
-                              {
-                                 label: 'Dataset 2',
-                                 data: [10, 20, 55, 100],
-                                 // borderColor: 'rgb(53, 162, 235)',
-                                 // backgroundColor: 'rgba(53, 162, 235, 0.5)',
-                              },
-                           ],
+                           labels: ['Шалгалтанд уригдсан хүний тоо'],
+                           datasets:
+                              examResults?.map((item) => {
+                                 return {
+                                    label: item.exam_name,
+                                    data: [+item.invited_user_count],
+                                 };
+                              }) ?? [],
                         }}
                      />
                   </div>
                </div>
             </div>
 
-            <div>
-               <div className="wrapper mb-5">
-                  <div className="px-5 py-2 border-b text-xs2">Шалгалтын дундаж үзүүлэлт</div>
-                  <div className="p-5 px-3">
-                     <Bar options={options} data={barData} />
-                  </div>
-               </div>
-               <div className="wrapper p-0">
-                  <div className="px-5 py-2 border-b text-xs2">Тэнцсэн үзүүлэлт</div>
-                  <div className="px-10 py-4 pt-0">
-                     <div></div>
-                     <Pie
-                        ref={ref}
-                        data={data}
-                        options={{
-                           responsive: true,
-                           // scales: {
-                           //    y: {
-                           //       beginAtZero: false,
-                           //    },
-                           // },
-                           layout: {
-                              padding: {
-                                 left: 50,
-                                 right: 50,
-                                 bottom: 0,
-                                 top: 0,
-                              },
+            <div className="wrapper mb-5 h-full">
+               <div className="px-5 py-2 border-b text-xs2">Шалгалтыг өгсөн тоо</div>
+               <div className="p-5 px-3">
+                  <Pie
+                     height={100}
+                     data={{
+                        // labels: ['Шалгалтанд уригдсан хүний тоо'],
+                        labels: examResults?.map((item) => item.exam_name),
+                        datasets: [
+                           {
+                              label: 'Шалгалтыг өгсөн тоо',
+                              data: examResults?.map((item) => +item.given_exam_count),
+                              backgroundColor: backgroundColors,
+                              borderColor: borderColors,
+                              borderWidth: 1,
                            },
-                           plugins: {
-                              legend: {
-                                 // fullSize:true,
-                                 // maxWidth:1000,
-                                 position: 'bottom' as const,
-                              },
-                           },
-                        }}
-                        // options={...}
-                        // {...props}
-                     />
-                  </div>
+                        ],
+                     }}
+                  />
                </div>
+            </div>
+         </div>
+
+         <div className="wrapper mb-5">
+            <div className="px-5 py-2 border-b text-xs2">Үндсэн ангилалаар</div>
+            <div className="p-5 px-3">
+               <Bar
+                  height={70}
+                  options={{
+                     responsive: true,
+                  }}
+                  data={{
+                     labels: data?.data?.category_result?.map((item) => item.category),
+                     datasets: [
+                        {
+                           label: 'Шалгалтанд урисан хүний тоо',
+                           data: examResults?.map((item) => +item.invited_user_count),
+                        },
+                        {
+                           label: 'Шалгалтыг өгсөн тоо',
+                           data: examResults?.map((item) => +item.given_exam_count),
+                        },
+                        {
+                           label: 'Хамаарах шалгалтын тоо',
+                           data: examResults?.map((item) => +item.exam_count),
+                        },
+                     ],
+                  }}
+               />
+            </div>
+         </div>
+
+         <div className="wrapper mb-5">
+            <div className="px-5 py-2 border-b text-xs2">Дэд ангилалаар</div>
+            <div className="p-5 px-3">
+               <Bar
+                  height={70}
+                  options={{
+                     responsive: true,
+                  }}
+                  data={{
+                     labels: data?.data?.sub_category_result?.map((item) => item.sub_category),
+                     datasets: [
+                        {
+                           label: 'Шалгалтанд урисан хүний тоо',
+                           data: examResults?.map((item) => +item.invited_user_count),
+                        },
+                        {
+                           label: 'Шалгалтыг өгсөн тоо',
+                           data: examResults?.map((item) => +item.given_exam_count),
+                        },
+                        {
+                           label: 'Хамаарах шалгалтын тоо',
+                           data: examResults?.map((item) => +item.exam_count),
+                        },
+                     ],
+                  }}
+               />
             </div>
          </div>
       </div>

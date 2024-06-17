@@ -22,11 +22,34 @@ function pad(number: number) {
    return number;
 }
 
-export function formatDateToCustomISO(date: Date) {
+export function formatDateToCustomISO(date: Date, isHideTimeZone?:boolean) {
    const offset = date.getTimezoneOffset();
    const offsetHours = Math.abs(Math.floor(offset / 60));
    const offsetMinutes = Math.abs(offset % 60);
    const offsetSign = offset < 0 ? '+' : '-';
+
+   if (isHideTimeZone) {
+      const isoString =
+         date.getFullYear() +
+         '-' +
+         pad(date.getMonth() + 1) +
+         '-' +
+         pad(date.getDate()) +
+         'T' +
+         pad(date.getHours()) +
+         ':' +
+         pad(date.getMinutes()) +
+         ':' +
+         pad(date.getSeconds()) 
+         // offsetSign +
+         // pad(offsetHours) +
+         // ':' +
+         // pad(offsetMinutes) +
+         // ' ';
+      // timeZoneAbbreviation;
+
+      return isoString;
+   }
 
    const isoString =
       date.getFullYear() +

@@ -94,7 +94,6 @@ export const questionAsset: TQuestionTypesInFront = {
    },
 };
 
-
 type TActionWrapperProps = { type: TQuestion; pathId?: string; setCloseDialog?: () => void; isFromExam?: boolean; searchParams?: { category_id: string; sub_category_id: string } };
 
 const errorText = 'Зөв хариултаа сонгоно уу!';
@@ -321,8 +320,6 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
             </div>
          </form>
 
-         
-
          <div className="grid gap-5 grid-cols-[1fr_300px]">
             {Component && <Component {...{ clearErrors, setValue, watch, control }} />}
             <div>
@@ -459,11 +456,11 @@ type TScoreInputProps = {
    control: Control<TQuestionTypes>;
    // control: TControllerProps['control'];
    watch?: UseFormWatch<TQuestionTypes>;
-
    disabled?: boolean;
+   isPossibleZero?: boolean;
 };
 // idPrefix  - baih ued sub question l gesen ug
-export const ScoreInput = ({ control, idPrefix, watch, isLine = false, className, disabled }: TScoreInputProps) => {
+export const ScoreInput = ({ control, idPrefix, watch, isLine = false, className, disabled, isPossibleZero }: TScoreInputProps) => {
    return (
       <div className={cn('', className)}>
          <TextInput
@@ -473,7 +470,7 @@ export const ScoreInput = ({ control, idPrefix, watch, isLine = false, className
             disabled={disabled}
             control={control}
             // beforeAddon={<GoDotFill className="text-xs" />}
-            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: watch?.()?.sub_questions?.length ?? 0 > 0 ? 0 : 0.001 } }}
+            rules={{ required: 'Хариултын оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: watch?.()?.sub_questions?.length ?? 0 > 0 ? 0 : isPossibleZero ? 0 : 0.001 } }}
             label="Асуултанд авах оноо"
             placeholder="Оноо оруулах"
             type="number"

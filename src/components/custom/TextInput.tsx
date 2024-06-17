@@ -3,7 +3,16 @@ import { TControllerProps } from '@/lib/sharedTypes';
 import { FloatingLabelInput, FloatingLabelInputProps } from '@/components/ui/Input';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
-const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, className = '', name, rules, idPrefix, label, ...props }: TControllerProps<TFieldValues> & FloatingLabelInputProps) => {
+const ControlInput = <TFieldValues extends FieldValues>({
+   control,
+   floatLabel,
+   className = '',
+   name,
+   rules,
+   idPrefix,
+   label,
+   ...props
+}: TControllerProps<TFieldValues> & FloatingLabelInputProps) => {
    return (
       <div className={className}>
          <Controller
@@ -14,9 +23,10 @@ const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, c
                const inputProps = {
                   ...field,
                   label: label,
-                  id:`${idPrefix??''}${field.name}`,
+                  id: `${idPrefix ?? ''}${field.name}`,
                   type: 'text',
                   ...props,
+                  // onFocus:event.target.select(),
                   floatLabel,
                   requiredInput: rules?.required,
                   onFocus: (event: { target: { select: () => void } }) => {
@@ -26,11 +36,18 @@ const ControlInput = <TFieldValues extends FieldValues>({ control, floatLabel, c
                   },
                   onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
                      const value = props.type === 'number' ? parseFloat(e.target.value) : e.target.value;
-                     if (props.type === 'number' && !value) {
-                        field?.onChange?.('');
-                     } else {
+                     // if (props.type === 'number' && !isNaN(value)) {
+                     //    field?.onChange?.('');
+                     // } else {
+                     //    field?.onChange?.(value);
+                     // }
+                     // console.log(!value, '--------->value');
+                     if(props.type === 'number'){
+                        field?.onChange?.(!value ? 0 : value)
+                     }else{
                         field?.onChange?.(value);
                      }
+                     
                   },
                };
                return (

@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '.';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
-export const DatePicker = <TFieldValues extends FieldValues>({ control, className = '', name, rules, ...props }: TControllerProps<TFieldValues> & { label?: string, idPrefix?:string }) => {
+export const DatePicker = <TFieldValues extends FieldValues>({ control, className = '', name, hideClose, rules, ...props }: TControllerProps<TFieldValues> & { label?: string, hideClose?:boolean, idPrefix?:string }) => {
    return (
       <div className={cn('', className)}>
          <Controller
@@ -47,7 +47,7 @@ export const DatePicker = <TFieldValues extends FieldValues>({ control, classNam
                               />
 
                               {field.value ? field.value?.slice(0, 10) : <span>Сонгох...</span>}
-                              {field.value ? (
+                              {field.value && !hideClose ? (
                                  <IoClose onClick={() => field.onChange('')} className={cn('ml-2 h-[18px] w-[18px] text-secondary cursor-pointer hover:text-primary')} />
                               ) : (
                                  <DateSvg className={cn('ml-2 h-[18px] w-[18px] text-secondary')} />
