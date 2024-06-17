@@ -188,9 +188,9 @@ const ExamsList = () => {
                   );
                })
             ) : (
-               <div className="h-[70dvh] flex items-center justify-center flex-col">
-                  <Empty />
-                  <h3 className="text-lg">Шалгалт байхгүй байна</h3>
+               <div className="flex h-48 w-full flex-col items-center justify-center gap-5">
+                  <Empty className="dark:opacity-30" />
+                  <div className="text-muted-text opacity-70">Мэдээлэл байхгүй байна</div>
                </div>
             )}
 

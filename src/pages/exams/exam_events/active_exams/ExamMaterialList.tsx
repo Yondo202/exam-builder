@@ -10,12 +10,19 @@ import { TExam } from '@/pages/exams';
 import { LuPencil } from 'react-icons/lu';
 import { StatusLabels } from '@/pages/candidate/ExamsList';
 
-type TUserInfo = {
+export type TUserInfo = {
    attempt: number;
    employee: null | string;
    id: '47c7e229-830c-497b-aee2-87c844d3df98';
    status: keyof typeof StatusLabels;
    user: { firstname: string; lastname: string };
+
+   exam: {
+      code: string;
+      description: string;
+      name: string;
+      pass_score: number;
+   };
 };
 
 // [ graded, not_graded_yet, regraded ]
@@ -28,9 +35,12 @@ export const SubmissionTypes = {
 export type TMaterialList = {
    id: string;
    start_date: string;
+   attempt_no: number;
    end_date: string;
    user_exam: TUserInfo;
    status: keyof typeof SubmissionTypes;
+
+   temp_exam_code:string
 };
 
 export const GetExamDetial = ({ examid }: { examid?: string }) => {

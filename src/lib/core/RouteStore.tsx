@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Users, Plan, Group, Factcheck, Document } from '@/assets/svg'; //Document //Leaderboard
+import { Users, Plan, Group, Factcheck, Document, Leaderboard } from '@/assets/svg'; //Document //Leaderboard
 import Category from '@/pages/category';
 import Questions from '@/pages/questions';
 import QuestionAction from '@/pages/questions/Action';
@@ -14,12 +14,12 @@ import Company from '@/pages/company';
 import RolesList from '@/pages/roles';
 // import Profile from '@/pages/auth/Profile';
 import ExamsList from '@/pages/candidate/ExamsList';
-// import HistoryOfExam from '@/pages/candidate/HistoryOfExam';
+import HistoryOfExam from '@/pages/candidate/HistoryOfExam';
 // import ExamsList from '@/pages/candidate/ExamsList';
 import ExamStartAction from '@/pages/candidate/ExamStartAction';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
-// import Dashboard from '@/pages/dashboard';
+import Dashboard from '@/pages/dashboard';
 
 // const Category = React.lazy(() => import('@/pages/category'));
 // const Questions = React.lazy(() => import('@/pages/questions'));
@@ -44,12 +44,12 @@ export type TRouteOmit = TRouteStore & { subMenu?: Omit<TRouteStore, 'icon'>[] }
 
 // JSX.Element
 const RouteStore: TRouteOmit[] = [
-   // {
-   //    label: 'Хянах самбар',
-   //    to: '/dashboard',
-   //    icon: Leaderboard,
-   //    component: Dashboard,
-   // },
+   {
+      label: 'Хянах самбар',
+      to: '/dashboard',
+      icon: Leaderboard,
+      component: Dashboard,
+   },
    {
       to: '/category', //groups
       icon: Group,
@@ -135,16 +135,16 @@ export const FilteredRoute = (roles?: TRolesAssetType[]): TRouteOmit[] => {
             to: '/:inviteid',
             component: ExamStartAction,
          },
-         // {
-         //    to: '/history',
-         //    component: HistoryOfExam,
-         // },
+         {
+            to: '/history',
+            component: HistoryOfExam,
+         },
       ];
    }
 
-   if (roles?.some((item) => item.role === 'super_admin')) {
+   // if (roles?.some((item) => item.role === 'super_admin')) {
       return RouteStore;
-   }
+   // }
 
    // end zowhon comp admin bolon inspector iig shalgaj baigaa
    return RouteStore.filter((item) => filterMenu(item, roles))?.map((item) => ({ ...item, subMenu: item?.subMenu?.filter((sub) => filterMenu(sub, roles)) }));

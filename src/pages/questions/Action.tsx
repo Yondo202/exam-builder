@@ -94,6 +94,7 @@ export const questionAsset: TQuestionTypesInFront = {
    },
 };
 
+
 type TActionWrapperProps = { type: TQuestion; pathId?: string; setCloseDialog?: () => void; isFromExam?: boolean; searchParams?: { category_id: string; sub_category_id: string } };
 
 const errorText = 'Зөв хариултаа сонгоно уу!';
@@ -174,7 +175,6 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
    if (pathId) {
       typeid = pathId;
    }
-
    const [subType, setSubType] = useState<{ type: TQuestion; index: number }>({ type: 'checkbox', index: 0 });
    const [action, setAction] = useState<TAction<TQuestionTypes>>({ isOpen: false, type: 'add', data: {} as TQuestionTypes });
    const navigate = useNavigate();
@@ -320,6 +320,8 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
                <div className="h-[1.34rem] w-0.5 bg-primary/40 absolute top-full left-10" />
             </div>
          </form>
+
+         
 
          <div className="grid gap-5 grid-cols-[1fr_300px]">
             {Component && <Component {...{ clearErrors, setValue, watch, control }} />}
