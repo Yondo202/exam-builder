@@ -11,7 +11,7 @@ import { Empty } from '@/assets/svg';
 import { type RowSelectionState } from '@tanstack/react-table';
 import ActionButtons from '@/components/ActionButtons';
 import { toast } from 'sonner';
-import { HtmlToText, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import Questions from '@/pages/questions';
 import { queryClient } from '@/main';
 import QuestionDetail from '@/pages/questions/Action';
@@ -163,7 +163,13 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
                                           key={ind}
                                        >
                                           <span className="group-hover/items:opacity-60">
-                                             {element.input_type === 'richtext' || element.input_type === 'essay' ? HtmlToText({ html: element.question }) : element.question}
+                                             {element.input_type === 'richtext' || element.input_type === 'essay' ? (
+                                                <article className="prose-sm dark:prose-invert">
+                                                   <span dangerouslySetInnerHTML={{ __html: element.question }} />
+                                                </article>
+                                             ) : (
+                                                element.question
+                                             )}
                                           </span>
 
                                           {/* <Button onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })} size="sm" variant="link" className="text-primary">

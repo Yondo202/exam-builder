@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Users, Plan, Group, Factcheck, Document, Leaderboard } from '@/assets/svg'; //Document //Leaderboard
+import { Users, Plan, Group, Document, Leaderboard, ReportSVG, QuestionsSVG } from '@/assets/svg'; //Document //Leaderboard
 import Category from '@/pages/category';
 import Questions from '@/pages/questions';
 import QuestionAction from '@/pages/questions/Action';
@@ -19,7 +19,8 @@ import HistoryOfExam from '@/pages/candidate/HistoryOfExam';
 import ExamStartAction from '@/pages/candidate/ExamStartAction';
 import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
-import Dashboard from '@/pages/dashboard';
+import Dashboard from '@/pages/report/Dashboard';
+import ReportList from '@/pages/report/ReportList';
 
 // const Category = React.lazy(() => import('@/pages/category'));
 // const Questions = React.lazy(() => import('@/pages/questions'));
@@ -56,7 +57,7 @@ const RouteStore: TRouteOmit[] = [
       label: 'Ангилал',
       component: Category,
    },
-   { to: '/questions', icon: Factcheck, label: 'Асуултын сан', component: Questions },
+   { to: '/questions', icon: QuestionsSVG, label: 'Асуултын сан', component: Questions },
    { to: '/questions/:typeid', label: 'Асуултын сан', component: QuestionAction, isHide: true },
 
    { to: 'exams', icon: Document, label: 'Шалгалтууд', component: Exams, visibleType: ['company_admin'] },
@@ -90,6 +91,13 @@ const RouteStore: TRouteOmit[] = [
          { to: 'company', label: 'Компани', component: Company },
          { to: 'roles', label: 'Хэрэглэгчийн эрх', component: RolesList },
       ],
+   },
+
+   {
+      to: '/report', //groups
+      icon: ReportSVG,
+      label: 'Тайлан',
+      component: ReportList,
    },
 
    // {

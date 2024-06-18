@@ -11,7 +11,7 @@ import { IoIosArrowForward } from 'react-icons/io';
 import Cookies from 'js-cookie';
 import { TUserEmployee, type TUserRoles, UserRolesAsset } from '@/lib/sharedTypes';
 
-const subHeight = 45;
+const subHeight = 38;
 
 export const LogoSector = ({ className, isHide }: { className?: string; isHide?: boolean }) => {
    return (
@@ -145,7 +145,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                trigger={({ to }) => (
                   <Link
                      className={cn(
-                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-3 mb-1 hover:bg-primary/5 rounded-md',
+                        'group relative grid grid-cols-[1fr_auto] items-center px-2 py-2.5 mb-0.5 hover:bg-primary/5 rounded-md',
                         isHide ? `justify-center py-2 mb-0` : ``,
                         (pathname === '/' && Element?.to === '/') || (Element?.to !== '/' && pathname.includes(Element?.to)) ? `active bg-primary hover:bg-primary` : ' border-transparent'
                      )}
@@ -154,8 +154,8 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                      // end={false}
                   >
                      <div className="flex items-center gap-3">
-                        {Element.icon && <Element.icon className="w-[26px] h-[26px] fill-muted-text group-[.active]:fill-[#FFF]" />}
-                        {!isHide && <span className="group-[.active]:text-[#FFF]">{Element.label}</span>}
+                        {Element.icon && <Element.icon className="w-[22px] h-[22px] fill-muted-text group-[.active]:fill-[#FFF]" />}
+                        {!isHide && <span className="group-[.active]:text-[#FFF] text-xs">{Element.label}</span>}
                      </div>
 
                      {!isHide && Element.subMenu ? (

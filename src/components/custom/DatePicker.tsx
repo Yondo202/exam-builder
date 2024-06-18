@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Label } from '.';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 
-export const DatePicker = <TFieldValues extends FieldValues>({ control, className = '', name, hideClose, rules, ...props }: TControllerProps<TFieldValues> & { label?: string, hideClose?:boolean, idPrefix?:string }) => {
+export const DatePicker = <TFieldValues extends FieldValues>({ control, className = '', name, hideClose, triggerClassName, rules, ...props }: TControllerProps<TFieldValues> & { label?: string, triggerClassName?:string, hideClose?:boolean, idPrefix?:string }) => {
    return (
       <div className={cn('', className)}>
          <Controller
@@ -33,7 +33,8 @@ export const DatePicker = <TFieldValues extends FieldValues>({ control, classNam
                               className={cn(
                                  'relative  w-full h-[36px] justify-between text-left font-normal text-text pr-3 cursor-pointer',
                                  !field.value && 'text-muted-text/50',
-                                 fieldState.error ? `border-danger-color` : ``
+                                 fieldState.error ? `border-danger-color` : ``,
+                                 triggerClassName
                               )}
                            >
                               <Input
@@ -50,7 +51,7 @@ export const DatePicker = <TFieldValues extends FieldValues>({ control, classNam
                               {field.value && !hideClose ? (
                                  <IoClose onClick={() => field.onChange('')} className={cn('ml-2 h-[18px] w-[18px] text-secondary cursor-pointer hover:text-primary')} />
                               ) : (
-                                 <DateSvg className={cn('ml-2 h-[18px] w-[18px] text-secondary')} />
+                                 <DateSvg className={cn('ml-2 h-[18px] w-[18px] text-secondary/70')} />
                               )}
                            </Button>
                         </PopoverTrigger>

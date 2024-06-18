@@ -209,7 +209,7 @@ const ExamStartAction = () => {
             setError(item, { message: 'Хариулт аа оруулна уу', type: 'required' }, { shouldFocus: true });
             isInValid = true;
          }
-      })
+      });
 
       if (!isInValid) {
          mutate();
@@ -303,7 +303,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                               </span>
                               <span className="text-muted-text"> - Асуулт</span>
                            </Badge>
-                           {score_visible && questionScore !== 0 && (
+                           {score_visible && questionScore > 0 && (
                               <div className="flex gap-2">
                                  <Badge variant="secondary" className="py-1 text-xs gap-2">
                                     {isFromInspector && <span className="text-muted-text">Асуутын оноо - </span>}
@@ -342,13 +342,13 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                         <Controller
                            control={control}
                            name={element.id}
-                           rules={{ required: questionScore !== 0 ? true : false }}
+                           rules={questionScore > 0 ? { required: true } : { required: false }}
                            render={({ field, fieldState }) => {
                               // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               const parentOnChange = (value: any) => {
                                  clearErrors?.();
                                  field.onChange(value);
-                              };
+                              }
                               // if(element?.sub_questions){  }
                               return (
                                  <>

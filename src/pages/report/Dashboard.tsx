@@ -85,8 +85,8 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                <div className="mb-5 wrapper">
                   <div className="px-5 py-2 border-b text-xs2">Огноогоор шүүх</div>
                   <div className="grid grid-cols-2 items-center gap-5 p-5 pt-3">
-                     <DatePicker hideClose className="w-full" name="start_range" label="Эхлэх огноо" control={control} />
-                     <DatePicker hideClose className="w-full" name="end_range" label="Дуусах огноо" control={control} />
+                     <DatePicker triggerClassName="h-[32px] rounded-full" hideClose className="w-full" name="start_range" label="Эхлэх огноо" control={control} />
+                     <DatePicker triggerClassName="h-[32px] rounded-full" hideClose className="w-full" name="end_range" label="Дуусах огноо" control={control} />
                   </div>
 
                   {/* <div className="p-5 pt-0">sdgkjsdkgj</div> */}
