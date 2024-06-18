@@ -57,7 +57,7 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          const r = Math.floor(Math.random() * 255);
          const g = Math.floor(Math.random() * 255);
          const b = Math.floor(Math.random() * 255);
-         colors.push(`rgba(${r}, ${g}, ${b}, 0.3)`);
+         colors.push(`rgba(${r}, ${g}, ${b}, 0.2)`);
       }
       return colors;
    };
@@ -73,7 +73,7 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
    const examResults = data?.data.exam_result ?? [];
    const backgroundColors = generateColors(examResults.length);
-   const borderColors = backgroundColors.map((color) => color.replace('0.2', '1'));
+   // const borderColors = backgroundColors.map((color) => color.replace('0.2', '1'));
 
    return (
       <div>
@@ -132,8 +132,8 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                               label: 'Шалгалтыг өгсөн тоо',
                               data: examResults?.map((item) => +item.given_exam_count),
                               backgroundColor: backgroundColors,
-                              borderColor: borderColors,
-                              borderWidth: 1,
+                              // borderColor: borderColors,
+                              // borderWidth: 1,
                            },
                         ],
                      }}

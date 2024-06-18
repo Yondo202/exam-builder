@@ -41,7 +41,7 @@ const HistoryOfExam = () => {
          }),
    });
 
-   const grouped = groupBy(data?.data?.map((item) => ({ ...item, temp_exam_code: item.user_exam.exam.code })) ?? [], 'temp_exam_code');
+   const grouped = groupBy(data?.data?.map((item) => ({ ...item, temp_exam_code: item?.user_exam?.exam?.code })) ?? [], 'temp_exam_code');
 
    return (
       <div>
@@ -66,7 +66,7 @@ const HistoryOfExam = () => {
                         return (
                            <div className="wrapper p-0 group hover:shadow-md" key={index}>
                               <div className="text-base font-normal px-5 py-3 border-b">
-                                 <div className="truncate font-medium">{item.user_exam.exam?.name}</div>
+                                 <div className="truncate font-medium">{item.user_exam?.exam?.name}</div>
                                  {/* <div className="truncate text-xs text-muted-text">{item.user_exam.exam.description}</div> */}
 
                                  <div className="flex items-center gap-2 text-muted-text text-xs pt-2">
@@ -96,7 +96,7 @@ const HistoryOfExam = () => {
                                  <div className="flex items-center gap-2 text-muted-text mb-3">
                                     Төлөв:{' '}
                                     <Badge variant="secondary" className="font-medium py-1">
-                                       {StatusLabels[item.user_exam.status]}
+                                       {StatusLabels[item?.user_exam?.status]}
                                     </Badge>
                                  </div>
                               </div>

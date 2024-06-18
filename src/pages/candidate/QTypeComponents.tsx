@@ -31,7 +31,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
             );
          }
 
-         return;
+         return
       }
 
       const sinlgeAnswer = event ? item.id : ``;
@@ -74,7 +74,8 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                      <span className="text-muted-text/70 text-base">{index + 1}.</span>
                      <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
                         <Checkbox checked={isChecked} disabled={isDisabled || isFromInspector} onCheckedChange={(event: boolean) => onChangeFunc(event, item)} id={item.id} />
-                        <Label htmlFor={item.id} className="mb-0 truncate select-none">
+                        <Label htmlFor={item.id} className="mb-0 select-none">
+                           {/* truncate */}
                            {item.answer}
                         </Label>
                      </label>
@@ -90,10 +91,11 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                   {question?.answers?.map((item, index) => {
                      return (
                         <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
-                           <span className="text-muted-text/70 text-base">{index + 1}.</span>
+                           <span className="text-muted-text/70 text-base">{index + 1}. </span>
                            <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
                               <Checkbox checked={item.is_correct} disabled={true || isFromInspector} />
-                              <Label htmlFor={item.id} className="mb-0 truncate select-none">
+                              <Label htmlFor={item.id} className="mb-0  select-none">
+                                 {/* truncate */}
                                  {item.answer}
                               </Label>
                            </label>

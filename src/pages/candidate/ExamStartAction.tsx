@@ -209,7 +209,7 @@ const ExamStartAction = () => {
             setError(item, { message: 'Хариулт аа оруулна уу', type: 'required' }, { shouldFocus: true });
             isInValid = true;
          }
-      });
+      })
 
       if (!isInValid) {
          mutate();
