@@ -80,7 +80,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
          score_visible: false,
          scrumble_questions: false,
       },
-   })
+   });
 
    useEffect(() => {
       if (action.type !== 'add') {
@@ -205,7 +205,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                }}
             />
 
-            {/* <Controller
+            <Controller
                control={control}
                name="scrumble_questions"
                render={({ field }) => {
@@ -218,7 +218,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                      </div>
                   );
                }}
-            /> */}
+            />
          </div>
 
          <div className="pt-7 flex justify-end">

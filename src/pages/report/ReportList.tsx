@@ -11,8 +11,6 @@ import { useForm } from 'react-hook-form';
 import { cn, formatDateToCustomISO } from '@/lib/utils';
 import { useEffect } from 'react';
 
-// import React from 'react'
-
 // {
 //   "category_id": "string",
 //   "sub_category_id": "string",
@@ -66,16 +64,10 @@ const ReportList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             method: 'post',
             offAlert: true,
             filterBody: {
-               //  category_id: 'string',
-               //  sub_category_id: 'string',
-               //  status: 'active',
-               //  org_id: 'string',
-               //  include_category: true,
                status: watch('status'),
                category_id: watch('category_id'),
                sub_category_id: watch('sub_category_id'),
                range: {
-                  // ...watch(),
                   start_range: watch('start_range'),
                   end_range: watch('end_range'),
                },
@@ -177,9 +169,4 @@ const columnDef: ColumnDef<TReport>[] = [
       header: 'Дундаж оноо',
       accessorKey: 'avg_score',
    },
-   //  {
-   //     header: 'Үүсгэсэн огноо',
-   //     accessorKey: 'created_at',
-   //     cell: ({ row }) => row.original?.created_at?.slice(0, 16).replace('T', ' '),
-   //  },
 ];
