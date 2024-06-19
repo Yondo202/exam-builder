@@ -5,7 +5,7 @@ import { FinalRespnse } from '@/lib/sharedTypes';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { PiExam } from 'react-icons/pi';
-import { finalRenderDate } from '@/lib/utils';
+import { finalRenderDate, HtmlToText } from '@/lib/utils';
 import { type TAction } from '@/lib/sharedTypes';
 import { VscSend } from 'react-icons/vsc';
 import { LiaHourglassStartSolid, LiaArrowRightSolid } from 'react-icons/lia';
@@ -95,12 +95,12 @@ const ExamsList = () => {
                   <Skeleton className="w-full h-60 rounded-lg" />
                </>
             ) : data?.data?.length ?? 0 > 0 ? (
-               data?.data?.map((item, index) => {
+               data?.data?.filter(item=>!!item?.exam?.name)?.map((item, index) => {
                   return (
                      <div className="wrapper p-0 group hover:shadow-md" key={index}>
                         <div className="text-base font-normal px-5 py-3 border-b">
                            <div className="truncate font-medium mb-1">{item.exam?.name}</div>
-                           <div className="truncate text-xs text-muted-text">{item.exam?.description}</div>
+                           <div className="truncate text-xs text-muted-text"> {HtmlToText({ html: item.exam?.description })}</div>
                         </div>
 
                         <div className="p-5 relative overflow-hidden">
@@ -131,7 +131,7 @@ const ExamsList = () => {
                               эрх байна
                            </div>
 
-                           <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 pt-2 opacity-70">
+                           {!!item.exam?.category?.name && !!item.exam?.sub_category?.name && <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 pt-2 opacity-70">
                               <Badge variant="secondary" className="py-1 max-w-full text-[10px]">
                                  <span className="one_line">{item.exam?.category?.name} </span>
                               </Badge>
@@ -139,7 +139,7 @@ const ExamsList = () => {
                               <Badge variant="secondary" className="py-1 text-[10px]">
                                  <span className="one_line">{item.exam?.sub_category?.name} </span>
                               </Badge>
-                           </div>
+                           </div>}
 
                            <div className="absolute top-full left-0 w-full h-full transition-all rounded-lg duration-300 opacity-0 group-hover:top-0 group-hover:opacity-100 flex items-center justify-center backdrop-blur-sm">
                               {item.status !== 'ended' ? (
@@ -161,10 +161,15 @@ const ExamsList = () => {
                         </div>
 
                         {action.data?.id === item.id && (
-                           <Dialog title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
+                           <Dialog className='w-[660px]' title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
                               <div className="pb-8">
                                  <div className="truncate font-medium text-lg">{action?.data?.exam?.name}</div>
-                                 <div className="text-xs2 text-muted-text mb-8">{action.data?.exam?.description}</div>
+                                 <div className="text-xs2 text-muted-text mb-8">
+                                    <article className="prose-sm dark:prose-invert">
+                                       <span dangerouslySetInnerHTML={{ __html: action.data?.exam?.description }} />
+                                    </article>
+                                    {/* {action.data?.exam?.description} */}
+                                 </div>
 
                                  <div className="flex items-center gap-2 text-muted-text text-sm mb-8">
                                     Үргэлжилэх хугацаа:

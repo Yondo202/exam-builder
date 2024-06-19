@@ -1,12 +1,13 @@
-import { TextInput, Textarea, Button, Checkbox, Label, DatePicker, DeleteContent, Badge } from '@/components/custom'; //Checkbox, Label
+import { TextInput, Button, Checkbox, Label, DatePicker, DeleteContent, Badge, CkEditor } from '@/components/custom'; //Checkbox, Label
+import ErrorMessage from '@/components/ui/ErrorMessage';
 import { Controller, useForm, type Control, type UseFormWatch, type UseFormSetValue } from 'react-hook-form';
 // import { IoCloseOutline } from 'react-icons/io5';
 import { PiFolderMinusLight } from 'react-icons/pi';
 import { type TExam } from '.';
-import { RxClock } from 'react-icons/rx';
+// import { RxClock } from 'react-icons/rx';
+// import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
 import { CategorySelect } from '../questions/Action';
 import { Input } from '@/components/ui/Input';
-import { IoIosCheckmarkCircleOutline } from 'react-icons/io';
 import { type TActionProps, ATypes } from '@/lib/sharedTypes';
 
 type TDateInput = {
@@ -103,7 +104,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
    }
    return (
       <form onSubmit={handleSubmit(onSubmit)}>
-         <div className="grid grid-cols-[320px_1fr] gap-10 mb-5">
+         <div className="grid grid-cols-[200px_1fr] gap-6 mb-5">
             <div>
                <TextInput
                   floatLabel={false}
@@ -125,19 +126,66 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                   placeholder="Тоо оруулах"
                   type="number"
                />
+
+               <TextInput
+                  floatLabel={false}
+                  // beforeAddon={<IoIosCheckmarkCircleOutline />}
+                  className="w-full mb-6"
+                  name="pass_score"
+                  control={control}
+                  label="Шалгалтанд тэнцэх доод оноо"
+                  rules={{ required: 'Шалгалтанд тэнцэх доод оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+                  placeholder="Оноо оруулах"
+                  type="number"
+               />
+
+               <div className="flex items-end gap-2">
+                  <TextInput
+                     floatLabel={false}
+                     // beforeAddon={<RxClock />}
+                     className="w-full mb-0"
+                     name="duration_min"
+                     control={control}
+                     label="Үргэлжилэх хугацаа"
+                     rules={{ required: 'Үргэлжилэх хугацаа оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
+                     placeholder="Оноо оруулах"
+                     type="number"
+                  />
+                  <Badge className="h-full font-medium opacity-70 mb-0 py-2" variant="secondary">
+                     Мин
+                  </Badge>
+               </div>
             </div>
-            <Textarea
+
+            <Controller
+               control={control}
+               name="description"
+               rules={{ required: 'Шалгалтын тайлбар оруулна уу' }}
+               render={({ field, fieldState }) => {
+                  return (
+                     <div>
+                        <Label htmlFor={field.name}>
+                           Шалгалтын эхлүүлэхийн өмнөх тайлбар <span className="text-danger-color">*</span>
+                        </Label>
+                        <CkEditor value={field.value} setValue={(val) => field.onChange(val)} />
+                        <ErrorMessage error={fieldState?.error} />
+                     </div>
+                  );
+               }}
+            />
+
+            {/* <Textarea
                className="w-full min-h-[100px]"
                name="description"
                control={control}
                rules={{ required: 'Шалгалтын тайлбар оруулна уу' }}
                label="Шалгалтын тайлбар"
                placeholder="Шалгалтын тайлбар дэлгэрэнгүй оруулах"
-            />
+            /> */}
          </div>
 
-         <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6">
-            <TextInput
+         {/* <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6"> */}
+            {/* <TextInput
                beforeAddon={<IoIosCheckmarkCircleOutline />}
                className="w-full mb-0"
                name="pass_score"
@@ -146,8 +194,8 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                rules={{ required: 'Шалгалтанд тэнцэх доод оноо оруулах', min: { message: 'Оноо - 0 байх боломжгүй', value: 0.001 } }}
                placeholder="Оноо оруулах"
                type="number"
-            />
-            <div className="flex items-center gap-2">
+            /> */}
+            {/* <div className="flex items-center gap-2">
                <TextInput
                   beforeAddon={<RxClock />}
                   className="w-full mb-0"
@@ -161,8 +209,8 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                <Badge className="h-full font-medium opacity-70" variant="secondary">
                   Минут
                </Badge>
-            </div>
-         </div>
+            </div> */}
+         {/* </div> */}
 
          <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6">
             <CategorySelect control={control} name="category_id" current="main_category" label="Үндсэн ангилал" onChange={() => setValue('sub_category_id', '')} />

@@ -24,12 +24,13 @@ type TSubQuestionProps = {
    subQuestionsValue: any;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    parentValue: any;
+   setLocalProgress?: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
-const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector, questionIndex }: TSubQuestionProps) => {
+const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector, questionIndex, setLocalProgress }: TSubQuestionProps) => {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const sub: any = useSubQuestion();
-   const { control, watch, reset } = useForm({ mode: 'onChange' });
+   const { control, watch, reset } = useForm();
    const { control: scoreController, watch: scoreWatch, setError, clearErrors, reset: scoreReset } = useForm({ mode: 'all' });
 
    useEffect(() => {
@@ -74,54 +75,33 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
    }, []);
 
    const GenerateValue = () => {
+      const additional = { question_id: parentQuestion.id, id: progressId, type: parentQuestion.type, input_type: parentQuestion.input_type };
       if (parentQuestion?.input_type === 'multi_select' || parentQuestion?.type === 'fill') {
-         return { choices: parentValue };
+         return { choices: parentValue, ...additional };
       }
       if (parentQuestion?.input_type === 'select') {
-         return { choice: parentValue };
+         return { choice: parentValue, ...additional };
       }
       if (parentQuestion?.type === 'text') {
-         return { answer: parentValue };
+         return { answer: parentValue, ...additional };
       }
    };
 
-   useEffect(() => {
-      if (!isFromInspector) {
-         const FinalSubQuestion = Object.keys(watch())
-            ?.filter((item) => !!watch(item))
-            .map((item) => {
-               const found = parentQuestion.sub_questions?.find((element) => element.id === item);
-               const subAssets = { type: found?.type, input_type: found?.input_type, question_id: item };
-               if (found?.type === 'text') {
-                  return { ...subAssets, answer: watch(item) };
-               }
-
-               if (found?.type === 'fill' || found?.input_type === 'multi_select') {
-                  return { ...subAssets, choices: watch(item) };
-               }
-
-               if (found?.input_type === 'select') {
-                  return { ...subAssets, choice: watch(item) };
-               }
-            });
-
-         socket?.emit(
-            'save_progress',
-            JSON.stringify({
-               ...GenerateValue(),
-               question_id: parentQuestion.id,
-               // choices: FillValues,
-               id: progressId,
-               type: parentQuestion.type,
-               input_type: parentQuestion.input_type,
-
-               sub_questions: FinalSubQuestion ?? [],
-            })
-         );
+   const Convert = (itemName: string, value?: any) => {
+      const found = parentQuestion.sub_questions?.find((element) => element.id === itemName);
+      const subAssets = { type: found?.type, input_type: found?.input_type, question_id: itemName };
+      if (found?.type === 'text') {
+         return { ...subAssets, answer: value ? value : watch(itemName) };
       }
 
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [watch()]);
+      if (found?.type === 'fill' || found?.input_type === 'multi_select') {
+         return { ...subAssets, choices: value ? value : watch(itemName) };
+      }
+
+      if (found?.input_type === 'select') {
+         return { ...subAssets, choice: value ? value : watch(itemName) };
+      }
+   };
 
    return (
       <div className="pt-8 pl-12 max-sm:pl-1">
@@ -162,6 +142,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                               render={({ field, fieldState }) => {
                                  const CustomOnchange = (value: any) => {
                                     clearErrors();
+
                                     sub.setSubValue({ [parentQuestion.id]: { ...scoreWatch(), [field.name]: isNaN(parseFloat(value)) ? undefined : parseFloat(value) } });
                                     field.onChange(value);
                                  };
@@ -177,6 +158,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                                           className="w-46"
                                           placeholder="Оноо өгөх..."
                                           variant={fieldState?.error ? `error` : 'default'}
+                                          onFocus={e => e.target.select()}
                                        />
                                        <ErrorMessage error={fieldState?.error} />
                                     </div>
@@ -191,7 +173,26 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                      name={element.id}
                      rules={{ required: true }}
                      render={({ field }) => {
-                        return questionAsset[element.type]?.component({ question: element, field: field, isFromInspector: isFromInspector });
+                        const subOnchange = (value: any) => {
+                           field.onChange(value);
+                           setLocalProgress?.((prev) => {
+                              const FinalSubQuestion = Object.keys(watch())
+                                 ?.filter((item) => !!watch(item))
+                                 .map((item) => Convert(item, field.name === item ? value : undefined));
+
+                              const changedRow = {
+                                 ...GenerateValue(),
+                                 sub_questions: FinalSubQuestion,
+                              };
+
+                              if (!isFromInspector) {
+                                 socket?.emit('save_progress', JSON.stringify(changedRow));
+                              }
+
+                              return [...prev.filter((item) => item.question_id !== parentQuestion.id), changedRow];
+                           });
+                        };
+                        return questionAsset[element.type]?.component({ question: element, field: { ...field, onChange: subOnchange }, isFromInspector: isFromInspector });
                      }}
                   />
                </div>

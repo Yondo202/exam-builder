@@ -36,8 +36,8 @@ const socket = io(import.meta.env.VITE_MAIN_URL, {
       authorization: getJwt() ?? '',
    },
    // autoConnect: false,
-   reconnectionAttempts: 3,
-   reconnectionDelay: 3000,
+   reconnectionAttempts: 1,
+   // reconnectionDelay: 3000,
 });
 
 type PickedQuestionTypes = Pick<AllTypesQuestionTypes, 'answers' | 'input_type' | 'question' | 'type' | 'sub_questions' | 'score' | 'id'>;
@@ -50,6 +50,8 @@ export type TQuestionProps = {
    // fieldState: ControllerFieldState;
    // ref: RefCallBack;
 
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   setLocalProgress?: React.Dispatch<React.SetStateAction<any[]>>;
    isFromInspector?: boolean;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    field: any;
@@ -63,13 +65,19 @@ type TObjectPettern = {
 // eslint-disable-next-line react-refresh/only-export-components
 export const questionAsset: { [Key in TQuestion]: TObjectPettern } = {
    checkbox: {
-      component: ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => <SelectQuestion {...{ question, field, socket, progressId, isFromInspector }} />,
+      component: ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => (
+         <SelectQuestion {...{ question, field, socket, progressId, isFromInspector, setLocalProgress }} />
+      ),
    },
    text: {
-      component: ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => <OpenQuestion {...{ question, field, socket, progressId, isFromInspector }} />,
+      component: ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => (
+         <OpenQuestion {...{ question, field, socket, progressId, isFromInspector, setLocalProgress }} />
+      ),
    },
    fill: {
-      component: ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => <FillQuestion {...{ question, field, socket, progressId, isFromInspector }} />,
+      component: ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => (
+         <FillQuestion {...{ question, field, socket, progressId, isFromInspector, setLocalProgress }} />
+      ),
    },
 };
 
@@ -83,6 +91,8 @@ type TStarted = {
 };
 
 const ExamStartAction = () => {
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const [localProgress, setLocalProgress] = useState<any>([]);
    const [timer, setTimer] = useState({ isStarted: false, isDone: false });
    // const [socketConnect, setSocketConnect] = useState({ isConnected: false });
    // console.log(socketConnect, "----->socketConnect")
@@ -110,9 +120,6 @@ const ExamStartAction = () => {
       queryFn: () => request<FinalRespnse<TMyExamAsset>>({ url: `user/exam/my-invites/id/${inviteid}` }),
    });
 
-   // console.log(InviteDetail?.data.exam, '--->exam id');
-   // console.log(isFetchedAfterMount, '-------------isFetchedAfterMount');
-
    const {
       data: ProgressData,
       isError,
@@ -138,9 +145,6 @@ const ExamStartAction = () => {
       queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/progress/${ProgressData?.data?.id}` }), // ProgressData?.data?.id
    });
 
-   // console.log(data, '------->data');
-   // filterBody: { variant_id: ProgressData?.data?.variant_id }
-
    const { mutate } = useMutation({
       mutationFn: () => request({ method: 'post', url: `user/exam/end/${ProgressData?.data.id}` }),
       onSuccess: () => {
@@ -151,8 +155,25 @@ const ExamStartAction = () => {
       onSettled: () => setTimer({ isDone: true, isStarted: false }),
    });
 
+   const { mutate: fullSaveMutate } = useMutation({
+      mutationFn: () =>
+         request({
+            method: 'post',
+            url: `user/progress/save/full`,
+            body: {
+               id: ProgressData?.data?.id,
+               progress: localProgress,
+            },
+         }),
+      onSettled: () => {
+         setTimer({ isDone: true, isStarted: false });
+         mutate();
+      },
+   });
+
    useEffect(() => {
       if (ProgressData?.data?.progress) {
+         setLocalProgress(ProgressData?.data?.progress ?? []);
          // daraa ene function iig sub question tei neg bolgo
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
          const settleValue: any = {};
@@ -197,7 +218,7 @@ const ExamStartAction = () => {
 
    useEffect(() => {
       if (timer.isDone) {
-         mutate();
+         fullSaveMutate();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [timer.isDone]);
@@ -212,9 +233,11 @@ const ExamStartAction = () => {
       });
 
       if (!isInValid) {
-         mutate();
+         fullSaveMutate();
       }
    };
+
+   // console.log(ProgressData, "---------------------->")
 
    return (
       <>
@@ -241,6 +264,7 @@ const ExamStartAction = () => {
                   control={control}
                   clearErrors={clearErrors}
                   ProgressData={ProgressData}
+                  setLocalProgress={setLocalProgress}
                />
                <div className="flex justify-end">
                   <Popover>
@@ -278,9 +302,13 @@ type TQuestionActionProps = {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    scoreController?: Control<FieldValues, any>;
    isFromInspector?: boolean;
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   setLocalProgress?: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
-export const QuestionActionSector = ({ sectionData, score_visible, control, clearErrors, ProgressData, isFromInspector, scoreController }: TQuestionActionProps) => {
+export const QuestionActionSector = ({ sectionData, score_visible, control, clearErrors, ProgressData, isFromInspector, scoreController, setLocalProgress }: TQuestionActionProps) => {
+
+   console.log(sectionData, "--------------------->sectionData")
    return sectionData?.map((item, index) => {
       return (
          <div className="mb-10" key={index}>
@@ -321,7 +349,6 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                                 <Input
                                                    {...field}
                                                    ref={field.ref}
-                                                   onChange={(event) => field.onChange(event.target.value !== '' ? parseFloat(event.target.value) : undefined)}
                                                    type="number"
                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                    onWheel={(e: any) => e.target.blur()}
@@ -329,6 +356,10 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                                    className="w-46"
                                                    placeholder="Оноо өгөх..."
                                                    variant={fieldState?.error ? `error` : 'default'}
+
+                                                   onFocus={e => e.target.select()}
+                                                   onChange={(event) => field.onChange(event.target.value !== '' ? parseFloat(event.target.value) : undefined)}
+
                                                 />
                                                 <ErrorMessage error={fieldState?.error} />
                                              </div>
@@ -348,7 +379,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                               const parentOnChange = (value: any) => {
                                  clearErrors?.();
                                  field.onChange(value);
-                              }
+                              };
                               // if(element?.sub_questions){  }
                               return (
                                  <>
@@ -365,9 +396,10 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                        {questionAsset[element.type]?.component({
                                           question: element,
                                           field: { ...field, onChange: parentOnChange },
-                                          socket: socket,
                                           progressId: ProgressData?.data.id,
-                                          isFromInspector: isFromInspector,
+                                          isFromInspector,
+                                          setLocalProgress,
+                                          socket,
                                        })}
                                        {fieldState?.error && <div className="text-danger-color text-end p-3">{fieldState?.error.message}</div>}
                                     </button>
@@ -382,6 +414,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                           progressId={ProgressData?.data.id}
                                           isFromInspector={isFromInspector}
                                           questionIndex={`${index + 1}.${ind + 1}`}
+                                          setLocalProgress={setLocalProgress}
                                        />
                                     )}
                                  </>

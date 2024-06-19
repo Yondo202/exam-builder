@@ -1,4 +1,4 @@
-import { TextInput, Button, AnimatedTabs, Drawer, DeleteContent } from '@/components/custom';
+import { TextInput, Button, AnimatedTabs, Drawer, DeleteContent, Textarea } from '@/components/custom';
 import ActionButtons from '@/components/ActionButtons';
 import { useForm, useFieldArray, Controller, type FieldArrayWithId, type UseFieldArrayAppend, type UseFieldArrayUpdate } from 'react-hook-form';
 import { MdOutlineAdd } from 'react-icons/md';
@@ -297,7 +297,8 @@ const FillerAnserAction = ({ temp_type, action, setClose, append, remove, update
             {fields.map((item, index) => {
                if (temp_type === 'wrong_answer' ? item.temp_type !== 'wrong_answer' : item.temp_type === 'wrong_answer') return;
                if (action.type !== 'add' && index === indexKey) {
-                  return <TextInput key={item._id} floatLabel={false} className="w-72" placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />;
+                  // return <TextInput key={item._id} floatLabel={false} className="w-72" placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />;
+                  return <Textarea key={item._id} isDynamicHeight className={cn('w-72')} placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />;
                }
                return (
                   <div className="opacity-50" key={item._id}>
@@ -306,7 +307,10 @@ const FillerAnserAction = ({ temp_type, action, setClose, append, remove, update
                );
             })}
 
-            {action.type === 'add' && <TextInput floatLabel={false} className="w-72" placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />}
+            {action.type === 'add' && (
+               // <TextInput floatLabel={false} className="w-72" placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />
+               <Textarea isDynamicHeight className={cn('w-72')} placeholder={label} control={control} name="answer" rules={{ required: label }} autoFocus />
+            )}
          </div>
 
          <div className="flex mt-7 justify-end">

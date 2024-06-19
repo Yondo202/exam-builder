@@ -121,7 +121,7 @@ const ReportList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                   return (
                      <Button
                         key={index}
-                        onClick={() => setValue('status', item as TExamMainStatus)}
+                        onClick={() => setValue('status', watch('status') === item ? undefined : (item as TExamMainStatus))}
                         size="sm"
                         className={cn('rounded-full', watch('status') === item ? `opacity-100` : `opacity-70`)}
                         variant={watch('status') === item ? `default` : `outline`}

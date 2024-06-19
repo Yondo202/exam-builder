@@ -80,7 +80,7 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          <Loading load={isPending} />
          <BreadCrumb pathList={breadcrumbs} />
          <Header title={breadcrumbs.find((item) => item.isActive)?.label} />
-         <div className="grid grid-cols-2 gap-5 mb-5">
+         <div className="grid grid-cols-[60%_1fr] gap-5 mb-5">
             <div>
                <div className="mb-5 wrapper">
                   <div className="px-5 py-2 border-b text-xs2">Огноогоор шүүх</div>

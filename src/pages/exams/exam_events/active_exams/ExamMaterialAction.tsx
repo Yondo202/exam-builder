@@ -75,10 +75,10 @@ const ExamMaterialAction = () => {
 
          const settleValue: any = {};
          const scoreValues: any = {};
-
+         // totalScore === 0 ? undefined :
          questions?.forEach((item: any) => {
             const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
-            scoreValues[`score-${item.id}`] = totalScore === 0 ? undefined : totalScore;
+            scoreValues[`score-${item.id}`] =  totalScore;
 
             settleValue[item.id] = userAnswerToProgress(item);
          });
@@ -107,6 +107,7 @@ const ExamMaterialAction = () => {
             if (sub.subValue[item?.replace('score-', '')]) {
                const subQuestionAnswers: any = [];
                Object.keys(sub.subValue[item?.replace('score-', '')])?.forEach((element) => {
+                  // console.log(parseFloat(sub.subValue?.[item?.replace('score-', '')]?.[element]),)
                   subQuestionAnswers.push({ question_id: element?.replace('score-', ''), score: parseFloat(sub.subValue?.[item?.replace('score-', '')]?.[element]) });
                });
 

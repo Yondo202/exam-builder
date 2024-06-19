@@ -6,12 +6,12 @@ import CustomEditor from 'ckeditor5-custom-build';
 type TCkEditor = {
    value: string;
    setValue: (value: string) => void;
-   disabled?:boolean
+   disabled?: boolean;
 };
 
 const CkEditorComponent = ({ value, setValue, disabled }: TCkEditor) => {
    // const [value, setValue] = useState('');
-   
+
    return (
       // <Suspense fallback={<Loading load={true} />}>
       <div className="ckeditor">

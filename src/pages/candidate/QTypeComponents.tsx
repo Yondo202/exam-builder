@@ -12,41 +12,55 @@ import { cn } from '@/lib/utils';
 
 // progressId - baihgu bol sub_question l gesen ug
 
-export const SelectQuestion = ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => {
+export const SelectQuestion = ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => {
    const onChangeFunc = (event: boolean, item: TAnswers) => {
+      const finalAsset = {
+         type: question.type,
+         input_type: question.input_type,
+         question_id: field.name,
+         id: progressId,
+      };
+
       if (question.input_type === 'multi_select') {
          const multiAnswer = event ? (field.value ? [...field.value, item.id] : [item.id]) : field.value.filter((element: string) => element !== item.id);
          field?.onChange?.(multiAnswer);
+
          if (progressId) {
+            setLocalProgress?.((prev) => {
+               const found = prev.find((item) => item.question_id === field.name) ?? {};
+
+               return [...prev.filter((item) => item.question_id !== field.name), { sub_questions: found.sub_questions ?? null, ...finalAsset, choices: multiAnswer }];
+            });
+
             socket?.emit(
                'save_progress',
                JSON.stringify({
-                  type: question.type,
-                  input_type: question.input_type,
-                  question_id: field.name,
                   choices: multiAnswer,
-                  id: progressId,
                   sub_questions: null,
+                  ...finalAsset,
                })
             );
          }
 
-         return
+         return;
       }
 
       const sinlgeAnswer = event ? item.id : ``;
 
       field.onChange(sinlgeAnswer);
       if (progressId) {
+         setLocalProgress?.((prev) => {
+            const found = prev.find((item) => item.question_id === field.name) ?? {};
+
+            return [...prev.filter((item) => item.question_id !== field.name), { sub_questions: found.sub_questions ?? null, ...finalAsset, choice: sinlgeAnswer }];
+         });
+
          socket?.emit(
             'save_progress',
             JSON.stringify({
-               type: question.type,
-               input_type: question.input_type,
-               question_id: field.name,
                choice: sinlgeAnswer,
-               id: progressId,
                sub_questions: null,
+               ...finalAsset,
             })
          );
       }
@@ -72,9 +86,14 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                return (
                   <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
                      <span className="text-muted-text/70 text-base">{index + 1}.</span>
-                     <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
-                        <Checkbox checked={isChecked} disabled={isDisabled || isFromInspector} onCheckedChange={(event: boolean) => onChangeFunc(event, item)} id={item.id} />
-                        <Label htmlFor={item.id} className="mb-0 select-none">
+                     <label htmlFor={`${item.id}${question.id}`} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
+                        <Checkbox
+                           checked={isChecked}
+                           disabled={isDisabled || isFromInspector}
+                           onCheckedChange={(event: boolean) => onChangeFunc(event, item)}
+                           id={`${item.id}${question.id}`}
+                        />
+                        <Label htmlFor={`${item.id}${question.id}`} className="mb-0 select-none">
                            {/* truncate */}
                            {item.answer}
                         </Label>
@@ -114,7 +133,7 @@ type TFillAnswer = {
    fill_index: number;
 };
 
-export const FillQuestion = ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => {
+export const FillQuestion = ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => {
    const [questionArr, setQuestionArr] = useState<string[]>([]);
    useEffect(() => {
       let count = 0;
@@ -135,16 +154,26 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
       const toSetValue = { [question.input_type === 'fill' ? `answer` : `id`]: value, fill_index: key };
       const FillValues = field.value ? [...field.value.filter((item: TFillAnswer) => item.fill_index !== key), toSetValue] : [toSetValue];
       field?.onChange?.(FillValues);
+
       if (progressId) {
+         const finalAsset = {
+            type: question.type,
+            input_type: question.input_type,
+            question_id: field.name,
+            id: progressId,
+            choices: FillValues,
+         };
+
+         setLocalProgress?.((prev) => {
+            const found = prev.find((item) => item.question_id === field.name) ?? {};
+
+            return [...prev.filter((item) => item.question_id !== field.name), { sub_questions: found.sub_questions ?? null, ...finalAsset }];
+         });
+
          socket?.emit(
             'save_progress',
             JSON.stringify({
-               question_id: field.name,
-               choices: FillValues,
-               id: progressId,
-               type: question.type,
-               input_type: question.input_type,
-
+               ...finalAsset,
                sub_questions: null,
             })
          );
@@ -166,16 +195,35 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
                                  {inputValue?.answer}
                               </Badge>
                            ) : (
-                              <Input
+                              <Textarea
                                  value={inputValue?.answer}
                                  onChange={(event) => onChangeFunc(event?.target?.value, fieldKey)}
-                                 className="w-56 mx-2"
-                                 sizes="sm"
+                                 className={cn('w-56 mx-2', inputValue?.answer?.length > 25 ? `min-h-[80px]` : `h-9  min-h-9`)}
+                                 // sizes="sm"
                                  placeholder="Хариулт......."
                                  disabled={!!isFromInspector}
                               />
                            )
                         ) : (
+                           // inputValue?.answer?.length > 30 ? (
+                           //    <Textarea
+                           //       value={inputValue?.answer}
+                           //       onChange={(event) => onChangeFunc(event?.target?.value, fieldKey)}
+                           //       className="w-56 mx-2"
+                           //       // sizes="sm"
+                           //       placeholder="Хариулт......."
+                           //       disabled={!!isFromInspector}
+                           //    />
+                           // ) : (
+                           //    <Input
+                           //       value={inputValue?.answer}
+                           //       onChange={(event) => onChangeFunc(event?.target?.value, fieldKey)}
+                           //       className="w-56 mx-2"
+                           //       sizes="sm"
+                           //       placeholder="Хариулт......."
+                           //       disabled={!!isFromInspector}
+                           //    />
+                           // )
                            <Select disabled={!!isFromInspector} value={inputValue?.id} onValueChange={(value) => onChangeFunc(value, fieldKey)}>
                               <SelectTrigger className="w-56 data-[placeholder]:text-muted-text/40 text-xs2">
                                  <SelectValue placeholder={'Сонго...'} className="placeholder:text-muted-text/20 " />
@@ -281,18 +329,28 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
    );
 };
 
-export const OpenQuestion = ({ question, field, socket, progressId, isFromInspector }: TQuestionProps) => {
+export const OpenQuestion = ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => {
    const onChangeFunc = (value: string) => {
       field?.onChange?.(value);
       if (progressId) {
+         const finalAsset = {
+            question_id: field.name,
+            answer: value,
+            id: progressId,
+            type: question.type,
+            input_type: question.input_type,
+         };
+
+         setLocalProgress?.((prev) => {
+            const found = prev.find((item) => item.question_id === field.name) ?? {};
+
+            return [...prev.filter((item) => item.question_id !== field.name), { sub_questions: found.sub_questions ?? null, ...finalAsset }];
+         });
+
          socket?.emit(
             'save_progress',
             JSON.stringify({
-               question_id: field.name,
-               answer: value,
-               id: progressId,
-               type: question.type,
-               input_type: question.input_type,
+               ...finalAsset,
                sub_questions: null,
             })
          );
@@ -313,7 +371,7 @@ export const OpenQuestion = ({ question, field, socket, progressId, isFromInspec
             )}
          </div>
 
-         {questionScore !== 0 && (
+         {questionScore > 0 && (
             <>
                <div className="pb-3 text-primary/70">Хариулт {isFromInspector ? `- шалгуулагчын` : ``}</div>
                {question.input_type === 'text' ? (
