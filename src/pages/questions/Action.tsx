@@ -253,6 +253,8 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
       },
    });
 
+   // console.log(FillerSubmit({ answers: watch().answers }), 'heeeeeeey');
+
    const onSubmit = (data: TQuestionTypes) => {
       if (data.type === 'checkbox') {
          if (!watch()?.answers?.some((item) => item.is_correct)) {
@@ -277,7 +279,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
          ...data,
          score: data.score + subTotal,
          sort_number: 0,
-         answers: answers?.map((el, index) => ({ ...el, sort_number: index })),
+         answers: answers?.map((el, index) => ({ ...el, sort_number: index, fill_index: index })),
       });
    };
 

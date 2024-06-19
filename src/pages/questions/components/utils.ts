@@ -13,12 +13,11 @@ export const FillConverter = ({ input }: { input: string }) => {
 
    // Step 3: Process each part
    parts.forEach((part) => {
-      part = part.trim(); // Trim any extra spaces
+      part = part.trim().replace("\n", ""); // Trim any extra spaces
 
       if (part.includes('}}')) {
          // If part contains '}}', it's a question-answer pair
          const [question, answer] = part.split('}}').map((str) => str.trim());
-
          // Add the question to the result array
          result.push({ ...InitialAnswer,  answer: question, temp_type: 'answer' });
 

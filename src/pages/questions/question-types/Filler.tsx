@@ -52,13 +52,10 @@ export const FillerSetConvert = ({ data }: { data?: AllTypesQuestionTypes }) => 
    let finalAnswers: TAnswers[] = [];
 
    if (data?.type === 'fill') {
-      let count = 0;
-
-      const questionWithCorrectAnswer = FillConverter({ input: data?.question })?.map((item) => {
+      const questionWithCorrectAnswer = FillConverter({ input: data?.question.replace(/\n/g, '') })?.map((item) => {
          if (item.temp_type === 'answer') {
             const foundAnswer = data?.answers.find((el) => el.answer === item.answer);
-            const temp = { ...item, ...foundAnswer, fill_index: count };
-            count++;
+            const temp = { ...item, ...foundAnswer };
             return temp;
          }
          return item;
@@ -120,7 +117,9 @@ export const Filler = ({ control, watch, idPrefix, setValue }: TQTypesProps) => 
                      key={item._id}
                      className={cn(
                         'relative group/items bg-card-bg group-hover:opacity-40 border cursor-pointer rounded-md leading-[2.3rem] border-transparent group-hover:hover:opacity-100 group-hover:hover:border-primary/20  max-w-full transition-all duration-500 py-1 px-2 ', //group-hover:hover:px-3
-                        item.temp_type === 'answer' ? `text-primary` : ``
+                        item.temp_type === 'answer' ? `text-primary` : ``,
+
+                        isWrongAnswer && item.temp_type === 'wrong_answer' ? `border-primary/60 rounded-full px-4 py-0` : ``
                      )}
                   >
                      <div className="text-pretty">{item.answer}</div>
@@ -255,6 +254,7 @@ const FillerAnserAction = ({ temp_type, action, setClose, append, remove, update
       if (action.type !== 'add') {
          reset(action.data);
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [action.type, action.isOpen]);
 
    const onSubmit = (data: TAnswers) => {
