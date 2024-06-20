@@ -16,7 +16,7 @@ import { useSubQuestion } from '@/lib/hooks/useZustand';
 type TUserInExam = {
    firstname: string;
    lastname: string;
-};
+}
 
 type TUserExam = {
    id: string;
@@ -54,7 +54,7 @@ const ExamMaterialAction = () => {
    const { data: examDAta } = GetExamDetial({ examid: examid });
 
    const { data, isFetchedAfterMount } = useQuery<FinalRespnse<Omit<TExam, 'variants' | 'user_exam'> & { variant: TVariant; user_exam: TUserExam }>>({
-      queryKey: ['material'],
+      queryKey: ['material', materialid],
       queryFn: () => request({ url: `user/inspector/submissions/detail/${materialid}` }),
    });
 
@@ -77,8 +77,9 @@ const ExamMaterialAction = () => {
          const scoreValues: any = {};
          // totalScore === 0 ? undefined :
          questions?.forEach((item: any) => {
-            const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
-            scoreValues[`score-${item.id}`] =  totalScore;
+            const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0) 
+            const finalScore = totalScore - (item?.sub_questions ? item?.sub_questions?.reduce((a: any, b: any) => a + b?.score, 0) : 0)
+            scoreValues[`score-${item.id}`] =  finalScore;
 
             settleValue[item.id] = userAnswerToProgress(item);
          });
@@ -108,6 +109,8 @@ const ExamMaterialAction = () => {
                const subQuestionAnswers: any = [];
                Object.keys(sub.subValue[item?.replace('score-', '')])?.forEach((element) => {
                   // console.log(parseFloat(sub.subValue?.[item?.replace('score-', '')]?.[element]),)
+
+                  // console.log(sub.subValue?.[item?.replace('score-', '')]?.[element], "------------>sub.subValue?.[item?.replace('score-', '')]?.[element]")
                   subQuestionAnswers.push({ question_id: element?.replace('score-', ''), score: parseFloat(sub.subValue?.[item?.replace('score-', '')]?.[element]) });
                });
 

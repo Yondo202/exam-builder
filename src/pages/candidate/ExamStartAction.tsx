@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { request } from '@/lib/core/request';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { VscSend } from 'react-icons/vsc';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+// import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { io, type Socket } from 'socket.io-client';
 import { type TExam } from '@/pages/exams';
 import { FinalRespnse } from '@/lib/sharedTypes';
@@ -14,9 +14,9 @@ import { TMyExamAsset } from './ExamsList';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getJwt } from '@/lib/core/request';
-import { Controller, useForm, type Control, type FieldValues, type UseFormClearErrors } from 'react-hook-form';
+import { Controller, useForm, type Control, type FieldValues } from 'react-hook-form';
 import SubQuestions from './SubQuestions';
-import { GiFinishLine } from 'react-icons/gi';
+// import { GiFinishLine } from 'react-icons/gi';
 import { cn } from '@/lib/utils';
 import { type TExamSection } from '@/pages/exams';
 import { Input } from '@/components/ui/Input';
@@ -99,9 +99,11 @@ const ExamStartAction = () => {
    const {
       control,
       reset,
-      watch,
-      setError,
-      clearErrors,
+      // watch,
+      // setError,
+      // getFieldState,
+      // clearErrors,
+      handleSubmit,
       // formState: { errors },
    } = useForm({ mode: 'onSubmit' });
 
@@ -152,7 +154,7 @@ const ExamStartAction = () => {
          navigate('/');
          // setTimer({ isDone:true, isStarted:false });
       },
-      onSettled: () => setTimer({ isDone: true, isStarted: false }),
+      // onSettled: () => setTimer({ isDone: true, isStarted: false }),
    });
 
    const { mutate: fullSaveMutate } = useMutation({
@@ -160,13 +162,14 @@ const ExamStartAction = () => {
          request({
             method: 'post',
             url: `user/progress/save/full`,
+            offAlert:true,
             body: {
                id: ProgressData?.data?.id,
                progress: localProgress,
             },
          }),
       onSettled: () => {
-         setTimer({ isDone: true, isStarted: false });
+         setTimer({ isDone: false, isStarted: false });
          mutate();
       },
    });
@@ -223,18 +226,9 @@ const ExamStartAction = () => {
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [timer.isDone]);
 
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const onExamSubmit = () => {
-      let isInValid = false;
-      Object.keys(watch())?.forEach((item) => {
-         if (!watch(item) || watch(item)?.length === 0) {
-            setError(item, { message: 'Хариулт аа оруулна уу', type: 'required' }, { shouldFocus: true });
-            isInValid = true;
-         }
-      });
-
-      if (!isInValid) {
-         fullSaveMutate();
-      }
+      fullSaveMutate();
    };
 
    // console.log(ProgressData, "---------------------->")
@@ -246,7 +240,7 @@ const ExamStartAction = () => {
             <div className="wrapper p-0 h-min sticky top-2 z-40">
                {/* <div className="mb-2 text-muted-text absolute">Үлдсэн хугацаа</div> */}
 
-               {timer.isStarted && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
+               {timer.isStarted && inviteid && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
 
                <div className="p-5">
                   <div className="pb-2 text-muted-text">
@@ -257,17 +251,20 @@ const ExamStartAction = () => {
                   </div>
                </div>
             </div>
-            <div className="mb-14">
+            <form className="mb-14" onSubmit={handleSubmit(onExamSubmit)}>
                <QuestionActionSector
                   sectionData={data?.data?.variants?.[0]?.sections}
                   score_visible={data?.data.score_visible}
                   control={control}
-                  clearErrors={clearErrors}
+                  // clearErrors={clearErrors}
                   ProgressData={ProgressData}
                   setLocalProgress={setLocalProgress}
                />
                <div className="flex justify-end">
-                  <Popover>
+                  <Button type="submit">
+                     Шалгалт дуусгах <VscSend className="mt-0.5" />
+                  </Button>
+                  {/* <Popover>
                      <PopoverTrigger asChild>
                         <Button type="button">
                            Шалгалт дуусгах <VscSend className="mt-0.5" />
@@ -275,16 +272,13 @@ const ExamStartAction = () => {
                      </PopoverTrigger>
                      <PopoverContent align="end" side="top" sideOffset={25}>
                         <div className="mb-8 text-sm font-medium text-text">Та шалгалтыг дуусгахдаа итгэлтэй байна уу?</div>
-                        <Button type="button" variant="outline" className="w-full" onClick={() => onExamSubmit()}>
-                           {' '}
-                           {/*onClick={() => mutate()}*/}
-                           {/* removeCookie('webid', { path: '/', domain: process.env.REACT_APP_AUTH_COOKIE_STORAGE_DOMAIN, sameSite: 'Lax' }) */}
+                        <Button type="submit" variant="outline" className="w-full">
                            <GiFinishLine className="text-base" /> Дуусгах
                         </Button>
                      </PopoverContent>
-                  </Popover>
+                  </Popover> */}
                </div>
-            </div>
+            </form>
          </div>
       </>
    );
@@ -295,7 +289,7 @@ export default ExamStartAction;
 type TQuestionActionProps = {
    sectionData: TExamSection[] | undefined;
    score_visible?: boolean;
-   clearErrors?: UseFormClearErrors<FieldValues>;
+   // clearErrors?: UseFormClearErrors<FieldValues>;
    ProgressData?: FinalRespnse<TStarted> | undefined;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    control: Control<FieldValues, any>;
@@ -306,9 +300,7 @@ type TQuestionActionProps = {
    setLocalProgress?: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
-export const QuestionActionSector = ({ sectionData, score_visible, control, clearErrors, ProgressData, isFromInspector, scoreController, setLocalProgress }: TQuestionActionProps) => {
-
-   console.log(sectionData, "--------------------->sectionData")
+export const QuestionActionSector = ({ sectionData, score_visible, control, ProgressData, isFromInspector, scoreController, setLocalProgress }: TQuestionActionProps) => {
    return sectionData?.map((item, index) => {
       return (
          <div className="mb-10" key={index}>
@@ -356,10 +348,8 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                                                    className="w-46"
                                                    placeholder="Оноо өгөх..."
                                                    variant={fieldState?.error ? `error` : 'default'}
-
-                                                   onFocus={e => e.target.select()}
+                                                   onFocus={(e) => e.target.select()}
                                                    onChange={(event) => field.onChange(event.target.value !== '' ? parseFloat(event.target.value) : undefined)}
-
                                                 />
                                                 <ErrorMessage error={fieldState?.error} />
                                              </div>
@@ -373,11 +363,12 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, clea
                         <Controller
                            control={control}
                            name={element.id}
-                           rules={questionScore > 0 ? { required: true } : { required: false }}
+                           rules={{ required: questionScore > 0 ? `Хариулт аа оруулна уу` : false }}
                            render={({ field, fieldState }) => {
+                              // console.log(questionScore > 0, "---------------------<>questionScore")
                               // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               const parentOnChange = (value: any) => {
-                                 clearErrors?.();
+                                 // clearErrors?.();
                                  field.onChange(value);
                               };
                               // if(element?.sub_questions){  }

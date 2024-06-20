@@ -132,8 +132,6 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
 
-   console.log(data, "------>data?.data")
-
    return (
       <>
          {variantId === '' && <GenerateAction examData={data?.data} isLoading={isLoading} />}
@@ -144,7 +142,8 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          <BreadCrumb pathList={[...breadcrumbs.map((item) => ({ ...item, to: isCompAdmin ? '/' : item.to, isActive: false })), { to: '#', label: data?.data?.name ?? '', isActive: true }]} />
 
          <Header
-            title="Шалгалтын материал"
+            // title="Шалгалтын материал"
+            title={data?.data?.name}
             action={
                <div className="flex gap-4">
                   <Button onClick={() => setInvite({ isOpen: true, type: 'inspector', is_inspector: true })} className="rounded-full" variant="outline" disabled={!isValidInviteUser}>

@@ -161,7 +161,7 @@ const ExamsList = () => {
                         </div>
 
                         {action.data?.id === item.id && (
-                           <Dialog className='w-[660px]' title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
+                           <Dialog className='w-[680px]' title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
                               <div className="pb-8">
                                  <div className="truncate font-medium text-lg">{action?.data?.exam?.name}</div>
                                  <div className="text-xs2 text-muted-text mb-8">
