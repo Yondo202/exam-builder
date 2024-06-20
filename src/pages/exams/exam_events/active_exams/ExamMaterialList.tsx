@@ -5,9 +5,8 @@ import { DataTable, BreadCrumb, Header, Badge } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import Config from '@/pages/exams/actions/Config';
 import { cn, finalRenderDate } from '@/lib/utils';
-import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { TExam } from '@/pages/exams';
-import { LuPencil } from 'react-icons/lu';
 import { StatusLabels } from '@/pages/candidate/ExamsList';
 
 export type TUserInfo = {
@@ -36,11 +35,12 @@ export type TMaterialList = {
    id: string;
    start_date: string;
    attempt_no: number;
+   attempt_score: number;
    end_date: string;
    user_exam: TUserInfo;
    status: keyof typeof SubmissionTypes;
-
-   temp_exam_code:string
+   variant: { name: string };
+   temp_exam_code: string;
 };
 
 export const GetExamDetial = ({ examid }: { examid?: string }) => {
@@ -62,7 +62,8 @@ const ExamMaterialList = () => {
    const { data: examDAta } = GetExamDetial({ examid: examid });
 
    const { data, isLoading } = useQuery({
-      queryKey: ['exam/inspector', examid],
+      queryKey: ['exam/inspector', [examid, isResult]],
+      refetchOnWindowFocus: true,
       queryFn: () =>
          request<FinalRespnse<TMaterialList[]>>({
             method: 'post',
@@ -90,11 +91,10 @@ const ExamMaterialList = () => {
       <div>
          <BreadCrumb
             pathList={[
-               { label: 'Засах шалгалтууд', to: '/handle' },
-               { label: examDAta?.data?.name, isActive: true, to: `/handle/${examDAta?.data?.id}` },
+               isResult ? { label: 'Шалгалтын үр дүн', to: '/handle/examresults' } : { label: 'Засах шалгалтууд', to: '/handle' },
+               { label: examDAta?.data?.name, isActive: true, to: `/handle${isResult ? `/examresults` : ``}/${examDAta?.data?.id}` },
             ]}
          />
-         {/*ene iig daraa nohtsol shalgaj to- giin oorchil*/}
 
          <Header title={examDAta?.data?.name} />
 
@@ -104,8 +104,8 @@ const ExamMaterialList = () => {
             data={data?.data?.filter((item) => (isResult ? item.status !== 'not_graded_yet' : item.status === 'not_graded_yet')) ?? []}
             defaultSortField="active_start_at"
             rowAction={(data) => navigate(data?.data?.id ?? '')}
-            // hideActionButton="delete"
-            hideAction
+            hideActionButton="delete"
+            // hideAction
             columns={columnDef}
             isLoading={isLoading}
          />
@@ -121,7 +121,7 @@ const columnDef: ColumnDef<TMaterialList>[] = [
       accessorKey: 'status',
       cell: ({ row }) => {
          return (
-            <Badge variant="secondary" className={cn('font-normal py-1', row.original?.status !== 'not_graded_yet' ? `bg-green-200/30 text-green-600` : ``)}>
+            <Badge variant="secondary" className={cn('font-normal text-[11px]', row.original?.status !== 'not_graded_yet' ? `bg-green-200/30 text-green-600` : ``)}>
                {SubmissionTypes?.[row.original?.status]}
             </Badge>
          );
@@ -139,18 +139,24 @@ const columnDef: ColumnDef<TMaterialList>[] = [
          );
       },
    },
+
    {
       header: 'Шалгалтын явц',
       accessorKey: 'user_exam',
       cell: ({ row }) => {
          return (
-            <Badge variant="secondary" className="py-1">
+            <Badge variant="secondary" className="text-[11px]">
                {StatusLabels?.[row.original?.user_exam?.status]}
             </Badge>
          );
       },
    },
-
+   {
+      header: 'Хувилбар',
+      accessorKey: 'variant.name',
+      size: 130,
+      // cell: ({ getValue }) => getValue(),
+   },
    // {
    //    header: 'Дахин өгсөн тоо',
    //    accessorKey: 'user_exam.status',
@@ -177,15 +183,26 @@ const columnDef: ColumnDef<TMaterialList>[] = [
       },
    },
    {
-      header: '',
-      accessorKey: 'as_action',
-      size: 130,
-      enableSorting: false,
-      enableHiding: false,
-      cell: ({ row }) => (
-         <Link to={row.original?.id ?? '/'} className="w-full leading-11 h-11 text-xs2 text-primary/90 flex items-center gap-1.5 hover:decoration-primary hover:underline">
-            <LuPencil className="text-sm" /> Материал засах
-         </Link>
-      ),
+      header: 'Авсан оноо',
+      accessorKey: 'attempt_score',
+      cell: ({ row }) => {
+         return (
+            <Badge variant="secondary" className="text-[11px]">
+               {row.original.attempt_score}
+            </Badge>
+         );
+      },
    },
+   // {
+   //    header: '',
+   //    accessorKey: 'as_action',
+   //    size: 130,
+   //    enableSorting: false,
+   //    enableHiding: false,
+   //    cell: ({ row }) => (
+   //       <Link to={row.original?.id ?? '/'} className="w-full leading-11 h-11 text-xs2 text-primary/90 flex items-center gap-1.5 hover:decoration-primary hover:underline">
+   //          <LuPencil className="text-sm" /> Материал засах
+   //       </Link>
+   //    ),
+   // },
 ];

@@ -185,7 +185,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                {data?.data?.variants?.map((item, index) => {
                   return (
                      <TabsContent key={index} value={item.id}>
-                        <Section variant_id={variantId} setValidInvite={setValidInvite} parentData={data?.data} />
+                        <Section scrumble_questions={data?.data?.scrumble_questions} variant_id={variantId} setValidInvite={setValidInvite} parentData={data?.data} />
                      </TabsContent>
                   );
                })}

@@ -13,7 +13,7 @@ const TooltipComponent = ({ children, content, isDisable = false, side }: TToolt
       <TooltipProvider delayDuration={80}>
          <Tooltip>
             <TooltipTrigger className="appearance-none">{children ?? <button>!</button>}</TooltipTrigger>
-            <TooltipContent className="bg-[#000624] text-[#FFF]" side={side ?? 'right'} align="center" sideOffset={10}>
+            <TooltipContent className="bg-[#000624] text-[#FFF] max-w-72 p-4" side={side ?? 'right'} align="center" sideOffset={10}>
                {content}
             </TooltipContent>
          </Tooltip>

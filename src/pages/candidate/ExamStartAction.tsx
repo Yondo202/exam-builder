@@ -231,7 +231,8 @@ const ExamStartAction = () => {
       fullSaveMutate();
    };
 
-   // console.log(ProgressData, "---------------------->")
+   // console.log(InviteDetail, "---------------------->InviteDetail")
+   console.log(data?.data?.scrumble_questions, "---------------------->data")
 
    return (
       <>
@@ -255,6 +256,8 @@ const ExamStartAction = () => {
                <QuestionActionSector
                   sectionData={data?.data?.variants?.[0]?.sections}
                   score_visible={data?.data.score_visible}
+
+                  scrumble_questions={data?.data?.scrumble_questions}
                   control={control}
                   // clearErrors={clearErrors}
                   ProgressData={ProgressData}
@@ -296,19 +299,22 @@ type TQuestionActionProps = {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    scoreController?: Control<FieldValues, any>;
    isFromInspector?: boolean;
+   scrumble_questions?: boolean;
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    setLocalProgress?: React.Dispatch<React.SetStateAction<any[]>>;
 };
 
-export const QuestionActionSector = ({ sectionData, score_visible, control, ProgressData, isFromInspector, scoreController, setLocalProgress }: TQuestionActionProps) => {
+export const QuestionActionSector = ({ sectionData, score_visible, control, ProgressData, isFromInspector, scoreController, setLocalProgress, scrumble_questions }: TQuestionActionProps) => {
    return sectionData?.map((item, index) => {
+
+      const sortedQuestion = !scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions
       return (
          <div className="mb-10" key={index}>
             <div className="wrapper mb-2 p-8 py-4 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
                <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span> {item.name}
             </div>
             <div>
-               {item.questions?.map((element, ind) => {
+               {sortedQuestion.map((element, ind) => {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const subQuestions = ProgressData?.data.progress?.find((el: any) => el.question_id === element.id)?.sub_questions ?? [];
 

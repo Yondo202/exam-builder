@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Drawer, TextInput, Button, Textarea, DeleteContent, Dialog } from '@/components/custom'; //
+import { Drawer, TextInput, Button, Textarea, DeleteContent, Dialog, Sortable, SortableDragHandle, SortableItem, Skeleton, Loading, Tooltip } from '@/components/custom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import { type TAction, type TActionProps, type FinalRespnse, ATypes } from '@/lib/sharedTypes'; // , type FinalRespnse
 import { useForm } from 'react-hook-form';
 import { MdOutlineAdd } from 'react-icons/md';
@@ -8,6 +9,8 @@ import { UseReFetch, request } from '@/lib/core/request';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { type TExamSection, type TExam } from '..'; // type TVariant,
 import { Empty } from '@/assets/svg';
+import { PiDotsSixVerticalBold } from 'react-icons/pi';
+import { CgDanger } from 'react-icons/cg';
 import { type RowSelectionState } from '@tanstack/react-table';
 import ActionButtons from '@/components/ActionButtons';
 import { toast } from 'sonner';
@@ -22,6 +25,7 @@ type TVairantTabs = {
    variant_id: string;
    setValidInvite: React.Dispatch<React.SetStateAction<boolean>>;
    parentData: TExam;
+   scrumble_questions?: boolean;
    //   sections?: TExamSection[];
    //    variantId: string;
    //    setVariantId: (id: string) => void;
@@ -58,12 +62,12 @@ type TActionDelete = {
    data?: { questionId: string; section_id: string };
 };
 
-const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
+const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }: TVairantTabs) => {
+   const { typeid } = useParams();
+   // const [activeSection, setActiveSection] = useState([]);
    const [deleteAction, setDeleteAction] = useState<TActionDelete>({ isOpen: false, data: {} as TActionDelete['data'] });
    const [questionDetail, setQuestionDetail] = useState({ isOpen: false, pathId: '' });
-
    // const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TQuestion });
-
    const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TExamSection });
    const [actionQuestion, setActionQuestion] = useState<TAction<TActionQuestion>>({ isOpen: false, type: 'add', data: {} as TActionQuestion });
 
@@ -77,6 +81,25 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
    });
 
    const { mutate, isPending } = UseDeleteMutate();
+
+   const { mutate: stortMutate, isPending: sortPending } = useMutation({
+      mutationFn: (body: { section_id: string; sort_orders: { question_id: string; sort_number: number }[] }) =>
+         request({
+            method: 'post',
+            url: 'exam/arrange/question',
+            body: {
+               exam_id: typeid,
+               variant_id: variant_id,
+               ...body,
+               // section_id: 'string',
+               // sort_orders: body,
+               // ...body,
+            },
+         }),
+      onSuccess: () => {
+         refetch();
+      },
+   });
 
    useEffect(() => {
       if (isFetchedAfterMount && data?.data) {
@@ -153,37 +176,72 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
                               </div>
                            </div>
 
-                           <AccordionContent className="p-3">
-                              <div className="pb-2 mb-2 text-primary/70 text-xs border-border border-b font-medium">Асуултууд</div>
+                           <AccordionContent className="p-3 relative">
+                              <div className="pb-2 mb-2 flex gap-3 text-primary/70 text-xs border-border border-b font-medium">
+                                 <span>Асуултууд</span>
+
+                                 {scrumble_questions && (
+                                    <Tooltip content="Та санамсаргүй байдлаар холих сонгосон үед: Шалгалт өгч буй хүнд энэхүү байрлалаар харагдахгүй">
+                                       <span className="text-amber-500 flex items-center gap-1.5 font-normal">
+                                          <CgDanger className="text-lg" />
+                                       </span>
+                                    </Tooltip>
+                                 )}
+                              </div>
                               {item.questions.length > 0 ? (
-                                 item.questions.map((element, ind) => {
-                                    return (
-                                       <div
-                                          className="bg-card-bg mb-3 px-6 py-3 rounded-md shadow-sm max-w-full overflow-hidden grid grid-cols-[1fr_auto] gap-3 group/items relative items-center transition-all hover:shadow-lg cursor-pointer"
-                                          key={ind}
-                                       >
-                                          <span className="group-hover/items:opacity-60">
-                                             {element.input_type === 'richtext' || element.input_type === 'essay' ? (
-                                                <article className="prose-sm dark:prose-invert">
-                                                   <span dangerouslySetInnerHTML={{ __html: element.question }} />
-                                                </article>
-                                             ) : (
-                                                element.question
-                                             )}
-                                          </span>
+                                 <Sortable
+                                    // value={fields.map((item) => ({ ...item, id: item._id }))}
+                                    value={item.questions}
+                                    onMove={({ activeIndex, overIndex }) => {
+                                       const fakeSort = item.questions?.map((element, index) => ({
+                                          // ...item,
+                                          question_id: element.id,
+                                          sort_number: index === overIndex ? activeIndex : index === activeIndex ? overIndex : index,
+                                       }));
 
-                                          {/* <Button onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })} size="sm" variant="link" className="text-primary">
-                                             Дэлгэрэнгүй <GoArrowRight />
-                                          </Button> */}
-
-                                          <ActionButtons // ene component oos bolj aldaa ogj baigaa browser deer
-                                             editTrigger={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
-                                             deleteTrigger={() => setDeleteAction({ data: { questionId: element.id, section_id: item.id }, isOpen: true })}
-                                             // className="relative"
-                                          />
+                                       stortMutate({ section_id: item.id, sort_orders: fakeSort });
+                                    }}
+                                    overlay={
+                                       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+                                          <Skeleton className="h-8 w-8 rounded-sm" />
+                                          <Skeleton className="h-11 w-full rounded-sm" />
+                                          {/* <Skeleton className="size-8 shrink-0 rounded-sm" /> */}
+                                          {/* <Skeleton className="size-8 shrink-0 rounded-sm" /> */}
                                        </div>
-                                    );
-                                 })
+                                    }
+                                 >
+                                    <Loading load={sortPending || isRefetching} inside />
+                                    {item.questions.map((element, ind) => {
+                                       return (
+                                          <SortableItem key={element.id} value={element.id} asChild>
+                                             <div className="mb-3 max-w-full grid grid-cols-[auto_1fr] gap-3 items-center" key={ind}>
+                                                <SortableDragHandle variant="ghost" size="icon" className="size-8 shrink-0">
+                                                   <PiDotsSixVerticalBold className="text-lg text-muted-text" aria-hidden="true" />
+                                                </SortableDragHandle>
+
+                                                <div
+                                                   onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
+                                                   className="group-hover/items:opacity-60 bg-card-bg px-6 py-3 rounded-md hover:shadow-lg cursor-pointer overflow-hidden shadow-sm group/items relative transition-all"
+                                                >
+                                                   {element.input_type === 'richtext' || element.input_type === 'essay' ? (
+                                                      <article className="prose-sm dark:prose-invert">
+                                                         <span dangerouslySetInnerHTML={{ __html: element.question }} />
+                                                      </article>
+                                                   ) : (
+                                                      element.question
+                                                   )}
+
+                                                   <ActionButtons // ene component oos bolj aldaa ogj baigaa browser deer
+                                                      editTrigger={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
+                                                      deleteTrigger={() => setDeleteAction({ data: { questionId: element.id, section_id: item.id }, isOpen: true })}
+                                                      // className="relative"
+                                                   />
+                                                </div>
+                                             </div>
+                                          </SortableItem>
+                                       );
+                                    })}
+                                 </Sortable>
                               ) : (
                                  <div className="h-32 flex items-center justify-center flex-col gap-4">
                                     <Empty />
@@ -259,7 +317,6 @@ const Section = ({ variant_id, setValidInvite, parentData }: TVairantTabs) => {
 export default Section;
 
 import { type TQuestion } from '@/pages/questions';
-import { useSearchParams } from 'react-router-dom';
 
 // type TActionAdd<T> = {
 //    isOpen: boolean;

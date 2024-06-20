@@ -355,7 +355,7 @@ export const OpenQuestion = ({ question, field, socket, progressId, isFromInspec
             })
          );
       }
-   };
+   }
 
    const questionScore = question?.sub_questions?.length > 0 ? question.score - question?.sub_questions.reduce((a, b) => a + b.score, 0) : question.score;
 

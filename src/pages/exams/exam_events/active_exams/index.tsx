@@ -4,18 +4,20 @@ import { type FinalRespnse } from '@/lib/sharedTypes';
 import { DataTable, BreadCrumb, Header, Badge } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { finalRenderDate } from '@/lib/utils';
 import { useGetCategories } from '@/pages/category';
 import { TExam } from '@/pages/exams';
 import { SubmissionTypes } from '@/pages/exams/exam_events/active_exams/ExamMaterialList';
 
-const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {   
+const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const isResult = useLocation()?.pathname?.startsWith('/handle/examresults');
    const navigate = useNavigate();
    // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
    const { data: CategoryData } = useGetCategories({ current: 'main_category' });
    const { data, isLoading } = useQuery({
-      queryKey: ['exam/inspector'],
+      queryKey: ['exam/inspector', isResult],
+      refetchOnWindowFocus:true,
       queryFn: () =>
          request<FinalRespnse<TExam[]>>({
             method: 'post',
@@ -40,7 +42,7 @@ const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
    return (
       <div>
-         <BreadCrumb pathList={breadcrumbs} />
+         <BreadCrumb pathList={isResult ? [{ ...breadcrumbs[0], to: `/handle/examresults` }] : breadcrumbs} />
          <Header title={breadcrumbs.find((item) => item.isActive)?.label} />
 
          <DataTable
@@ -53,8 +55,8 @@ const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                   {data?.meta.grading_status?.map((item, index) => {
                      return (
                         <Badge key={index} className="py-1.5 rounded-full flex gap-1" variant="secondary">
-                           <span className='text-muted-text'>{SubmissionTypes?.[item.status]}: </span>
-                           <span className='font-medium'>{item.count}</span>
+                           <span className="text-muted-text">{SubmissionTypes?.[item.status]}: </span>
+                           <span className="font-medium">{item.count}</span>
                         </Badge>
                      );
                   })}

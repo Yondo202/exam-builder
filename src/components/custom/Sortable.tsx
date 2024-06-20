@@ -200,7 +200,7 @@ interface SortableDragHandleProps extends ButtonProps {
 const SortableDragHandle = React.forwardRef<HTMLButtonElement, SortableDragHandleProps>(({ className, ...props }, ref) => {
    const { attributes, listeners } = useSortableItem();
 
-   return <Button ref={composeRefs(ref)} className={cn('cursor-grab', className)} {...attributes} {...listeners} {...props} />;
+   return <Button ref={composeRefs(ref)} className={cn('cursor-grab hover:bg-card-bg hover:shadow-sm', className)} {...attributes} {...listeners} {...props} />;
 });
 SortableDragHandle.displayName = 'SortableDragHandle';
 

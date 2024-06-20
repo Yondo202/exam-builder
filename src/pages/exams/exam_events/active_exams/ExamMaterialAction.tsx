@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Header, BreadCrumb, Button } from '@/components/custom';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { type TExam, type TVariant } from '@/pages/exams';
 import { FinalRespnse } from '@/lib/sharedTypes';
 import { request } from '@/lib/core/request';
@@ -16,7 +16,7 @@ import { useSubQuestion } from '@/lib/hooks/useZustand';
 type TUserInExam = {
    firstname: string;
    lastname: string;
-}
+};
 
 type TUserExam = {
    id: string;
@@ -24,6 +24,9 @@ type TUserExam = {
 };
 
 export const userAnswerToProgress = (item: any) => {
+   if(item?.input_type === 'essay'){
+      return item.user_answers?.[0]?.essay?.essay ?? '';
+   }
    if (item?.type === 'text') {
       return item.user_answers?.[0]?.answer ?? '';
    }
@@ -35,6 +38,7 @@ export const userAnswerToProgress = (item: any) => {
    if (item?.input_type === 'multi_select') {
       return item.user_answers.map((item: any) => item.answer_id) ?? [];
    }
+
    if (item?.type === 'fill') {
       if (item?.input_type === 'fill') {
          return item.user_answers.map((item: any) => ({ answer: item.answer, fill_index: item?.fill_index })) ?? [];
@@ -47,6 +51,7 @@ export const userAnswerToProgress = (item: any) => {
 const ExamMaterialAction = () => {
    const navigate = useNavigate();
    // const [userAnswer, setUserAnswer] = useState([]);
+   const isResult = useLocation()?.pathname?.startsWith('/handle/examresults');
    const sub: any = useSubQuestion();
    const { materialid, examid } = useParams();
    const { control, reset } = useForm();
@@ -75,18 +80,24 @@ const ExamMaterialAction = () => {
 
          const settleValue: any = {};
          const scoreValues: any = {};
-         // totalScore === 0 ? undefined :
          questions?.forEach((item: any) => {
-            const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0) 
-            const finalScore = totalScore - (item?.sub_questions ? item?.sub_questions?.reduce((a: any, b: any) => a + b?.score, 0) : 0)
-            scoreValues[`score-${item.id}`] =  finalScore;
+            const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
+            // daraa soli
+            
+            // const finalScore = totalScore - (item?.sub_questions?.reduce((a: any, b: any) => a + b?.user_answers?.reduce((aa: any, bb: any) => aa + bb?.mark, 0), 0) ?? 0);
+            
+            scoreValues[`score-${item.id}`] = totalScore;
 
             settleValue[item.id] = userAnswerToProgress(item);
          });
 
          scoreReset(scoreValues);
          reset(settleValue);
+
+         return;
       }
+      scoreReset()
+      reset();
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isFetchedAfterMount]);
 
@@ -128,10 +139,17 @@ const ExamMaterialAction = () => {
       <div>
          {/* <h1 onClick={setError}>test</h1> */}
          <BreadCrumb
+            // pathList={[
+            //    { label: 'Засах шалгалтууд', to: '/handle' },
+            //    { label: examDAta?.data?.name, to: `/handle/${examDAta?.data?.id}` },
+            //    { label: 'Материал засах', isActive: true, to: `/handle/${examDAta?.data?.id}/${data?.data?.id}` },
+            // ]}
+
             pathList={[
-               { label: 'Засах шалгалтууд', to: '/handle' },
-               { label: examDAta?.data?.name, to: `/handle/${examDAta?.data?.id}` },
-               { label: 'Материал засах', isActive: true, to: `/handle/${examDAta?.data?.id}/${data?.data?.id}` },
+               isResult ? { label: 'Шалгалтын үр дүн', to: '/handle/examresults' } : { label: 'Засах шалгалтууд', to: '/handle' },
+               { label: examDAta?.data?.name, isActive: true, to: `/handle${isResult ? `/examresults` : ``}/${examDAta?.data?.id}` },
+
+               { label: `Материал ${isResult ? `` : `засах`}`, isActive: true, to: `/handle${isResult ? `/examresults` : ``}/${examDAta?.data?.id}/${data?.data?.id}` },
             ]}
          />
 
@@ -144,6 +162,8 @@ const ExamMaterialAction = () => {
                score_visible={true}
                control={control}
                scoreController={scoreController}
+               scrumble_questions={data?.data?.scrumble_questions}
+               // score_visible={data?.data.score_visible}
                // ProgressData={ProgressData}
             />
 

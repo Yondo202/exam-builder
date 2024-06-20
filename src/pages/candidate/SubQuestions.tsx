@@ -35,8 +35,6 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
    const { control, watch, reset } = useForm();
    const { control: scoreController, watch: scoreWatch, setError, clearErrors, reset: scoreReset } = useForm({ mode: 'all' });
 
-   // console.log(parentQuestion, "---------------->parentQuestion")
-
    useEffect(() => {
       if (isFromInspector) {
          // zowhon shalgagch erhtei hund zorulsan ****
