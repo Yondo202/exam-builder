@@ -12,6 +12,7 @@ import { useEffect } from 'react';
 import { userAnswerToProgress } from '../exams/exam_events/active_exams/ExamMaterialAction';
 import { useSubQuestion } from '@/lib/hooks/useZustand';
 import { useParams } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 type TSubQuestionProps = {
    // questions: PickedQuestionTypes[];
@@ -31,7 +32,7 @@ type TSubQuestionProps = {
 const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQuestionsValue, parentValue, isFromInspector, questionIndex, setLocalProgress }: TSubQuestionProps) => {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const sub: any = useSubQuestion();
-   const { materialid, examid } = useParams()
+   const { materialid, examid } = useParams();
    const { control, watch, reset } = useForm();
    const { control: scoreController, watch: scoreWatch, setError, clearErrors, reset: scoreReset } = useForm({ mode: 'all' });
 
@@ -105,12 +106,17 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
       }
    };
 
+   // const parentScore = parentQuestion
+   const parentScore = parentQuestion?.sub_questions?.length > 0 ? parentQuestion.score - parentQuestion?.sub_questions.reduce((a, b) => a + b.score, 0) : parentQuestion.score;
+
    return (
-      <div className="pt-8 pl-12 max-sm:pl-1">
-         <div className="wrapper mb-2.5 p-8 py-3 text-sm border-b font-medium truncate border-t-[2px] border-t-primary">
-            <span className="text-primary/80 font-semibold mr-3">{questionIndex}</span>
-            Нэмэлт асуултууд
-         </div>
+      <div className={cn('pt-8 pr-4 max-sm:pl-1', parentScore > 0 ? `pl-12` : `pl-4`)}>
+         {parentScore > 0 && (
+            <div className="wrapper mb-2.5 p-8 py-3 text-sm border-b font-medium truncate border-t-[2px] border-t-primary">
+               <span className="text-primary/80 font-semibold mr-3">{questionIndex}</span>
+               Нэмэлт асуултууд
+            </div>
+         )}
          {parentQuestion?.sub_questions?.map((element, ind) => {
             return (
                <div className="wrapper mb-2.5 p-8 py-6 relative" key={ind}>
@@ -119,13 +125,18 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                         {/* <Badge variant="secondary" className="py-1 text-xs gap-2">
                            <span className="font-medium font-base">{questionIndex}</span>
                         </Badge> */}
-                        <span className="text-muted-text font-medium">{questionIndex}</span>
-                        <span className="text-muted-text">
-                           <HiArrowLongRight />
-                        </span>
-                        <Badge variant="secondary" className="py-1 text-[11px] gap-2">
-                           <span className="font-medium font-base">{ind + 1}</span>
-                           <span className="text-muted-text"> - Дэд асуулт</span>
+                        {parentScore > 0 && (
+                           <>
+                              <span className="text-muted-text font-medium">{questionIndex}</span>
+                              <span className="text-muted-text">
+                                 <HiArrowLongRight />
+                              </span>
+                           </>
+                        )}
+
+                        <Badge variant="secondary" className="text-[11px] gap-2">
+                           <span className="font-medium font-base"> {parentScore > 0 ? ind + 1 : `${questionIndex.toString()?.split('.')?.at(0)}. ${ind + 1}`} </span>
+                           {parentScore > 0 && <span className="text-muted-text"> - Дэд асуулт</span>}
                         </Badge>
                      </div>
 
@@ -160,7 +171,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                                           className="w-46"
                                           placeholder="Оноо өгөх..."
                                           variant={fieldState?.error ? `error` : 'default'}
-                                          onFocus={e => e.target.select()}
+                                          onFocus={(e) => e.target.select()}
                                        />
                                        <ErrorMessage error={fieldState?.error} />
                                     </div>

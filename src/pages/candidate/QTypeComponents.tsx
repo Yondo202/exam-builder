@@ -79,7 +79,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
             )}
          </div>
 
-         <div className="grid grid-cols-2 gap-y-4 gap-x-5 max-sm:grid-cols-1">
+         <div className="grid grid-cols-1 gap-y-4 gap-x-5 max-sm:grid-cols-1">
             {question?.answers?.map((item, index) => {
                const isChecked = question.input_type === 'multi_select' ? field.value?.some((element: string) => element === item.id) : field.value === item.id;
                const isDisabled = question.input_type === 'multi_select' && !isChecked && field.value?.length >= 2;
@@ -106,14 +106,14 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
          {isFromInspector && (
             <div className="p-5 pt-3 mt-5 border border-y-primary/40 bg-green-200/20 -mx-8">
                <div className="mb-4 text-secondary">Зөв хариулт</div>
-               <div className="grid grid-cols-2 gap-y-4 gap-x-5 max-sm:grid-cols-1">
+               <div className="grid grid-cols-1 gap-y-4 gap-x-5 max-sm:grid-cols-1">
                   {question?.answers?.map((item, index) => {
                      return (
                         <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
                            <span className="text-muted-text/70 text-base">{index + 1}. </span>
                            <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
                               <Checkbox checked={item.is_correct} disabled={true || isFromInspector} />
-                              <Label htmlFor={item.id} className="mb-0  select-none">
+                              <Label htmlFor={item.id} className="mb-0 select-none">
                                  {/* truncate */}
                                  {item.answer}
                               </Label>

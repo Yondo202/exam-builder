@@ -162,7 +162,7 @@ const ExamStartAction = () => {
          request({
             method: 'post',
             url: `user/progress/save/full`,
-            offAlert:true,
+            offAlert: true,
             body: {
                id: ProgressData?.data?.id,
                progress: localProgress,
@@ -232,7 +232,7 @@ const ExamStartAction = () => {
    };
 
    // console.log(InviteDetail, "---------------------->InviteDetail")
-   console.log(data?.data?.scrumble_questions, "---------------------->data")
+   console.log(data?.data?.scrumble_questions, '---------------------->data');
 
    return (
       <>
@@ -245,10 +245,10 @@ const ExamStartAction = () => {
 
                <div className="p-5">
                   <div className="pb-2 text-muted-text">
-                     Вариант: <span className="text-text">{data?.data?.variants?.[0].name}</span>{' '}
+                     Хувилбар: <span className="text-text">{data?.data?.variants?.[0].name}</span>{' '}
                   </div>
                   <div className="text-muted-text">
-                     Үргэлжилэх хугацаа: <span className="text-text">{data?.data?.duration_min} мин</span>{' '}
+                     Үргэлжлэх хугацаа: <span className="text-text">{data?.data?.duration_min} мин</span>{' '}
                   </div>
                </div>
             </div>
@@ -256,7 +256,6 @@ const ExamStartAction = () => {
                <QuestionActionSector
                   sectionData={data?.data?.variants?.[0]?.sections}
                   score_visible={data?.data.score_visible}
-
                   scrumble_questions={data?.data?.scrumble_questions}
                   control={control}
                   // clearErrors={clearErrors}
@@ -306,13 +305,17 @@ type TQuestionActionProps = {
 
 export const QuestionActionSector = ({ sectionData, score_visible, control, ProgressData, isFromInspector, scoreController, setLocalProgress, scrumble_questions }: TQuestionActionProps) => {
    return sectionData?.map((item, index) => {
-
-      const sortedQuestion = !scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions
+      const sortedQuestion = !scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions;
       return (
          <div className="mb-10" key={index}>
             <div className="wrapper mb-2 p-8 py-4 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
-               <span className="text-primary/80 font-semibold mr-3">{index + 1}.</span> {item.name}
+               <span>
+                  <span className="text-primary/80 font-semibold mr-2">{index + 1}.</span> {item.name}
+               </span>
+
+               {item?.description && <div className="text-muted-text font-normal text-xs mt-1">{item?.description}</div>}
             </div>
+
             <div>
                {sortedQuestion.map((element, ind) => {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -323,16 +326,20 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
                   return (
                      <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind}>
                         <div className="px-8 flex items-center gap-3 justify-between mb-4">
-                           <Badge variant="secondary" className="py-1 text-xs gap-2">
-                              <span className="font-medium font-base">
-                                 {index + 1}.{ind + 1}
-                              </span>
-                              <span className="text-muted-text"> - Асуулт</span>
-                           </Badge>
+                           {questionScore > 0 ? (
+                              <Badge variant="secondary" className="py-1 text-xs gap-2">
+                                 <span className="font-medium font-base">
+                                    {index + 1}.{ind + 1}
+                                 </span>
+                                 <span className="text-muted-text"> - Асуулт</span>
+                              </Badge>
+                           ) : (
+                              <div />
+                           )}
                            {score_visible && questionScore > 0 && (
                               <div className="flex gap-2">
                                  <Badge variant="secondary" className="py-1 text-xs gap-2">
-                                    {isFromInspector && <span className="text-muted-text">Асуутын оноо - </span>}
+                                    {isFromInspector && <span className="text-muted-text">Асуултын оноо - </span>}
                                     <span className="font-medium font-base">{questionScore}</span>
                                     {!isFromInspector && <span className="text-muted-text"> - Оноо</span>}
                                  </Badge>
