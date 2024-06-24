@@ -342,7 +342,7 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
       header: 'Асуулт',
       accessorKey: 'question',
       cell: ({ row }) => {
-         if (row.original.input_type === 'richtext' || row.original.input_type === 'essay') {
+         if (row.original.input_type === 'richtext' || row.original.input_type === 'essay' || row.original.input_type === "select" ) {
             return HtmlToText({ html: row.original.question ?? '' });
          }
          return row.original.question;

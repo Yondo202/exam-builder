@@ -67,7 +67,13 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
 
    return (
       <>
-         <div className="mb-4 text-sm leading-6">{question.question}</div>
+         {question.input_type === 'select' ? (
+            <article className="prose-sm dark:prose-invert mb-4">
+               <span dangerouslySetInnerHTML={{ __html: question.question }} />
+            </article>
+         ) : (
+            <div className="mb-4 text-sm leading-6">{question.question}</div>
+         )}
 
          <div className="pb-4 text-primary flex justify-between items-center">
             <span>{isFromInspector ? `Оролцогчийн хариулт` : `Хариулт`} </span>{' '}
@@ -77,7 +83,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                </Badge>
             )}
          </div>
-
+         {/* border border-border/80  */}
          <div className="grid grid-cols-1 gap-y-4 gap-x-5 max-sm:grid-cols-1">
             {question?.answers?.map((item, index) => {
                const isChecked = question.input_type === 'multi_select' ? field.value?.some((element: string) => element === item.id) : field.value === item.id;
@@ -87,7 +93,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                      {/* <span className="text-muted-text/70 text-sm">{index + 1}.</span> */}
                      <label
                         htmlFor={`${item.id}${question.id}`}
-                        className={cn('flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer', isFromInspector && isChecked ? `border-green-500` : ``)}
+                        className={cn('flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer', isFromInspector && isChecked ? `border-green-500` : ``)}
                      >
                         <Checkbox
                            checked={isChecked}
@@ -117,7 +123,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                            <label
                               htmlFor={item.id}
                               className={cn(
-                                 'flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer',
+                                 'flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer',
                                  isFromInspector && item.is_correct ? `border-green-500` : ``
                               )}
                            >

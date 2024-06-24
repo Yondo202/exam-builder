@@ -1,4 +1,5 @@
-import { TextInput, Textarea, Button, Checkbox, Label, AnimatedTabs, Sortable, SortableDragHandle, SortableItem, Skeleton } from '@/components/custom';
+import { TextInput, Textarea, Button, Checkbox, Label, AnimatedTabs, Sortable, SortableDragHandle, SortableItem, Skeleton, CkEditor } from '@/components/custom';
+import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useFieldArray, Controller } from 'react-hook-form';
 import { IoCloseOutline } from 'react-icons/io5';
 import { MdOutlineAdd } from 'react-icons/md';
@@ -53,18 +54,43 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
                );
             }}
          />
-         <div className="pb-12 grid grid-cols-[1fr_auto] gap-8">
-            <Textarea
-               className="w-full min-h-[100px]"
-               name="question"
-               control={control}
-               label="Асуулт оруулах"
-               placeholder="Асуултаа дэлгэрэнгүй оруулах"
-               rules={{ required: 'Асуулт оруулах' }}
-               idPrefix={idPrefix}
-            />
-            <ScoreInput {...{ watch, control, idPrefix, disabled: watch?.('input_type') === 'multi_select' }} />
-         </div>
+         {watch?.('input_type') === 'multi_select' ? (
+            <div className="pb-12 grid grid-cols-[1fr_auto] gap-8">
+               <Textarea
+                  className="w-full min-h-[100px]"
+                  name="question"
+                  control={control}
+                  label="Асуулт оруулах"
+                  placeholder="Асуултаа дэлгэрэнгүй оруулах"
+                  rules={{ required: 'Асуулт оруулах' }}
+                  idPrefix={idPrefix}
+               />
+               <ScoreInput {...{ watch, control, idPrefix, disabled: watch?.('input_type') === 'multi_select' }} />
+            </div>
+         ) : (
+            <div className='mb-6'>
+               <ScoreInput {...{ watch, control, idPrefix, isPossibleZero: true }} className="flex items-center gap-0 mb-5" isLine />
+               <Controller
+                  control={control}
+                  name="question"
+                  rules={{ required: 'Асуулт оруулах' }}
+                  // label="Асуулт оруулах"
+                  // rules={{ required: false }}
+                  render={({ field, fieldState }) => {
+                     return (
+                        <>
+                           <Label htmlFor={field.name}>
+                              Асуулт оруулах <span className="text-danger-color">*</span>
+                           </Label>
+                           <CkEditor value={field.value} setValue={(val) => field.onChange(val)} />
+                           <ErrorMessage error={fieldState?.error} />
+                        </>
+                     );
+                  }}
+               />
+            </div>
+         )}
+
          {/* <div className={cn('grid grid-cols-[1fr_1fr] gap-x-10 gap-y-6', watch?.()?.input_type === 'multi_select' && 'grid-cols-[1fr]')}> */}
          <Sortable
             value={fields.map((item) => ({ ...item, id: item._id }))}

@@ -117,103 +117,109 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                Нэмэлт асуултууд
             </div>
          )}
-         {parentQuestion?.sub_questions?.sort((a,b)=>a?.sort_number-b?.sort_number)?.map((element, ind) => {
-            return (
-               <div className="wrapper mb-2.5 p-8 py-6 relative" key={ind}>
-                  <div className="flex items-center gap-3 justify-between mb-7">
-                     <div className="flex items-center gap-2">
-
-                        {/* <Badge variant="secondary" className="py-1 text-xs gap-2">
+         {parentQuestion?.sub_questions
+            ?.sort((a, b) => a?.sort_number - b?.sort_number)
+            ?.map((element, ind) => {
+               return (
+                  <div
+                     className="wrapper mb-2.5 p-8 py-6 relative"
+                     key={ind}
+                     id={`subid-${questionIndex.toString()?.split('.')?.at(0)}-${questionIndex.toString()?.split('.')?.at(1)}-${ind + 1}`}
+                  >
+                     {/*id={`subid-${questionIndex}`}*/}
+                     <div className="flex items-center gap-3 justify-between mb-7">
+                        <div className="flex items-center gap-2">
+                           {/* <Badge variant="secondary" className="py-1 text-xs gap-2">
                            <span className="font-medium font-base">{questionIndex}</span>
                         </Badge> */}
-                        
-                        {parentScore > 0 && (
-                           <>
-                              <span className="text-muted-text font-medium">{questionIndex}</span>
-                              <span className="text-muted-text">
-                                 <HiArrowLongRight />
-                              </span>
-                           </>
-                        )}
 
-                        <Badge variant="secondary" className="text-[11px] gap-2">
-                           <span className="font-medium font-base"> {parentScore > 0 ? ind + 1 : `${questionIndex.toString()?.split('.')?.at(0)}. ${ind + 1}`} </span>
-                           {parentScore > 0 && <span className="text-muted-text"> - Дэд асуулт</span>}
-                        </Badge>
-                     </div>
+                           {parentScore > 0 && (
+                              <>
+                                 <span className="text-muted-text font-medium">{questionIndex}</span>
+                                 <span className="text-muted-text">
+                                    <HiArrowLongRight />
+                                 </span>
+                              </>
+                           )}
 
-                     <div className="flex gap-2">
-                        {score_visible && (
-                           <Badge variant="secondary" className="py-1 text-xs gap-2">
-                              <span className="font-medium font-base">{element.score}</span>
-                              <span className="text-muted-text"> - Оноо</span>
+                           <Badge variant="secondary" className="text-[11px] gap-2">
+                              <span className="font-medium font-base"> {parentScore > 0 ? ind + 1 : `${questionIndex.toString()?.split('.')?.at(0)}. ${ind + 1}`} </span>
+                              {parentScore > 0 && <span className="text-muted-text"> - Дэд асуулт</span>}
                            </Badge>
-                        )}
-                        {isFromInspector && (
-                           <Controller
-                              control={scoreController}
-                              name={`score-${element.id}`}
-                              rules={{ required: element.type === 'checkbox' || element.input_type === 'fill_with_choice' ? false : 'Оноо өгнө үү' }}
-                              render={({ field, fieldState }) => {
-                                 const CustomOnchange = (value: any) => {
-                                    clearErrors();
+                        </div>
 
-                                    sub.setSubValue({ [parentQuestion.id]: { ...scoreWatch(), [field.name]: isNaN(parseFloat(value)) ? undefined : parseFloat(value) } });
-                                    field.onChange(value);
-                                 };
-                                 return (
-                                    <div className="relative">
-                                       <Input
-                                          {...field}
-                                          ref={field.ref}
-                                          onChange={(event) => CustomOnchange(event.target.value)}
-                                          type="number"
-                                          disabled={element.type === 'checkbox' || element.input_type === 'fill_with_choice'}
-                                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                          onWheel={(e: any) => e.target.blur()}
-                                          className="w-46"
-                                          placeholder="Оноо өгөх..."
-                                          variant={fieldState?.error ? `error` : 'default'}
-                                          onFocus={(e) => e.target.select()}
-                                       />
-                                       <ErrorMessage error={fieldState?.error} />
-                                    </div>
-                                 );
-                              }}
-                           />
-                        )}
+                        <div className="flex gap-2">
+                           {score_visible && (
+                              <Badge variant="secondary" className="py-1 text-xs gap-2">
+                                 <span className="font-medium font-base">{element.score}</span>
+                                 <span className="text-muted-text"> - Оноо</span>
+                              </Badge>
+                           )}
+                           {isFromInspector && (
+                              <Controller
+                                 control={scoreController}
+                                 name={`score-${element.id}`}
+                                 rules={{ required: element.type === 'checkbox' || element.input_type === 'fill_with_choice' ? false : 'Оноо өгнө үү' }}
+                                 render={({ field, fieldState }) => {
+                                    const CustomOnchange = (value: any) => {
+                                       clearErrors();
+
+                                       sub.setSubValue({ [parentQuestion.id]: { ...scoreWatch(), [field.name]: isNaN(parseFloat(value)) ? undefined : parseFloat(value) } });
+                                       field.onChange(value);
+                                    };
+                                    return (
+                                       <div className="relative">
+                                          <Input
+                                             {...field}
+                                             ref={field.ref}
+                                             onChange={(event) => CustomOnchange(event.target.value)}
+                                             type="number"
+                                             disabled={element.type === 'checkbox' || element.input_type === 'fill_with_choice'}
+                                             // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                             onWheel={(e: any) => e.target.blur()}
+                                             className="w-46"
+                                             placeholder="Оноо өгөх..."
+                                             variant={fieldState?.error ? `error` : 'default'}
+                                             onFocus={(e) => e.target.select()}
+                                          />
+                                          <ErrorMessage error={fieldState?.error} />
+                                       </div>
+                                    );
+                                 }}
+                              />
+                           )}
+                        </div>
                      </div>
+                     <Controller
+                        control={control}
+                        name={element.id}
+                        rules={{ required: false }}
+                        render={({ field }) => {
+                           const subOnchange = (value: any) => {
+                              field.onChange(value);
+                              setLocalProgress?.((prev) => {
+                                 const FinalSubQuestion = Object.keys(watch())
+                                    ?.filter((item) => !!watch(item))
+                                    .map((item) => Convert(item, field.name === item ? value : undefined));
+
+                                 const changedRow = {
+                                    ...GenerateValue(),
+                                    sub_questions: FinalSubQuestion,
+                                 };
+
+                                 if (!isFromInspector) {
+                                    socket?.emit('save_progress', JSON.stringify(changedRow));
+                                 }
+
+                                 return [...prev.filter((item) => item.question_id !== parentQuestion.id), changedRow];
+                              });
+                           };
+                           return questionAsset[element.type]?.component({ question: element, field: { ...field, onChange: subOnchange }, isFromInspector: isFromInspector });
+                        }}
+                     />
                   </div>
-                  <Controller
-                     control={control}
-                     name={element.id}
-                     rules={{ required: false }}
-                     render={({ field }) => {
-                        const subOnchange = (value: any) => {
-                           field.onChange(value);
-                           setLocalProgress?.((prev) => {
-                              const FinalSubQuestion = Object.keys(watch())
-                                 ?.filter((item) => !!watch(item))
-                                 .map((item) => Convert(item, field.name === item ? value : undefined));
-
-                              const changedRow = {
-                                 ...GenerateValue(),
-                                 sub_questions: FinalSubQuestion,
-                              };
-
-                              if (!isFromInspector) {
-                                 socket?.emit('save_progress', JSON.stringify(changedRow));
-                              }
-
-                              return [...prev.filter((item) => item.question_id !== parentQuestion.id), changedRow];
-                           });
-                        };
-                        return questionAsset[element.type]?.component({ question: element, field: { ...field, onChange: subOnchange }, isFromInspector: isFromInspector });
-                     }}
-                  />
-               </div>
-            );
-         })}
+               );
+            })}
       </div>
    );
 };

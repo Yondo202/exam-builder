@@ -262,12 +262,10 @@ const ExamStartAction = () => {
    const progressPer = progressPercentage(data?.data?.variants?.[0]?.sections ?? [], watch, localProgress);
 
    const ProgressList = ({ isFinalValid }: { isFinalValid?: boolean }) => {
-      
       return data?.data?.variants?.[0]?.sections?.map((item, index) => {
          const sortedQuestion = !data?.data?.scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions;
-
          return (
-            <div key={index} >
+            <div key={index}>
                <div className="truncate text-[11px] font-semibold mb-1 sticky top-0 bg-body-bg py-0.5">{item.name}</div>
                <div className="pl-2">
                   {sortedQuestion?.map((el, ind) => {
@@ -278,7 +276,14 @@ const ExamStartAction = () => {
                      return (
                         <div key={ind}>
                            {(watch(`${el.id}`) && watch(`${el.id}`)?.length > 0 && isFinalValid) || questionScore === 0 ? null : (
-                              <div className={cn('grid grid-cols-[20px_1fr] py-1.5 items-center', isDone ? `text-green-600` : `text-muted-text`, isFinalValid ? `text-orange-500` : ``)}>
+                              <div
+                                 onClick={() => (document.querySelector(`#id-${index}-${ind}`)?.scrollIntoView(), setIsOpen(false))}
+                                 className={cn(
+                                    'grid grid-cols-[20px_1fr] py-1.5 items-center cursor-pointer hover:text-primary',
+                                    isDone ? `text-green-600` : `text-muted-text`,
+                                    isFinalValid ? `text-orange-500` : ``
+                                 )}
+                              >
                                  {questionScore > 0 ? (
                                     isDone ? (
                                        <FaCheckCircle className="text-[10px]" />
@@ -290,33 +295,36 @@ const ExamStartAction = () => {
                                  ) : (
                                     <div />
                                  )}{' '}
-                                 <span className="truncate">{el.input_type === 'essay' ? HtmlToText({ html: el.question }) : el.question}</span>
+                                 <span className="truncate">{el.input_type === 'essay' || el.input_type === 'select' ? HtmlToText({ html: el.question }) : el.question}</span>
                               </div>
                            )}
 
                            <div className="pl-4">
-                              {el.sub_questions?.sort((a,b)=>a?.sort_number-b?.sort_number)?.map((subitem, subind) => {
-                                 const foundSub = localProgress
-                                    ?.find((que: { question_id: string }) => que.question_id === el.id)
-                                    ?.sub_questions?.find((itemsub: { question_id: string }) => itemsub.question_id === subitem.id);
-                                 const isDoneSub = (!!foundSub?.answer || !!foundSub?.choice || !!foundSub?.choice || !!foundSub?.choices?.length) ?? 0 > 0;
+                              {el.sub_questions
+                                 ?.sort((a, b) => a?.sort_number - b?.sort_number)
+                                 ?.map((subitem, subind) => {
+                                    const foundSub = localProgress
+                                       ?.find((que: { question_id: string }) => que.question_id === el.id)
+                                       ?.sub_questions?.find((itemsub: { question_id: string }) => itemsub.question_id === subitem.id);
+                                    const isDoneSub = (!!foundSub?.answer || !!foundSub?.choice || !!foundSub?.choice || !!foundSub?.choices?.length) ?? 0 > 0;
 
-                                 if (isDoneSub && isFinalValid) return;
+                                    if (isDoneSub && isFinalValid) return;
 
-                                 return (
-                                    <div
-                                       className={cn(
-                                          'truncate py-1 grid grid-cols-[20px_1fr] items-center',
-                                          isDoneSub ? `text-green-600` : `text-muted-text`,
-                                          isFinalValid ? `text-orange-600` : ``
-                                       )}
-                                       key={subind}
-                                    >
-                                       {foundSub ? <FaCheckCircle className="text-[10px]" /> : isFinalValid ? <IoClose /> : <RiArrowDropRightLine className="text-base" />}{' '}
-                                       {el.input_type === 'essay' ? HtmlToText({ html: subitem.question }) : subitem.question}
-                                    </div>
-                                 );
-                              })}
+                                    return (
+                                       <div
+                                          onClick={() => (document.querySelector(`#subid-${index + 1}-${ind + 1}-${subind + 1}`)?.scrollIntoView(), setIsOpen(false))}
+                                          className={cn(
+                                             'truncate py-1 grid grid-cols-[20px_1fr] items-center cursor-pointer hover:text-primary',
+                                             isDoneSub ? `text-green-600` : `text-muted-text`,
+                                             isFinalValid ? `text-orange-600` : ``
+                                          )}
+                                          key={subind}
+                                       >
+                                          {foundSub ? <FaCheckCircle className="text-[10px]" /> : isFinalValid ? <IoClose /> : <RiArrowDropRightLine className="text-base" />}{' '}
+                                          {el.input_type === 'essay' || el.input_type === 'select' ? HtmlToText({ html: subitem.question }) : subitem.question}
+                                       </div>
+                                    );
+                                 })}
                            </div>
                         </div>
                      );
@@ -331,8 +339,6 @@ const ExamStartAction = () => {
       <>
          <Header className="pt-2.5" title={data?.data?.name} />
          <div className="py-0 grid grid-cols-[minmax(0,1fr)_minmax(0,280px)] gap-32 max-sm:grid-cols-1 max-sm:gap-6">
-            
-
             <form className="mb-14" onSubmit={handleSubmit(onExamSubmit)}>
                <QuestionActionSector
                   sectionData={data?.data?.variants?.[0]?.sections}
@@ -349,7 +355,7 @@ const ExamStartAction = () => {
                   </Button>
                </div>
                <Dialog className="p-8 pt-0" title="Та шалгалтыг дуусгахдаа итгэлтэй байна уу?" isOpen={isOpen} onOpenChange={setIsOpen}>
-                  <div className='pb-14 pt-2'>{ProgressList({ isFinalValid: true })}</div>
+                  <div className="pb-14 pt-2">{ProgressList({ isFinalValid: true })}</div>
 
                   <div className="flex justify-between sticky bottom-0 bg-card-bg">
                      <Button type="button" onClick={() => setIsOpen(false)} variant="outline">
@@ -439,7 +445,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
                   const questionScore = element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score;
 
                   return (
-                     <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind}>
+                     <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind} id={`id-${index}-${ind}`}>
                         <div className="px-8 flex items-center gap-3 justify-between mb-4">
                            {questionScore > 0 ? (
                               <Badge variant="secondary" className="py-1 text-xs gap-2">

@@ -87,6 +87,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
          request({
             method: 'post',
             url: 'exam/arrange/question',
+            offAlert:true,
             body: {
                exam_id: typeid,
                variant_id: variant_id,
@@ -223,8 +224,8 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
                                                    onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
                                                    className="group-hover/items:opacity-60 bg-card-bg px-6 py-3 rounded-md hover:shadow-lg cursor-pointer overflow-hidden shadow-sm group/items relative transition-all"
                                                 >
-                                                   {element.input_type === 'richtext' || element.input_type === 'essay' ? (
-                                                      <article className="prose-sm dark:prose-invert">
+                                                   {element.input_type === 'richtext' || element.input_type === 'essay' || element.input_type === 'select' ? (
+                                                      <article className="prose-sm dark:prose-invert max-h-[20dvh] overflow-y-auto">
                                                          <span dangerouslySetInnerHTML={{ __html: element.question }} />
                                                       </article>
                                                    ) : (
