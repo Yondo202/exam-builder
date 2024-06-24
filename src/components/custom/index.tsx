@@ -14,6 +14,7 @@ export { default as Drawer } from './Drawer';
 export { default as DeleteContent } from './DeleteContent';
 export { Skeleton } from '../ui/skeleton';
 export { Badge } from '../ui/badge';
+export { Progress } from "@/components/ui/progress"
 export { default as Button } from '../ui/button';
 export { default as Label } from '@/components/ui/Label'
 export { default as UsePrompt } from '@/lib/hooks/UsePrompt'

@@ -58,6 +58,7 @@ interface DataTableProps<T> {
    size?: 'sm' | 'md';
 
    // server actions
+   isSelectRow?: boolean;
    manualPagination?: boolean;
    pagination?: TPagination;
    setPagination?: React.Dispatch<React.SetStateAction<TPagination>>;
@@ -80,6 +81,7 @@ export default function DataTable<T extends object>({
    rowAction,
    headAction,
    hideAction,
+   isSelectRow,
    defaultPageSize = defaultSize,
    // defaultSortField,
    size = 'md',
@@ -319,9 +321,17 @@ export default function DataTable<T extends object>({
                <TableBody>
                   {!isLoading && table.getRowModel().rows?.length > 0 ? (
                      table.getRowModel().rows.map((row) => (
-                        <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'} className="hover:bg-muted-bg cursor-pointer group/items">
+                        <TableRow
+                           key={row.id}
+                           data-state={row.getIsSelected() && 'selected'}
+                           onClick={() => (isSelectRow ? row.toggleSelected(!row.getIsSelected()) : null)}
+                           className="hover:bg-muted-bg cursor-pointer group/items"
+                        >
                            {row.getVisibleCells().map((cell) => {
                               const sizeCol = cell.column.getSize();
+
+                              // checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)}
+
                               return (
                                  <TableCell
                                     key={cell.id}

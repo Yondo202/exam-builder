@@ -1,4 +1,4 @@
-import { Badge, Button, Header, ShiftingCountdown } from '@/components/custom';
+import { Badge, Button, Header, ShiftingCountdown, Progress, Dialog } from '@/components/custom';
 import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useParams, useNavigate } from 'react-router-dom';
 import { request } from '@/lib/core/request';
@@ -8,27 +8,22 @@ import { VscSend } from 'react-icons/vsc';
 import { io, type Socket } from 'socket.io-client';
 import { type TExam } from '@/pages/exams';
 import { FinalRespnse } from '@/lib/sharedTypes';
-import { type TQuestion, type AllTypesQuestionTypes } from '@/pages/questions';
+import { type TQuestion, type AllTypesQuestionTypes, TQuestionTypes } from '@/pages/questions';
 import { SelectQuestion, OpenQuestion, FillQuestion } from './QTypeComponents';
 import { TMyExamAsset } from './ExamsList';
+import { IoClose } from 'react-icons/io5';
+import { RiArrowDropRightLine } from 'react-icons/ri';
+import { FaCheckCircle } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { getJwt } from '@/lib/core/request';
 import { Controller, useForm, type Control, type FieldValues } from 'react-hook-form';
 import SubQuestions from './SubQuestions';
 // import { GiFinishLine } from 'react-icons/gi';
-import { cn } from '@/lib/utils';
+import { cn, HtmlToText } from '@/lib/utils';
 import { type TExamSection } from '@/pages/exams';
 import { Input } from '@/components/ui/Input';
 import { queryKeyOfEXam } from './ExamsList';
-
-// const toConnect = () => {
-//    if (getJwt()) {
-//       return;
-//    }
-
-//    return { connected: false, on: () => false };
-// };
 
 const socket = io(import.meta.env.VITE_MAIN_URL, {
    extraHeaders: {
@@ -89,23 +84,54 @@ type TStarted = {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    progress: any;
 };
+// total_score, created_at
+const progressPercentage = (sections: TExamSection[], watch: any, localProgress: any) => {
+   const allValues: TQuestionTypes[] = [];
+   const isDoneValues: TQuestionTypes[] = [];
+   sections?.forEach((item) => {
+      item.questions?.forEach((el) => {
+         const questionScore = el?.sub_questions?.length > 0 ? el.score - el?.sub_questions.reduce((a, b) => a + b.score, 0) : el.score;
+         const isDone = questionScore > 0 && watch(`${el.id}`) && watch(`${el.id}`)?.length > 0;
+
+         if (isDone) {
+            isDoneValues.push(el);
+         }
+         if (questionScore > 0) {
+            allValues.push(el);
+         }
+
+         el.sub_questions?.forEach((subitem) => {
+            const foundSub = localProgress
+               ?.find((que: { question_id: string }) => que.question_id === el.id)
+               ?.sub_questions?.find((itemsub: { question_id: string }) => itemsub.question_id === subitem.id);
+            const isDoneSub = (!!foundSub?.answer || !!foundSub?.choice || !!foundSub?.choice || !!foundSub?.choices?.length) ?? 0 > 0;
+
+            if (isDoneSub) {
+               isDoneValues.push(subitem);
+            }
+
+            allValues.push(subitem);
+         });
+      });
+   });
+
+   // const generateDone = allValues?.filter(item=>{
+   //    item.question
+
+   // })
+
+   // console.log(allValues, '------------->');
+
+   return (isDoneValues?.length / allValues?.length) * 100;
+};
 
 const ExamStartAction = () => {
    // eslint-disable-next-line @typescript-eslint/no-explicit-any
    const [localProgress, setLocalProgress] = useState<any>([]);
+   const [isOpen, setIsOpen] = useState(false);
    const [timer, setTimer] = useState({ isStarted: false, isDone: false });
    // const [socketConnect, setSocketConnect] = useState({ isConnected: false });
-   // console.log(socketConnect, "----->socketConnect")
-   const {
-      control,
-      reset,
-      // watch,
-      // setError,
-      // getFieldState,
-      // clearErrors,
-      handleSubmit,
-      // formState: { errors },
-   } = useForm({ mode: 'onSubmit' });
+   const { control, reset, watch, handleSubmit } = useForm({ mode: 'onSubmit' });
 
    const navigate = useNavigate();
    const { inviteid } = useParams();
@@ -119,7 +145,7 @@ const ExamStartAction = () => {
       refetchOnMount: true,
       refetchOnReconnect: true,
       queryKey: [queryKeyOfEXam.getinvite], //inviteid
-      queryFn: () => request<FinalRespnse<TMyExamAsset>>({ url: `user/exam/my-invites/id/${inviteid}` }),
+      queryFn: () => request<FinalRespnse<TMyExamAsset>>({ url: `user/exam/my-invites/id/${inviteid}`, passToken: true }),
    });
 
    const {
@@ -135,6 +161,7 @@ const ExamStartAction = () => {
             offAlert: true,
             method: 'post',
             url: `user/exam/start/${InviteDetail?.data?.exam_id}`,
+            passToken: true,
          }),
    }); // shalgaltiin yvts
 
@@ -144,11 +171,11 @@ const ExamStartAction = () => {
       // shalgaltiin material
       enabled: isProgressFetched,
       queryKey: [queryKeyOfEXam.getmyexam], //ProgressData?.data?.id
-      queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/progress/${ProgressData?.data?.id}` }), // ProgressData?.data?.id
+      queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/progress/${ProgressData?.data?.id}`, passToken: true }), // ProgressData?.data?.id
    });
 
    const { mutate } = useMutation({
-      mutationFn: () => request({ method: 'post', url: `user/exam/end/${ProgressData?.data.id}` }),
+      mutationFn: () => request({ method: 'post', url: `user/exam/end/${ProgressData?.data.id}`, passToken: true }),
       onSuccess: () => {
          toast.success('Шалгалт амжилттай дууслаа');
          navigate('/');
@@ -163,6 +190,7 @@ const ExamStartAction = () => {
             method: 'post',
             url: `user/progress/save/full`,
             offAlert: true,
+            passToken: true,
             body: {
                id: ProgressData?.data?.id,
                progress: localProgress,
@@ -231,27 +259,80 @@ const ExamStartAction = () => {
       fullSaveMutate();
    };
 
-   // console.log(InviteDetail, "---------------------->InviteDetail")
-   console.log(data?.data?.scrumble_questions, '---------------------->data');
+   const progressPer = progressPercentage(data?.data?.variants?.[0]?.sections ?? [], watch, localProgress);
+
+   const ProgressList = ({ isFinalValid }: { isFinalValid?: boolean }) => {
+      
+      return data?.data?.variants?.[0]?.sections?.map((item, index) => {
+         const sortedQuestion = !data?.data?.scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions;
+
+         return (
+            <div key={index} >
+               <div className="truncate text-[11px] font-semibold mb-1 sticky top-0 bg-body-bg py-0.5">{item.name}</div>
+               <div className="pl-2">
+                  {sortedQuestion?.map((el, ind) => {
+                     const questionScore = el?.sub_questions?.length > 0 ? el.score - el?.sub_questions.reduce((a, b) => a + b.score, 0) : el.score;
+
+                     const isDone = questionScore > 0 && watch(`${el.id}`) && watch(`${el.id}`)?.length > 0;
+
+                     return (
+                        <div key={ind}>
+                           {(watch(`${el.id}`) && watch(`${el.id}`)?.length > 0 && isFinalValid) || questionScore === 0 ? null : (
+                              <div className={cn('grid grid-cols-[20px_1fr] py-1.5 items-center', isDone ? `text-green-600` : `text-muted-text`, isFinalValid ? `text-orange-500` : ``)}>
+                                 {questionScore > 0 ? (
+                                    isDone ? (
+                                       <FaCheckCircle className="text-[10px]" />
+                                    ) : isFinalValid ? (
+                                       <IoClose />
+                                    ) : (
+                                       <RiArrowDropRightLine className="text-base" />
+                                    )
+                                 ) : (
+                                    <div />
+                                 )}{' '}
+                                 <span className="truncate">{el.input_type === 'essay' ? HtmlToText({ html: el.question }) : el.question}</span>
+                              </div>
+                           )}
+
+                           <div className="pl-4">
+                              {el.sub_questions?.sort((a,b)=>a?.sort_number-b?.sort_number)?.map((subitem, subind) => {
+                                 const foundSub = localProgress
+                                    ?.find((que: { question_id: string }) => que.question_id === el.id)
+                                    ?.sub_questions?.find((itemsub: { question_id: string }) => itemsub.question_id === subitem.id);
+                                 const isDoneSub = (!!foundSub?.answer || !!foundSub?.choice || !!foundSub?.choice || !!foundSub?.choices?.length) ?? 0 > 0;
+
+                                 if (isDoneSub && isFinalValid) return;
+
+                                 return (
+                                    <div
+                                       className={cn(
+                                          'truncate py-1 grid grid-cols-[20px_1fr] items-center',
+                                          isDoneSub ? `text-green-600` : `text-muted-text`,
+                                          isFinalValid ? `text-orange-600` : ``
+                                       )}
+                                       key={subind}
+                                    >
+                                       {foundSub ? <FaCheckCircle className="text-[10px]" /> : isFinalValid ? <IoClose /> : <RiArrowDropRightLine className="text-base" />}{' '}
+                                       {el.input_type === 'essay' ? HtmlToText({ html: subitem.question }) : subitem.question}
+                                    </div>
+                                 );
+                              })}
+                           </div>
+                        </div>
+                     );
+                  })}
+               </div>
+            </div>
+         );
+      });
+   };
 
    return (
       <>
-         <Header className="pt-5" title={data?.data?.name} />
-         <div className="py-0 grid grid-cols-[minmax(0,270px)_minmax(0,1fr)] gap-6 max-sm:grid-cols-1">
-            <div className="wrapper p-0 h-min sticky top-2 z-40">
-               {/* <div className="mb-2 text-muted-text absolute">Үлдсэн хугацаа</div> */}
+         <Header className="pt-2.5" title={data?.data?.name} />
+         <div className="py-0 grid grid-cols-[minmax(0,1fr)_minmax(0,280px)] gap-32 max-sm:grid-cols-1 max-sm:gap-6">
+            
 
-               {timer.isStarted && inviteid && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
-
-               <div className="p-5">
-                  <div className="pb-2 text-muted-text">
-                     Хувилбар: <span className="text-text">{data?.data?.variants?.[0].name}</span>{' '}
-                  </div>
-                  <div className="text-muted-text">
-                     Үргэлжлэх хугацаа: <span className="text-text">{data?.data?.duration_min} мин</span>{' '}
-                  </div>
-               </div>
-            </div>
             <form className="mb-14" onSubmit={handleSubmit(onExamSubmit)}>
                <QuestionActionSector
                   sectionData={data?.data?.variants?.[0]?.sections}
@@ -263,24 +344,47 @@ const ExamStartAction = () => {
                   setLocalProgress={setLocalProgress}
                />
                <div className="flex justify-end">
-                  <Button type="submit">
+                  <Button type="button" onClick={() => setIsOpen(true)}>
                      Шалгалт дуусгах <VscSend className="mt-0.5" />
                   </Button>
-                  {/* <Popover>
-                     <PopoverTrigger asChild>
-                        <Button type="button">
-                           Шалгалт дуусгах <VscSend className="mt-0.5" />
-                        </Button>
-                     </PopoverTrigger>
-                     <PopoverContent align="end" side="top" sideOffset={25}>
-                        <div className="mb-8 text-sm font-medium text-text">Та шалгалтыг дуусгахдаа итгэлтэй байна уу?</div>
-                        <Button type="submit" variant="outline" className="w-full">
-                           <GiFinishLine className="text-base" /> Дуусгах
-                        </Button>
-                     </PopoverContent>
-                  </Popover> */}
                </div>
+               <Dialog className="p-8 pt-0" title="Та шалгалтыг дуусгахдаа итгэлтэй байна уу?" isOpen={isOpen} onOpenChange={setIsOpen}>
+                  <div className='pb-14 pt-2'>{ProgressList({ isFinalValid: true })}</div>
+
+                  <div className="flex justify-between sticky bottom-0 bg-card-bg">
+                     <Button type="button" onClick={() => setIsOpen(false)} variant="outline">
+                        Дахин шалгах
+                     </Button>
+                     <Button type="button" onClick={() => fullSaveMutate()}>
+                        Шалгалт дуусгах <VscSend className="mt-0.5" />
+                     </Button>
+                  </div>
+               </Dialog>
             </form>
+
+            <div className="sticky top-2 z-40 h-min">
+               <div className="wrapper p-0 mb-0">
+                  {/* <div className="mb-2 text-muted-text absolute">Үлдсэн хугацаа</div> */}
+
+                  {timer.isStarted && inviteid && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
+
+                  <div className="p-4">
+                     <div className="pb-2 text-muted-text">
+                        Хувилбар: <span className="text-text">{data?.data?.variants?.[0].name}</span>{' '}
+                     </div>
+                     <div className="text-muted-text">
+                        Үргэлжлэх хугацаа: <span className="text-text">{data?.data?.duration_min} мин</span>{' '}
+                     </div>
+                  </div>
+               </div>
+
+               <div className="text-xs">
+                  <div className="p-3 flex gap-3 items-center">
+                     {progressPer === 100 && <FaCheckCircle className="text-green-600 text-base" />} <Progress value={progressPer ?? 0} />
+                  </div>
+                  <div className="overflow-y-auto max-h-[70dvh] p-4 pt-0">{ProgressList({})}</div>
+               </div>
+            </div>
          </div>
       </>
    );
@@ -308,13 +412,24 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
       const sortedQuestion = !scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions;
       return (
          <div className="mb-10" key={index}>
-            <div className="wrapper mb-2 p-8 py-4 text-sm border-b font-medium truncate border-t-[3px] border-t-primary">
+            <div
+               className={cn(
+                  'wrapper p-6 py-3 text-sm border-b font-medium truncate border-t-[3px] rounded-b-sm border-t-primary sticky top-0 h-min z-[10]',
+                  `z-[calc(10 + ${index})]`,
+                  !item?.description ? `mb-2 rounded-b-md` : `mb-0`
+               )}
+            >
                <span>
-                  <span className="text-primary/80 font-semibold mr-2">{index + 1}.</span> {item.name}
+                  <span className="text-primary/80 font-semibold mr-2">{index + 1}.</span>{' '}
+                  <span className={cn(item?.color ? `text-[${item.color?.replaceAll(`"`, '')}]` : ``)}>{item.name}</span>
                </span>
-
-               {item?.description && <div className="text-muted-text font-normal text-xs mt-1">{item?.description}</div>}
             </div>
+
+            {item?.description && (
+               <div className="wrapper p-7 py-3 mb-2 rounded-t-[0px]">
+                  <div className="text-muted-text font-normal text-xs mt-1">{item?.description}</div>
+               </div>
+            )}
 
             <div>
                {sortedQuestion.map((element, ind) => {
@@ -347,13 +462,14 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
                                     <Controller
                                        control={scoreController}
                                        name={`score-${element.id}`}
-                                       rules={{ required: 'Оноо өгнө үү' }}
+                                       rules={{ required: element.type === 'checkbox' || element.input_type === 'fill_with_choice' ? false : 'Оноо өгнө үү' }}
                                        render={({ field, fieldState }) => {
                                           return (
                                              <div className="relative">
                                                 <Input
                                                    {...field}
                                                    ref={field.ref}
+                                                   disabled={element.type === 'checkbox' || element.input_type === 'fill_with_choice'}
                                                    type="number"
                                                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                    onWheel={(e: any) => e.target.blur()}
@@ -376,15 +492,14 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
                         <Controller
                            control={control}
                            name={element.id}
-                           rules={{ required: questionScore > 0 ? `Хариулт аа оруулна уу` : false }}
+                           // rules={{ required: questionScore > 0 ? `Хариулт аа оруулна уу` : false }}
+                           rules={{ required: false }}
                            render={({ field, fieldState }) => {
-                              // console.log(questionScore > 0, "---------------------<>questionScore")
                               // eslint-disable-next-line @typescript-eslint/no-explicit-any
                               const parentOnChange = (value: any) => {
                                  // clearErrors?.();
                                  field.onChange(value);
                               };
-                              // if(element?.sub_questions){  }
                               return (
                                  <>
                                     <button

@@ -64,6 +64,7 @@ type TQuestionProps = {
    fromAction?: (row: RowSelectionState, refetch?: TRefetchQuestion) => React.ReactNode;
    prevData?: AllTypesQuestionTypes[];
    parentData?: TExam;
+   // variant_id?: string;
 };
 
 const Questions = ({ breadcrumbs, fromAction, prevData, parentData }: TQuestionProps) => {
@@ -155,6 +156,7 @@ const Questions = ({ breadcrumbs, fromAction, prevData, parentData }: TQuestionP
    //       }),
    // });
 
+   // ${variant_id ? `?variant_id=${variant_id}`:``}
    const userQueries = useQueries({
       queries: Object.keys(rowSelection).map((user) => {
          return {
@@ -246,6 +248,7 @@ const Questions = ({ breadcrumbs, fromAction, prevData, parentData }: TQuestionP
                   pagination={pagination}
                   setPagination={setPagination}
                   search={search}
+                  isSelectRow={!!fromAction}
                   setSearch={setSearch}
                   data={fromAction ? data?.data?.filter((item) => !Object.keys(rowSelection)?.includes(item.id)) ?? [] : data?.data ?? []}
                   columns={fromAction ? [columnDef[0], columnDef[1]] : columnDef}
@@ -283,6 +286,7 @@ const Questions = ({ breadcrumbs, fromAction, prevData, parentData }: TQuestionP
                      hideAction={!!fromAction} // eniig sain oilgosongui yah gej hiisnee
                      size="sm"
                      defaultPageSize={1000}
+                     isSelectRow={!!fromAction}
                      hideColumnVisibleAction
                      hidePagination
                   />

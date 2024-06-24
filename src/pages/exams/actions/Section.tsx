@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Drawer, TextInput, Button, Textarea, DeleteContent, Dialog, Sortable, SortableDragHandle, SortableItem, Skeleton, Loading, Tooltip } from '@/components/custom';
 import { useSearchParams, useParams } from 'react-router-dom';
 import { type TAction, type TActionProps, type FinalRespnse, ATypes } from '@/lib/sharedTypes'; // , type FinalRespnse
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { UseReFetch, request } from '@/lib/core/request';
@@ -181,7 +181,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
                                  <span>Асуултууд</span>
 
                                  {scrumble_questions && (
-                                    <Tooltip content="Та санамсаргүй байдлаар холих сонгосон үед: Шалгалт өгч буй хүнд энэхүү байрлалаар харагдахгүй">
+                                    <Tooltip content="Та санамсаргүй байдлаар холих сонгосон үед: Шалгалт өгч буй хүнд үндсэн асуулт энэхүү байрлалаар харагдахгүй">
                                        <span className="text-amber-500 flex items-center gap-1.5 font-normal">
                                           <CgDanger className="text-lg" />
                                        </span>
@@ -317,6 +317,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
 export default Section;
 
 import { type TQuestion } from '@/pages/questions';
+import { Label } from '@radix-ui/react-label';
 
 // type TActionAdd<T> = {
 //    isOpen: boolean;
@@ -396,6 +397,7 @@ const SelectRowAction = ({ action, setClose, variant_id, parentData }: { variant
       <Questions
          breadcrumbs={[]}
          parentData={parentData}
+         // variant_id={variant_id}
          fromAction={(row, refetch) => {
             return (
                <div className="sticky z-20 top-0 left-0 bg-card-bg flex justify-between items-center mb-3 py-2">
@@ -454,7 +456,7 @@ export const SectionAction = ({ setClose, action, variant_id, sectionList }: TSe
       handleSubmit,
       formState: { isDirty },
       reset,
-   } = useForm<TExamSection>({ defaultValues: { name: '', description: '' } });
+   } = useForm<TExamSection>({ defaultValues: { name: '', description: '', color: '' } });
 
    useEffect(() => {
       if (action.type !== 'add') {
@@ -507,8 +509,26 @@ export const SectionAction = ({ setClose, action, variant_id, sectionList }: TSe
             placeholder={`Дэд бүлэгийн тайлбар`}
             label={`Дэд бүлэгийн тайлбар оруулах`}
             name="description"
+            className='mb-2'
             control={control}
             rules={{ required: false }}
+         />
+
+         <Controller
+            control={control}
+            name="color"
+            rules={{ required: false }}
+            render={({ field }) => {
+               return (
+                  <>
+                     <Label>Өнгө сонгох</Label>
+                     <div className="flex items-center gap-3">
+                        <input className=' h-8 w-8' value={field.value} onChange={(e) => field.onChange(e.target.value)} type="color" />
+                        <div>{field.value}</div>
+                     </div>
+                  </>
+               );
+            }}
          />
 
          <div className="flex justify-end w-full pt-10">

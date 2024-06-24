@@ -129,21 +129,40 @@ const columnDef: ColumnDef<TExam>[] = [
          );
       },
    },
+
    {
-      header: 'Код',
-      accessorKey: 'code',
-      enableSorting: false,
+      header: 'Тэнцэх оноо',
+      accessorKey: 'pass_score',
       size: 120,
+      enableSorting: false,
       cell: ({ row }) => {
          return (
             row.original.code && (
-               <Badge variant="secondary" className="w-fit text-[10px] font-medium text-primary/90">
-                  {row.original.code}
-               </Badge>
+               <>
+               {/* className={cn('rounded-full gap-1.5 transition-all text-primary/70', isSelected ? `border-green-300 text-green-600` : ``)} */}
+                  <Badge variant="secondary" className="w-fit text-[10px] font-semibold bg-green-100/50 border-green-300 text-green-600 px-1.5 py-0.5">
+                     {row.original.pass_score}
+                  </Badge>
+               </>
             )
          );
       },
    },
+   // {
+   //    header: 'Код',
+   //    accessorKey: 'code',
+   //    enableSorting: false,
+   //    size: 120,
+   //    cell: ({ row }) => {
+   //       return (
+   //          row.original.code && (
+   //             <Badge variant="secondary" className="w-fit text-[10px] font-medium text-primary/90">
+   //                {row.original.code}
+   //             </Badge>
+   //          )
+   //       );
+   //    },
+   // },
 
    // {
    //    header: '',

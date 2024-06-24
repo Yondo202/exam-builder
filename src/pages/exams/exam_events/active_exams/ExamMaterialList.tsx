@@ -15,7 +15,6 @@ export type TUserInfo = {
    id: '47c7e229-830c-497b-aee2-87c844d3df98';
    status: keyof typeof StatusLabels;
    user: { firstname: string; lastname: string };
-
    exam: {
       code: string;
       description: string;
@@ -35,6 +34,7 @@ export type TMaterialList = {
    id: string;
    start_date: string;
    attempt_no: number;
+   passed: boolean;
    attempt_score: number;
    end_date: string;
    user_exam: TUserInfo;
@@ -105,8 +105,41 @@ const ExamMaterialList = () => {
             defaultSortField="active_start_at"
             rowAction={(data) => navigate(data?.data?.id ?? '')}
             hideActionButton="delete"
+            // headAction={
+            //    <div>
+            //          asdf
+            //       {/* {data?.data?.pass_score}
+            //       {data?.data?.status}
+            //       {data?.data?.take_per_user} */}
+            //    </div>
+            // }
             // hideAction
-            columns={columnDef}
+            columns={[
+               ...columnDef,
+               isResult
+                  ? {
+                       header: 'Төлөв',
+                       accessorKey: 'passed',
+                       cell: ({ row }) => {
+                          return (
+                             <Badge variant="secondary" className={cn('text-[10px]', row.original.passed ? `bg-green-400/10 text-green-600 border-green-300` : ``)}>
+                                {row.original.passed ? `Тэнцсэн` : ` Тэнцээгүй`}
+                             </Badge>
+                          );
+                       },
+                    }
+                  : {
+                       header: 'Оролдлого',
+                       accessorKey: 'attempt_no',
+                       cell: ({ row }) => {
+                          return (
+                             <div className="text-[11px] text-muted-text">
+                                № <span className="font-semibold text-primary text-sm">{row.original.attempt_no}</span>
+                             </div>
+                          );
+                       },
+                    },
+            ]}
             isLoading={isLoading}
          />
       </div>
@@ -116,17 +149,17 @@ const ExamMaterialList = () => {
 export default ExamMaterialList;
 
 const columnDef: ColumnDef<TMaterialList>[] = [
-   {
-      header: 'Төлөв',
-      accessorKey: 'status',
-      cell: ({ row }) => {
-         return (
-            <Badge variant="secondary" className={cn('font-normal text-[11px]', row.original?.status !== 'not_graded_yet' ? `bg-green-200/30 text-green-600` : ``)}>
-               {SubmissionTypes?.[row.original?.status]}
-            </Badge>
-         );
-      },
-   },
+   // {
+   //    header: 'Төлөв',
+   //    accessorKey: 'status',
+   //    cell: ({ row }) => {
+   //       return (
+   //          <Badge variant="secondary" className={cn('font-normal text-[11px]', row.original?.status !== 'not_graded_yet' ? `bg-green-200/30 text-green-600` : ``)}>
+   //             {SubmissionTypes?.[row.original?.status]}
+   //          </Badge>
+   //       );
+   //    },
+   // },
    {
       header: 'Оролцогч',
       accessorKey: 'user_exam.user.firstname',
@@ -139,7 +172,6 @@ const columnDef: ColumnDef<TMaterialList>[] = [
          );
       },
    },
-
    {
       header: 'Шалгалтын явц',
       accessorKey: 'user_exam',
@@ -169,14 +201,14 @@ const columnDef: ColumnDef<TMaterialList>[] = [
    //    },
    // },
    {
-      header: 'Шалгалт эхлүүлсэн',
+      header: 'Эхлүүлсэн',
       accessorKey: 'start_date',
       cell: ({ row }) => {
          return finalRenderDate(row.original?.start_date);
       },
    },
    {
-      header: 'Шалгалт дуусгасан',
+      header: 'Дуусгасан',
       accessorKey: 'end_date',
       cell: ({ row }) => {
          return finalRenderDate(row.original?.end_date);

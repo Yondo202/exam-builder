@@ -14,6 +14,7 @@ export type TRequest<T> = {
    queryParams?: unknown;
    offAlert?: boolean;
    isPublic?: boolean;
+   passToken?: boolean;
 };
 
 // type ResponseType<T> = {
@@ -27,21 +28,23 @@ export const getJwt = () => {
       ?.split('=')[1];
 };
 
-export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic }: TRequest<T>) => {
+export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic, passToken }: TRequest<T>) => {
    if (!isPublic && method === "get") {
-      if (!getJwt()) {
+      if (!getJwt() && !passToken) {
          SignOut();
       }
       try {
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
          const resdata: any = await axios<T>({ url: `${import.meta.env.VITE_MAIN_URL}auth/verify?token=${getJwt()}`, method: 'get' }); //daraa typescript iin zas
-         if (!resdata?.data?.data?.is_valid) {
+         if (!resdata?.data?.data?.is_valid && !passToken) {
             SignOut();
          }
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
          toast.error(error?.response?.data?.message);
-         SignOut();
+         if(!passToken){
+            SignOut();
+         }
       }
    }
 

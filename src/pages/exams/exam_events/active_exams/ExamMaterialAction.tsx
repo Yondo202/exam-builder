@@ -167,14 +167,14 @@ const ExamMaterialAction = () => {
                // ProgressData={ProgressData}
             />
 
-            <div className="flex items-center justify-end gap-3 mb-4">
+            {!isResult && <div className="flex items-center justify-end gap-3 mb-4">
                {/* <Button size="lg" variant="outline" className="rounded-full" type="button">
                   Түр хадгалах
                </Button> */}
                <Button isLoading={isPending} size="lg" className="rounded-full" type="submit">
                   <MdCheck className="text-lg" /> Засаж дуусгах
                </Button>
-            </div>
+            </div>}
          </form>
       </div>
    );

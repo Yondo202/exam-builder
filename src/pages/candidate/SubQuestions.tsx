@@ -117,14 +117,16 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                Нэмэлт асуултууд
             </div>
          )}
-         {parentQuestion?.sub_questions?.map((element, ind) => {
+         {parentQuestion?.sub_questions?.sort((a,b)=>a?.sort_number-b?.sort_number)?.map((element, ind) => {
             return (
                <div className="wrapper mb-2.5 p-8 py-6 relative" key={ind}>
                   <div className="flex items-center gap-3 justify-between mb-7">
                      <div className="flex items-center gap-2">
+
                         {/* <Badge variant="secondary" className="py-1 text-xs gap-2">
                            <span className="font-medium font-base">{questionIndex}</span>
                         </Badge> */}
+                        
                         {parentScore > 0 && (
                            <>
                               <span className="text-muted-text font-medium">{questionIndex}</span>
@@ -151,7 +153,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                            <Controller
                               control={scoreController}
                               name={`score-${element.id}`}
-                              rules={{ required: 'Оноо өгнө үү' }}
+                              rules={{ required: element.type === 'checkbox' || element.input_type === 'fill_with_choice' ? false : 'Оноо өгнө үү' }}
                               render={({ field, fieldState }) => {
                                  const CustomOnchange = (value: any) => {
                                     clearErrors();
@@ -166,6 +168,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                                           ref={field.ref}
                                           onChange={(event) => CustomOnchange(event.target.value)}
                                           type="number"
+                                          disabled={element.type === 'checkbox' || element.input_type === 'fill_with_choice'}
                                           // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                           onWheel={(e: any) => e.target.blur()}
                                           className="w-46"
@@ -184,7 +187,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                   <Controller
                      control={control}
                      name={element.id}
-                     rules={{ required: true }}
+                     rules={{ required: false }}
                      render={({ field }) => {
                         const subOnchange = (value: any) => {
                            field.onChange(value);

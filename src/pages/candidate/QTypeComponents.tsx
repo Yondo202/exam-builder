@@ -1,8 +1,7 @@
 import { TQuestionProps } from './ExamStartAction';
 import { Checkbox, Label, CkEditor, Badge } from '@/components/custom';
-
+import './Style.css'; // Ensure this path is correct
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
-
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/textarea';
 import { useEffect, useState } from 'react';
@@ -70,8 +69,8 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
       <>
          <div className="mb-4 text-sm leading-6">{question.question}</div>
 
-         <div className="pb-4 text-primary/70 flex justify-between items-center">
-            <span>Хариулт</span>{' '}
+         <div className="pb-4 text-primary flex justify-between items-center">
+            <span>{isFromInspector ? `Оролцогчийн хариулт` : `Хариулт`} </span>{' '}
             {question.input_type === 'multi_select' && (
                <Badge variant="secondary" className="opacity-70 text-green-600">
                   Дээд тал нь 2 хариулт сонгох боломжтой
@@ -85,15 +84,19 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                const isDisabled = question.input_type === 'multi_select' && !isChecked && field.value?.length >= 2;
                return (
                   <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
-                     <span className="text-muted-text/70 text-base">{index + 1}.</span>
-                     <label htmlFor={`${item.id}${question.id}`} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
+                     {/* <span className="text-muted-text/70 text-sm">{index + 1}.</span> */}
+                     <label
+                        htmlFor={`${item.id}${question.id}`}
+                        className={cn('flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer', isFromInspector && isChecked ? `border-green-500` : ``)}
+                     >
                         <Checkbox
                            checked={isChecked}
                            disabled={isDisabled || isFromInspector}
                            onCheckedChange={(event: boolean) => onChangeFunc(event, item)}
                            id={`${item.id}${question.id}`}
+                           className="disabled:opacity-90"
                         />
-                        <Label htmlFor={`${item.id}${question.id}`} className="mb-0 select-none">
+                        <Label htmlFor={`${item.id}${question.id}`} className="mb-0 select-none text-text">
                            {/* truncate */}
                            {item.answer}
                         </Label>
@@ -104,16 +107,22 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
          </div>
 
          {isFromInspector && (
-            <div className="p-5 pt-3 mt-5 border border-y-primary/40 bg-green-200/20 -mx-8">
+            <div className="p-5 px-8 pt-3 mt-5 border border-y-primary/20 bg-primary/5 -mx-8">
                <div className="mb-4 text-secondary">Зөв хариулт</div>
                <div className="grid grid-cols-1 gap-y-4 gap-x-5 max-sm:grid-cols-1">
                   {question?.answers?.map((item, index) => {
                      return (
                         <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
-                           <span className="text-muted-text/70 text-base">{index + 1}. </span>
-                           <label htmlFor={item.id} className="flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer">
-                              <Checkbox checked={item.is_correct} disabled={true || isFromInspector} />
-                              <Label htmlFor={item.id} className="mb-0 select-none">
+                           {/* <span className="text-muted-text/70 text-sm">{index + 1}. </span> */}
+                           <label
+                              htmlFor={item.id}
+                              className={cn(
+                                 'flex items-center gap-3 border border-border/80 px-3 py-2 rounded-md cursor-pointer',
+                                 isFromInspector && item.is_correct ? `border-green-500` : ``
+                              )}
+                           >
+                              <Checkbox checked={item.is_correct} disabled={true || isFromInspector} className="disabled:opacity-90" />
+                              <Label htmlFor={item.id} className="mb-0 select-none text-text">
                                  {/* truncate */}
                                  {item.answer}
                               </Label>
@@ -355,7 +364,7 @@ export const OpenQuestion = ({ question, field, socket, progressId, isFromInspec
             })
          );
       }
-   }
+   };
 
    const questionScore = question?.sub_questions?.length > 0 ? question.score - question?.sub_questions.reduce((a, b) => a + b.score, 0) : question.score;
 

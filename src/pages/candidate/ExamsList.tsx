@@ -161,11 +161,11 @@ const ExamsList = () => {
                         </div>
 
                         {action.data?.id === item.id && (
-                           <Dialog className='w-[680px]' title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
+                           <Dialog className='w-[700px]' title="Шалгалт эхлүүлэх" isOpen={action.isOpen} onOpenChange={(e) => setAction((prev) => ({ ...prev, isOpen: e }))}>
                               <div className="pb-8">
                                  <div className="truncate font-medium text-lg">{action?.data?.exam?.name}</div>
                                  <div className="text-xs2 text-muted-text mb-8">
-                                    <article className="prose-sm dark:prose-invert">
+                                    <article className="max-w-full flex justify-center prose-sm dark:prose-invert">
                                        <span dangerouslySetInnerHTML={{ __html: action.data?.exam?.description }} />
                                     </article>
                                     {/* {action.data?.exam?.description} */}

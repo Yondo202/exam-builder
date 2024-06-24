@@ -1,0 +1,21 @@
+/* styles.css */
+.prose-sm table {
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px solid #d1d5db; /* gray-300 */
+  }
+  
+  .prose-sm th, .prose-sm td {
+    border: 1px solid #d1d5db; /* gray-300 */
+    padding: 0.5rem;
+    text-align: left;
+  }
+  
+  .prose-sm thead th {
+    border-bottom: 2px solid #d1d5db; /* gray-300 */
+    background-color: #f3f4f6; /* gray-100 */
+  }
+  
+  .prose-sm tbody tr:nth-child(odd) {
+    background-color: #f9fafb; /* gray-50 */
+  }

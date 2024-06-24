@@ -67,17 +67,17 @@ const ShiftingCountdown = ({ endAt, FinalFinish, timer }: TShiftCountProps) => {
    }, [startCountDown]);
 
    return (
-      <div className="p-0.5 bg-primary/60 rounded-lg">
-         <div className="w-full h-20 mx-auto flex items-center bg-card-bg rounded-lg overflow-hidden">
+      <div className={cn("p-0.5 bg-primary/60 rounded-lg")}>
+         <div className="w-full h-14 mx-auto flex items-center bg-card-bg rounded-lg overflow-hidden">
             <CountdownItem num={remaining.hours} text="Цаг" />
             <CountdownItem num={remaining.minutes} text="Минут" />
-            <CountdownItem num={remaining.seconds} text="Секунд" />
+            <CountdownItem num={remaining.seconds} text="Секунд" isAlert={remaining.hours === 0 && remaining.minutes === 0} />
          </div>
       </div>
    );
 };
 
-const CountdownItem = ({ num, text }: { num: number; text: string }) => {
+const CountdownItem = ({ num, text, isAlert }: { num: number; text: string; isAlert?: boolean }) => {
    return (
       <div className=" w-1/3 h-auto flex flex-col gap-0.5 items-center justify-center border-r-[1px] last:border-none border-1">
          <div className="w-full text-center relative overflow-hidden">
@@ -88,7 +88,7 @@ const CountdownItem = ({ num, text }: { num: number; text: string }) => {
                   animate={{ y: '0%' }}
                   exit={{ y: '-100%' }}
                   transition={{ ease: 'backIn', duration: 0.65 }}
-                  className={cn('block text-lg text-primary font-semibold overflow-hidden', num === 0 ? `text-muted-text` : ``)}
+                  className={cn('block text-base text-primary font-semibold overflow-hidden', num === 0 ? `text-muted-text` : ``, isAlert ? `text-orange-500` : ``)}
                >
                   {num}
                </motion.span>

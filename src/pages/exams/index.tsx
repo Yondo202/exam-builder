@@ -17,6 +17,7 @@ export type TExamSection = {
    id: string;
    name: string;
    description: string;
+   color?: string;
    sort_number: number;
    questions: AllTypesQuestionTypes[];
    // exam_id:string

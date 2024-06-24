@@ -1,9 +1,10 @@
-import { BreadCrumb, SelectInput, Header, Button, UsePrompt, Dialog, DeleteContent, Skeleton, TextInput } from '@/components/custom';
+import { BreadCrumb, SelectInput, Header, Button, UsePrompt, Dialog, DeleteContent, Skeleton, TextInput, Sortable, SortableDragHandle, SortableItem } from '@/components/custom';
 import { useEffect, useMemo, useState } from 'react';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
+import { PiDotsSixVerticalBold } from 'react-icons/pi';
 import { useGetCategories, type TKeys } from '../category';
 // import { FillConverter } from './components/utils';
 import { FillerSubmit, FillerSetConvert } from './question-types/Filler';
@@ -197,7 +198,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [watch()?.type]);
 
-   const { fields, append, remove, update } = useFieldArray({ control, name: 'sub_questions', keyName: '_id' });
+   const { fields, append, remove, update, move } = useFieldArray({ control, name: 'sub_questions', keyName: '_id' });
 
    const { data, isFetchedAfterMount, isFetched } = useQuery({
       enabled: !isCreate,
@@ -227,7 +228,14 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
 
          const finalAnswers: TAnswers[] = FillerSetConvert({ data: data?.data });
 
-         reset({ ...data?.data, score: mainScore, answers: data?.data.type === 'fill' ? finalAnswers : data?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number) });
+         // console.log(data?.data?.sub_questions?.sort((a,b)=>a.sort_number - b.sort_number), "=============================>data?.data?.sub_questions?.sort((a,b)=>a.sort_number - b.sort_number)")
+
+         reset({
+            ...data?.data,
+            sub_questions: data?.data?.sub_questions?.sort((a, b) => a.sort_number - b.sort_number),
+            score: mainScore,
+            answers: data?.data.type === 'fill' ? finalAnswers : data?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number),
+         });
       }
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -279,6 +287,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
          ...data,
          score: data.score + subTotal,
          sort_number: 0,
+         sub_questions: data?.sub_questions?.map((item, index) => ({ ...item, sort_number: index })),
          answers: answers?.map((el, index) => ({ ...el, sort_number: index, fill_index: index })),
       });
    };
@@ -335,21 +344,40 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
                {fields.length > 0 && (
                   <div className="wrapper relative">
                      <div className="p-3 px-4 border-b text-muted-text font-medium text-xs">Нэмэлт асуултууд</div>
-                     {fields.map((item, index) => {
-                        const Icon = questionAsset[item.type as TQuestion]?.icon;
-                        return (
-                           <div key={item._id} className="group/items text-xs2 p-3 px-4 hover:bg-primary/10 cursor-pointer relative grid items-center grid-cols-[auto_auto_1fr_auto] gap-2">
-                              {<Icon className="text text-primary" />}
-                              <div className="text-muted-text">{index + 1}.</div>
-                              <div className="one_line" onClick={() => rowAction(item.type, 'edit', item, index)}>
-                                 {item.question}
-                              </div>
-                              <ScoreValue count={item.score} className="relative translate-y-0 top-0 right-0" />
-                              {/* <div className="text-primary font-medium">{item.score}</div> */}
-                              <ActionButtons editTrigger={() => rowAction(item.type, 'edit', item, index)} deleteTrigger={() => rowAction(item.type, 'delete', item, index)} />
+
+                     <Sortable
+                        value={fields.map((item) => ({ ...item, id: item._id }))}
+                        onMove={({ activeIndex, overIndex }) => move(activeIndex, overIndex)}
+                        overlay={
+                           <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3">
+                              <Skeleton className="h-8 w-8 rounded-sm" />
+                              <Skeleton className="h-11 w-full rounded-sm" />
+                              <Skeleton className="size-8 shrink-0 rounded-sm" />
+                              {/* <Skeleton className="size-8 shrink-0 rounded-sm" /> */}
                            </div>
-                        );
-                     })}
+                        }
+                     >
+                        {fields.map((item, index) => {
+                           // const Icon = questionAsset[item.type as TQuestion]?.icon;
+                           return (
+                              <SortableItem key={item._id} value={item._id} asChild>
+                                 <div className="group/items text-xs2 p-3 px-1.5 hover:bg-primary/10 cursor-pointer relative grid items-center grid-cols-[auto_auto_auto_1fr_auto] gap-2">
+                                    <SortableDragHandle variant="ghost" size="icon" className="size-8 shrink-0">
+                                       <PiDotsSixVerticalBold className="text-base text-muted-text" aria-hidden="true" />
+                                    </SortableDragHandle>
+                                    {/* {<Icon className="text text-primary" />} */}
+                                    <div className="text-muted-text">{index + 1}.</div>
+                                    <div className="one_line" onClick={() => rowAction(item.type, 'edit', item, index)}>
+                                       {item.question}
+                                    </div>
+                                    <ScoreValue count={item.score} className="relative translate-y-0 top-0 right-0" />
+                                    {/* <div className="text-primary font-medium">{item.score}</div> */}
+                                    <ActionButtons editTrigger={() => rowAction(item.type, 'edit', item, index)} deleteTrigger={() => rowAction(item.type, 'delete', item, index)} />
+                                 </div>
+                              </SortableItem>
+                           );
+                        })}
+                     </Sortable>
 
                      <div className="h-0.5 w-[1.34rem] bg-primary/40 absolute right-full top-6" />
                   </div>
