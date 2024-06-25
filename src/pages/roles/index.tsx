@@ -1,6 +1,8 @@
 // import { useMatches, matchRoutes, matchPath } from "react-router-dom"
 import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
+import { Link } from 'react-router-dom';
+import { IoArrowForwardSharp } from 'react-icons/io5';
 import { useState } from 'react';
 import { DataTable, BreadCrumb, Dialog, AnimatedTabs, Badge } from '@/components/custom';
 import { type FinalRespnse, type TAction, type TUserEmployee, type TRolesAssetType, UserRolesAsset, type TUserRoles } from '@/lib/sharedTypes';
@@ -55,7 +57,29 @@ const RolesList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             hideActionButton="delete"
             rowAction={rowAction}
             data={data?.data?.filter((el) => el.user || el.employee)?.map((item) => (item.user ? { ...item.user } : { ...item.employee })) ?? []}
-            columns={columnDef}
+            columns={[
+               ...columnDef,
+               current === 'candidate'
+                  ? {
+                       header: '',
+                       accessorKey: 'as_action',
+                       size: 100,
+                       enableSorting: false,
+                       enableHiding: false,
+                       cell: ({ row }) => (
+                          <Link
+                             to={row.original.empid ? `${row.original.id}?type=emp` : row.original?.id}
+                             className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline"
+                          >
+                             Шалгалтын түүх <IoArrowForwardSharp />
+                          </Link>
+                       ),
+                    }
+                  : {
+                       header: 'Регистр',
+                       accessorKey: 'regno',
+                    },
+            ]}
             isLoading={isLoading}
          />
       </>
@@ -73,18 +97,15 @@ const columnDef: ColumnDef<TUserEmployee>[] = [
    {
       header: 'Утас',
       accessorKey: 'phone',
-      cell: ({ row }) => row.original.phone ?? row.original.private_number,
+      cell: ({ row }) => (row.original.phone ? row.original.phone : row.original.private_number),
    },
    {
       header: 'Э-мэйл',
       accessorKey: 'email',
    },
+
    {
-      header: 'Регистр',
-      accessorKey: 'regno',
-   },
-   {
-      header: 'Регистр',
+      header: 'Төрөл',
       accessorKey: 'lastname',
       cell: ({ row }) => (
          <div>

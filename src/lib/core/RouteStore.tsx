@@ -4,6 +4,7 @@ import Category from '@/pages/category';
 import Questions from '@/pages/questions';
 import QuestionAction from '@/pages/questions/Action';
 import UsersList from '@/pages/users';
+// import UserDetail from '@/pages/users/UserDetail';
 import Exams from '@/pages/exams';
 import ExamAction from '@/pages/exams/Action';
 import ActiveExams from '@/pages/exams/exam_events/active_exams';
@@ -88,11 +89,12 @@ const RouteStore: TRouteOmit[] = [
       visibleType: ['company_admin'],
       subMenu: [
          { to: '', label: 'Хэрэглэгчид', component: UsersList, visibleType: ['company_admin'] },
+         { to: '/users/:userid', component: HistoryOfExam, visibleType: ['company_admin'], isHide:true },
          { to: 'company', label: 'Компани', component: Company },
          { to: 'roles', label: 'Хэрэглэгчийн эрх', component: RolesList },
+         { to: 'roles/:userid', component: HistoryOfExam, visibleType: ['company_admin'], isHide:true },
       ],
    },
-
    {
       to: '/report', //groups
       icon: ReportSVG,

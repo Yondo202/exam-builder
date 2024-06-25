@@ -1,27 +1,15 @@
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-import { Header, BreadCrumb, Loading, DataTable, Badge, DatePicker, Button } from '@/components/custom'; //BreadCrumb
-import { ColumnDef } from '@tanstack/react-table';
-import { useQuery } from '@tanstack/react-query';
+import { Header, BreadCrumb, Loading, DataTable, DatePicker, Button } from '@/components/custom'; //BreadCrumb
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 // import { formatDateToCustomISO } from '@/lib/utils';
 import { FinalRespnse } from '@/lib/sharedTypes';
-import { subDays, endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, subMonths } from 'date-fns';
 import { CategorySelect } from '../questions/Action';
 import { useForm } from 'react-hook-form';
 import { cn, formatDateToCustomISO } from '@/lib/utils';
 import { useEffect } from 'react';
-
-// {
-//   "category_id": "string",
-//   "sub_category_id": "string",
-//   "status": "active",
-//   "org_id": "string",
-//   "include_category": true,
-//   "range": {
-//     "start_range": "2024-06-10T03:20:51.769Z",
-//     "end_range": "2024-06-18T03:20:51.769Z"
-//   }
-// }
+import { RiFileExcel2Line } from 'react-icons/ri';
 
 type TReport = {
    avg_score: number;
@@ -60,7 +48,7 @@ const ReportList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       queryFn: () =>
          request<FinalRespnse<TReport[]>>({
             //<FinalRespnse<TDashboard>>
-            url: 'stats',
+            url: 'stats/list',
             method: 'post',
             offAlert: true,
             filterBody: {
@@ -75,9 +63,35 @@ const ReportList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          }),
    });
 
+   const { mutate, isPending: downloadPending } = useMutation({
+      mutationFn: () =>
+         request<FinalRespnse<TReport[]>>({
+            //<FinalRespnse<TDashboard>>
+            url: 'stats/list/download',
+            method: 'post',
+            offAlert: true,
+            filterBody: {
+               status: watch('status'),
+               category_id: watch('category_id'),
+               sub_category_id: watch('sub_category_id'),
+               range: {
+                  start_range: watch('start_range'),
+                  end_range: watch('end_range'),
+               },
+            },
+         }),
+      onSuccess: (resdata: any) => {
+         const url = URL.createObjectURL(new Blob([resdata], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+         const link = document.createElement('a');
+         link.href = url;
+         link.setAttribute('download', 'Шалгалтын тайлан.xlsx');
+         link.click();
+      },
+   });
+
    useEffect(() => {
       const currentDate = new Date();
-      const pastDate = startOfDay(subDays(currentDate, 7));
+      const pastDate = startOfDay(subMonths(currentDate, 1));
       const Today = endOfDay(currentDate);
 
       reset({ start_range: formatDateToCustomISO(pastDate, true), end_range: formatDateToCustomISO(Today, true) });
@@ -133,40 +147,32 @@ const ReportList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             </div>
             <div className="h-[1.1rem] w-0.5 bg-primary/40 absolute top-full left-10" />
          </div>
-         <DataTable isLoading={isPending} data={data?.data ?? []} columns={columnDef} hideAction />
+         <DataTable
+            isLoading={isPending}
+            data={data?.data ?? []}
+            hideSearch
+            hideAction
+            isOneLineHead
+            initialHideColumn={Object.keys(data?.data?.at(0) ?? {})?.filter((item, index) => index > 5 && item)}
+            columns={Object.keys(data?.data?.at(0) ?? {})?.map((item) => {
+               return {
+                  header: item,
+                  accessorKey: item,
+                  isSortable: false, // This is my custom property
+                  enableHiding: true,
+                  // size: 200,
+               };
+            })}
+            headAction={
+               <div>
+                  <Button variant="outline" size="sm" className="rounded-full w-28" isLoading={downloadPending} onClick={() => mutate()}>
+                     <RiFileExcel2Line className="text-base" /> Татах
+                  </Button>
+               </div>
+            }
+         />
       </div>
    );
 };
 
 export default ReportList;
-
-const columnDef: ColumnDef<TReport>[] = [
-   {
-      header: 'Шалгалтын нэр',
-      accessorKey: 'name',
-   },
-   {
-      header: 'Төлөв',
-      accessorKey: 'status',
-      cell: ({ row }) => (
-         <Badge
-            variant="secondary"
-            className={cn(row.original?.status === 'active' ? `bg-green-100/70 text-green-600 border-green-300` : 'text-danger-color bg-danger-color/5 border-danger-color/20')}
-         >
-            {ExamStatusType[row.original?.status as TExamMainStatus]}
-         </Badge>
-      ),
-   },
-   {
-      header: 'Шалгалт өгсөн тоо',
-      accessorKey: 'given_exam_count',
-   },
-   {
-      header: 'Уригдсан хэрэглэгчид',
-      accessorKey: 'invited_user_count',
-   },
-   {
-      header: 'Дундаж оноо',
-      accessorKey: 'avg_score',
-   },
-];

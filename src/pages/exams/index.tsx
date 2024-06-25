@@ -6,8 +6,10 @@ import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { Link, useNavigate } from 'react-router-dom';
 import { MdOutlineAdd } from 'react-icons/md';
+import { CategorySelect } from '../questions/Action';
 import ConfigAction from '@/pages/exams/ConfigAction';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { finalRenderDate } from '@/lib/utils';
 import { IoArrowForwardSharp } from 'react-icons/io5';
 import { AllTypesQuestionTypes } from '../questions';
@@ -27,7 +29,7 @@ export type TVariant = {
    name: string;
    description: string;
    exam_id: string;
-   sections?:TExamSection[]
+   sections?: TExamSection[];
 };
 
 export type TExam = {
@@ -70,24 +72,42 @@ export const onlyCompanyAdmin = () => {
 
 const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const isCompAdmin = onlyCompanyAdmin();
+   const { control, setValue, watch } = useForm({ defaultValues: { category_id: '', sub_category_id: '' } });
+   const [search, setSearch] = useState('');
    const navigate = useNavigate();
    const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
 
-   const { data, isLoading, refetch } = useQuery({
-      queryKey: ['exam/list'],
+   const [pagination, setPagination] = useState({
+      pageIndex: 0,
+      pageSize: 10,
+      total: 0,
+   });
+
+   const { data, isLoading, refetch, isFetchedAfterMount } = useQuery({
+      queryKey: ['exam/list', [pagination.pageIndex, pagination.pageSize, search, watch('category_id'), watch('sub_category_id')]],
       queryFn: () =>
          request<FinalRespnse<TExam[]>>({
             method: 'post',
             url: 'exam/list',
             offAlert: true,
             filterBody: {
+               query: search,
+               category_id: watch('category_id'),
+               sub_category_id: watch('sub_category_id'),
+               // type: filterTypes !== 'all' ? filterTypes : undefined,
                pagination: {
-                  page: 1,
-                  page_size: 1000,
+                  page: pagination.pageIndex + 1,
+                  page_size: pagination.pageSize,
                },
             },
          }),
    });
+
+   useEffect(() => {
+      if (data?.meta) {
+         setPagination({ pageIndex: data?.meta?.page - 1, pageSize: data?.meta?.page_size, total: +data?.meta?.total }); // eniig update deer boluilchih
+      }
+   }, [isFetchedAfterMount]);
 
    const afterSuccess = (id: string) => {
       setAction((prev) => ({ ...prev, isOpen: false }));
@@ -99,17 +119,11 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       // row.original?.id ?? '/'
    };
 
-   // console.log(
-   //    userMe?.data?.roles?.some((item) => item.role === 'company_admin'),
-   //    'hehe'
-   // );
-
-   // console.log(isAdmin, "------>isAdmin")
-
    return (
       <div>
          <BreadCrumb pathList={breadcrumbs} />
          {/* {userData.roles} */}
+
          <Header
             title={breadcrumbs.find((item) => item.isActive)?.label}
             action={
@@ -121,6 +135,32 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             }
          />
 
+         {/* <div className="wrapper p-6 pt-3 mb-4 flex gap-10 relative">
+            <div className="flex w-1/2 gap-5">
+               <CategorySelect
+                  control={control}
+                  name="category_id"
+                  current="main_category"
+                  label="Үндсэн ангилал"
+                  triggerClassName="rounded-full h-8"
+                  onChange={() => {
+                     setValue('sub_category_id', '');
+                  }}
+               />
+               <CategorySelect
+                  triggerClassName="rounded-full h-8"
+                  control={control}
+                  disabled={!watch('category_id')}
+                  idKey={watch('category_id')}
+                  name="sub_category_id"
+                  current="sub_category"
+                  label="Дэд ангилал"
+               />
+            </div>
+
+            <div className="h-[1.1rem] w-0.5 bg-primary/40 absolute top-full left-10" />
+         </div> */}
+
          <DataTable
             hideAction={isCompAdmin}
             defaultSortField="active_start_at"
@@ -128,6 +168,48 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             data={data?.data ?? []}
             columns={columnDef}
             isLoading={isLoading}
+            manualPagination
+            pagination={pagination}
+            setPagination={setPagination}
+            search={search}
+            setSearch={setSearch}
+            headActionClassName="items-end"
+            headAction={
+               <div className="flex gap-5">
+                  <CategorySelect
+                     control={control}
+                     name="category_id"
+                     current="main_category"
+                     label="Үндсэн ангилал"
+                     triggerClassName="rounded-full w-48 h-8"
+                     onChange={() => {
+                        setValue('sub_category_id', '');
+                     }}
+                  />
+                  <CategorySelect
+                     triggerClassName="rounded-full w-48 h-8"
+                     control={control}
+                     disabled={!watch('category_id')}
+                     idKey={watch('category_id')}
+                     name="sub_category_id"
+                     current="sub_category"
+                     label="Дэд ангилал"
+                  />
+               </div>
+            }
+
+            // size="sm"
+            // rowAction={
+            //    fromAction
+            //       ? () => null
+            //       : (data: TAction<AllTypesQuestionTypes>) => {
+            //            if (data.type === 'edit') {
+            //               navigate(`${breadcrumbs.find((item) => item.isActive)?.to}/${data.data?.id}`);
+            //               return;
+            //            }
+            //            setDeleteAction({ isOpen: true, id: data.data?.id ?? '' });
+            //         }
+            // }
          />
 
          <Drawer

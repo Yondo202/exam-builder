@@ -202,7 +202,7 @@ const HidedPopover = ({ isActive, trigger, Element, pathname }: THidePop) => {
 };
 
 const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?: () => void }) => {
-   const { typeid, examid } = useParams();
+   const { typeid, examid, userid } = useParams();
 
    return Element.subMenu
       ?.filter((el) => !el.isHide)
@@ -213,7 +213,7 @@ const SubMenuComponent = ({ Element, onClose }: { Element: TRouteOmit; onClose?:
                className={({ isActive }) => cn(`w-full flex items-center px-3 text-xs2 rounded-sm hover:bg-primary/5 ${isActive ? `text-text font-medium` : 'text-muted-text'}`)}
                style={{ height: `${subHeight}px`, lineHeight: `${subHeight}px` }}
                to={`${Element.to}${item.to ? `/${item.to}` : ``}`}
-               end={item.to === '' ? (typeid || examid ? false : true) : false}
+               end={item.to === '' ? (typeid || examid || userid ? false : true) : false}
                // end={false}
                onClick={onClose}
             >

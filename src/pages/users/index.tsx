@@ -21,16 +21,17 @@ import { RowSelectionState } from '@tanstack/react-table';
 // eslint-disable-next-line react-refresh/only-export-components
 
 const catAsset = {
-   employees: {
-      label: 'Ажилтан',
-      url: 'user/list/employees',
-      enabled: true,
-   },
    candidate: {
       label: 'Ажил горилогч',
       url: 'user/list',
       enabled: false,
    },
+   employees: {
+      label: 'Ажилтан',
+      url: 'user/list/employees',
+      enabled: true,
+   },
+
    // **daraa ene filter uud hereg bolvol ashigla - ugui bol zugeer useQuery code oo tseverle
    // hr: {
    //    label: 'Ажилтан - GREEN.HR',
@@ -46,10 +47,10 @@ const catAsset = {
 
 export type TKeys = keyof typeof catAsset;
 
-const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadCrumb[]; is_inspector?:boolean; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
+const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadCrumb[]; is_inspector?: boolean; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
    const [search, setSearch] = useState('');
-   const [current, setCurrent] = useState<TKeys>('employees');
+   const [current, setCurrent] = useState<TKeys>('candidate');
 
    const [pagination, setPagination] = useState({
       pageIndex: 0,
@@ -102,6 +103,7 @@ const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadC
          </Dialog>
 
          {!fromAction && <BreadCrumb pathList={breadcrumbs} />}
+
          {!fromAction && (
             <AnimatedTabs
                items={Object.keys(catAsset)?.map((item) => ({ label: catAsset[item as TKeys]?.label, key: item }))}

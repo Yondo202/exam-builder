@@ -1,4 +1,5 @@
-// import { useMatches, matchRoutes, matchPath } from "react-router-dom"
+import { Link } from 'react-router-dom';
+import { IoArrowForwardSharp } from 'react-icons/io5';
 import { useMutation } from '@tanstack/react-query';
 import { request, UseReFetch } from '@/lib/core/request';
 import { useState, useEffect } from 'react';
@@ -7,7 +8,7 @@ import ForceChangePass from '../layout/ForceChangePass';
 import { type FinalRespnse, type TAction, type TActionProps, ATypes, type TUserEmployee } from '@/lib/sharedTypes';
 import { ColumnDef } from '@tanstack/react-table';
 import { useForm } from 'react-hook-form';
-import { GoLock } from "react-icons/go";
+import { GoLock } from 'react-icons/go';
 import { RowSelectionState } from '@tanstack/react-table';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useQuery } from '@tanstack/react-query';
@@ -62,7 +63,30 @@ const Candidates = ({ fromAction }: { fromAction?: (row: RowSelectionState) => R
             rowSelection={fromAction ? rowSelection : undefined}
             defaultSortField="created_at"
             data={data?.data ?? []}
-            columns={canditateColumnDef}
+            columns={[
+               ...canditateColumnDef,
+               !!fromAction
+                  ? {
+                       header: 'Үүсгэсэн огноо',
+                       accessorKey: 'created_at',
+                       cell: ({ row }) => row.original?.created_at?.slice(0, 16).replace('T', ' '),
+                    }
+                  : {
+                       header: '',
+                       accessorKey: 'as_action',
+                       size: 100,
+                       enableSorting: false,
+                       enableHiding: false,
+                       cell: ({ row }) => (
+                          <Link
+                             to={row.original?.id ?? '/'}
+                             className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline"
+                          >
+                             Шалгалтын түүх <IoArrowForwardSharp />
+                          </Link>
+                       ),
+                    },
+            ]}
             hideAction={!!fromAction}
             isLoading={isLoading}
             rowAction={fromAction ? undefined : rowAction}
@@ -100,11 +124,6 @@ export const canditateColumnDef: ColumnDef<TUserEmployee>[] = [
    {
       header: 'Утас',
       accessorKey: 'phone',
-   },
-   {
-      header: 'Үүсгэсэн огноо',
-      accessorKey: 'created_at',
-      cell: ({ row }) => row.original?.created_at?.slice(0, 16).replace('T', ' '),
    },
 ];
 
@@ -312,7 +331,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                      floatLabel={false}
                      placeholder={`Регистрийн дугаар`}
                      label={`Регистрийн дугаар`}
-                     className=' max-sm:w-full'
+                     className=" max-sm:w-full"
                      name="regno"
                      disabled={!!action.data?.empid}
                      // type="number"
@@ -354,11 +373,11 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
             {/* <TextInput floatLabel={false} autoFocus placeholder={`Е-мэйл`} label={`Е-мэйл оруулах`} name="email" control={control} rules={{ required: `Е-мэйл оруулна уу` }} /> */}
 
             <div className="flex justify-between w-full pt-10">
-               <Button className="rounded-full" type="button" variant="outline" onClick={()=>setForcePass(true)}>
-                 <GoLock className='text-base' /> Нууц үг солих
+               <Button className="rounded-full" type="button" variant="outline" onClick={() => setForcePass(true)}>
+                  <GoLock className="text-base" /> Нууц үг солих
                </Button>
 
-               <Button className='rounded-full' isLoading={isPending} type="submit" disabled={!isDirty || !!action.data?.empid}>
+               <Button className="rounded-full" isLoading={isPending} type="submit" disabled={!isDirty || !!action.data?.empid}>
                   Хадгалах
                </Button>
             </div>

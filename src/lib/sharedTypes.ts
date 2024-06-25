@@ -100,14 +100,14 @@ export const UserRolesAsset = {
    candidate: {
       label: 'Оролцогч',
    },
+   inspector: {
+      label: 'Шалгагч',
+   },
    super_admin: {
       label: 'Супер админ',
    },
    company_admin: {
       label: 'Байгууллагын админ',
-   },
-   inspector: {
-      label: 'Шалгагч',
    },
 };
 

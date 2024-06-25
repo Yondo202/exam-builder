@@ -49,9 +49,13 @@ interface DataTableProps<T> {
    headAction?: React.ReactNode;
    hideAction?: boolean;
    hidePagination?: boolean;
+   hideSearch?: boolean;
+   isOneLineHead?: boolean;
+   initialHideColumn?: string[];
    hideColumnVisibleAction?: boolean;
    defaultPageSize?: number;
    defaultSortField?: string;
+   headActionClassName?: string;
    rowSelection?: RowSelectionState;
    setRowSelection?: React.Dispatch<React.SetStateAction<RowSelectionState>>;
    enableMultiRowSelection?: boolean;
@@ -150,6 +154,17 @@ export default function DataTable<T extends object>({
          },
       ],
    };
+
+   useEffect(()=>{
+      if(rest.initialHideColumn){
+         const temp: VisibilityState | undefined = {}
+         rest.initialHideColumn?.forEach(item=>{
+            temp[item] = false
+         })
+         setColumnVisibility(temp)
+      }
+   },[rest.initialHideColumn])
+
    // rest.setPagination
    const ServerAction = (isManual?: boolean) => {
       if (isManual && rest.pagination) {
@@ -227,14 +242,20 @@ export default function DataTable<T extends object>({
    return (
       <div className="w-full">
          <div className="wrapper overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-5">
-               <DebouncedInput
-                  value={rest.setSearch ? rest.search ?? '' : globalFilter ?? ''}
-                  onChange={(value) => (rest.setSearch ? rest.setSearch(value) : setGlobalFilter(value))}
-                  debounce={500}
-               />
+            <div className="flex items-end justify-between px-4 py-5">
+               {!rest.hideSearch ? (
+                  <DebouncedInput
+                     value={rest.setSearch ? rest.search ?? '' : globalFilter ?? ''}
+                     onChange={(value) => (rest.setSearch ? rest.setSearch(value) : setGlobalFilter(value))}
+                     debounce={500}
+                  />
+               ) : (
+                  <div />
+               )}
 
-               <div className="flex items-center gap-3">
+               <div className={cn('flex items-center gap-3', rest.headActionClassName)}>
+                  {headAction}
+
                   {!rest.hideColumnVisibleAction && (
                      <Popover>
                         <PopoverTrigger asChild>
@@ -261,7 +282,6 @@ export default function DataTable<T extends object>({
                         </PopoverContent>
                      </Popover>
                   )}
-                  {headAction}
                </div>
 
                {/* <DropdownMenu>
@@ -303,6 +323,7 @@ export default function DataTable<T extends object>({
                               >
                                  <div className={`relative ${header.column.getCanSort() ? `cursor-pointer` : ``}`}>
                                     {/* {header.column.getCanSort() && !header.column.getIsSorted() && <TwoSideArrow />} */}
+                                    {/* <div className="w-full"></div>  */}
                                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                     <div className="absolute right-px top-2/4 -translate-y-2/4">
                                        {header.column.getCanSort() && !header.column.getIsSorted() && <TfiArrowsVertical className="opacity-50 text-xs" />}
@@ -462,6 +483,7 @@ export default function DataTable<T extends object>({
 }
 
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 type TBounceProps = {
    value: string;
