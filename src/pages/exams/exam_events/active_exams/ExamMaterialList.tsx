@@ -12,7 +12,7 @@ import { StatusLabels } from '@/pages/candidate/ExamsList';
 export type TUserInfo = {
    attempt: number;
    employee: null | string;
-   id: '47c7e229-830c-497b-aee2-87c844d3df98';
+   // id: '47c7e229-830c-497b-aee2-87c844d3df98';
    status: keyof typeof StatusLabels;
    user: { firstname: string; lastname: string };
    exam: {
@@ -39,7 +39,7 @@ export type TMaterialList = {
    end_date: string;
    user_exam: TUserInfo;
    status: keyof typeof SubmissionTypes;
-   variant: { name: string };
+   variant: { name: string; achievable_score: number };
    temp_exam_code: string;
 };
 
@@ -222,6 +222,18 @@ const columnDef: ColumnDef<TMaterialList>[] = [
             <Badge variant="secondary" className="text-[11px]">
                {row.original.attempt_score}
             </Badge>
+         );
+      },
+   },
+   {
+      header: 'Авсан хувь',
+      accessorKey: 'attempt_score',
+      cell: ({ row }) => {
+         const persentage = (row.original.attempt_score / row.original.variant?.achievable_score) * 100
+         return (
+            // <Badge variant="secondary" className="text-[11px]">
+               <>{(isNaN(persentage)?0:persentage)?.toLocaleString()} %</>
+            // </Badge>
          );
       },
    },

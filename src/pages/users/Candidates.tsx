@@ -3,6 +3,7 @@ import { IoArrowForwardSharp } from 'react-icons/io5';
 import { useMutation } from '@tanstack/react-query';
 import { request, UseReFetch } from '@/lib/core/request';
 import { useState, useEffect } from 'react';
+import { TCompany } from '../company';
 import { DataTable, Drawer, Button, TextInput, UsePrompt, SelectInput, Label, DeleteContent, Dialog } from '@/components/custom';
 import ForceChangePass from '../layout/ForceChangePass';
 import { type FinalRespnse, type TAction, type TActionProps, ATypes, type TUserEmployee } from '@/lib/sharedTypes';
@@ -203,6 +204,22 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
       },
    });
 
+   const { data } = useQuery({
+      queryKey: [`company`],
+      queryFn: () =>
+         request<FinalRespnse<TCompany[]>>({
+            method: 'post',
+            url: `org/list`,
+            offAlert: true,
+            filterBody: {
+               pagination: {
+                  page: 1,
+                  page_size: 100,
+               },
+            },
+         }),
+   });
+
    const { isPending, mutate } = useMutation({
       mutationFn: (body?: TUserEmployee) =>
          request<Omit<TUserEmployee, 'user_id'> & { user_id: string }>({
@@ -217,7 +234,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
          UseReFetch({ queryKey: `users/candidate` });
       },
    });
-
+   // https://back-exam.tavanbogd.mn/org/list
    useEffect(() => {
       if (action?.type !== 'add') {
          // reset(action?.data ?? {});
@@ -359,7 +376,15 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                   control={control}
                   // rules={{ required: `Горилж буй албан тушаал оруулна уу` }}
                />
-               <TextInput
+               <SelectInput
+                  disabled={!!action.data?.empid || !isFromAdmin}
+                  label={`Горилж буй байгууллага ${action.data?.private_number ? `- Хувийн дугаар ` : ``}`}
+                  name="company_applied"
+                  control={control}
+                  rules={{ required: `Горилж буй байгууллага оруулна уу` }}
+                  options={data?.data?.map((item) => ({ label: item.name, value: item.id }))??[]}
+               />
+               {/* <TextInput
                   disabled={!!action.data?.empid || !isFromAdmin}
                   floatLabel={false}
                   placeholder="Горилж буй байгууллага"
@@ -367,7 +392,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                   name="company_applied"
                   control={control}
                   // rules={{ required: `Горилж буй байгууллага оруулна уу` }}
-               />
+               /> */}
             </div>
 
             {/* <TextInput floatLabel={false} autoFocus placeholder={`Е-мэйл`} label={`Е-мэйл оруулах`} name="email" control={control} rules={{ required: `Е-мэйл оруулна уу` }} /> */}

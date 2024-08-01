@@ -128,6 +128,12 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       setDeleteAction({ isOpen: true, data: data.data as TUserEmployee });
    };
 
+   useEffect(()=>{
+      if(isCompAdmin){
+         setValidInvite(true)
+      }
+   },[isCompAdmin])
+
    const isValidInviteUser = data?.data?.variants && data?.data?.variants?.length > 0 && validInvite;
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
@@ -196,7 +202,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             <div className={cn('mt-5 relative')}>
                {!isValidInviteUser && (
                   <Tooltip content="Та эхлээд асуултаа оруулна уу">
-                     <div className="absolute top-0 left-0 w-full h-full bg-white/70 rounded-md z-50" />
+                     <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-md z-50" />
                   </Tooltip>
                )}
                <AnimatedTabs
@@ -251,14 +257,14 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 export default ExamAction;
 
 const FromActionComponent = ({ row, type, exam_id, setClose }: { row: RowSelectionState; type: inviteTypes; exam_id?: string; setClose: () => void }) => {
-   let addition = '/employee';
-   if (type === 'user') {
-      addition = '';
-   }
+   // let addition = '/employee';
+   // if (type === 'user') {
+   //    addition = '';
+   // }
    const { data, isLoading } = useQuery({
       enabled: !!Object.keys(row)?.at(0),
       queryKey: ['user_detail', Object.keys(row)?.at(0)],
-      queryFn: () => request<FinalRespnse<TUserEmployee>>({ url: `user/detail${addition}?id=${Object.keys(row)?.at(0)}` }),
+      queryFn: () => request<FinalRespnse<TUserEmployee>>({ url: `user/detail${type === 'user' ? `` : `/employee`}?id=${Object.keys(row)?.at(0)}` }),
    });
 
    const { mutate, isPending } = useMutation({

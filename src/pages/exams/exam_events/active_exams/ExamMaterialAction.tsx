@@ -76,7 +76,7 @@ const ExamMaterialAction = () => {
    useEffect(() => {
       if (isFetchedAfterMount) {
          const questions: any = [];
-         data?.data?.variant.sections?.forEach((item) => questions.push(...item.questions));
+         data?.data?.variant?.sections?.forEach((item) => questions.push(...item.questions));
 
          const settleValue: any = {};
          const scoreValues: any = {};

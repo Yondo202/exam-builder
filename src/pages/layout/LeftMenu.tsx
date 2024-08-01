@@ -19,7 +19,7 @@ export const LogoSector = ({ className, isHide }: { className?: string; isHide?:
          <TavanbogdLogo className="w-16 max-w-full" />
          {!isHide && (
             <div>
-               <div className="font-medium text-xs max-sm:hidden">Таван богд</div>
+               <div className="font-medium text-xs max-sm:hidden">Таван Богд Холдингс</div>
                <div className="text-[10px] text-muted-text/80 max-sm:hidden">Шалгалтын платформ</div>
             </div>
          )}
@@ -155,7 +155,7 @@ const NavLinkComponent = ({ isHide, Element }: { isHide: boolean; Element: TRout
                   >
                      <div className="flex items-center gap-3">
                         {Element.icon && <Element.icon className="w-[22px] h-[22px] fill-muted-text group-[.active]:fill-[#FFF]" />}
-                        {!isHide && <span className="group-[.active]:text-[#FFF] text-xs">{Element.label}</span>}
+                        {!isHide && <span className="group-[.active]:text-[#FFF] text-xs text-text">{Element.label}</span>}
                      </div>
 
                      {!isHide && Element.subMenu ? (

@@ -86,6 +86,12 @@ const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadC
 
    const [detail, setDetail] = useState({ isOpen: false, data: {} as TUserEmployee });
 
+   useEffect(() => {
+      if (fromAction) {
+         setCurrent('employees');
+      }
+   }, [fromAction]);
+
    const rowAction = (data: TAction<TUserEmployee>) => {
       setDetail({ isOpen: true, data: data.data as TUserEmployee });
       // setAction(data);

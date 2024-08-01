@@ -68,16 +68,16 @@ const RouteStore: TRouteOmit[] = [
       to: '/handle',
       icon: Plan,
       label: 'Шалгалт удирдлага',
-      visibleType: ['inspector'],
+      visibleType: ['inspector', 'company_admin'],
       subMenu: [
          { to: '', label: 'Засах шалгалтууд', component: ActiveExams, visibleType: ['inspector'] },
          { to: '/handle/:examid', component: ExamMaterialList, visibleType: ['inspector'], isHide: true },
          { to: '/handle/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector'], isHide: true },
 
          // tur haruulahiin tuld hiileee
-         { to: 'examresults', label: 'Шалгалтын үр дүн', component: ActiveExams, visibleType: ['inspector'] },
-         { to: 'examresults/:examid', component: ExamMaterialList, visibleType: ['inspector'], isHide: true },
-         { to: 'examresults/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector'], isHide: true },
+         { to: 'examresults', label: 'Шалгалтын үр дүн', component: ActiveExams, visibleType: ['inspector', 'company_admin'] },
+         { to: 'examresults/:examid', component: ExamMaterialList, visibleType: ['inspector', 'company_admin'], isHide: true },
+         { to: 'examresults/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector', 'company_admin'], isHide: true },
          // { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
       ],

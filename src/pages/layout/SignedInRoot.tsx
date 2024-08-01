@@ -5,6 +5,8 @@ import { FilteredRoute } from '@/lib/core/RouteStore';
 import { useEffect, useState } from 'react';
 import ForceChangePass from './ForceChangePass';
 import { GetUserMe } from '../auth/Profile';
+import { socket } from '../candidate/ExamStartAction';
+import { SignOut } from '@/lib/Auth';
 import TopMenu from './TopMenu';
 
 // const temp = [
@@ -16,6 +18,8 @@ import TopMenu from './TopMenu';
 // ];
 
 const SignedInRoot = () => {
+   const [isOpen, setIsOpen] = useState(false);
+
    const [forcePass, setForcePass] = useState(false);
    const { data, isLoading, isFetchedAfterMount, refetch, isRefetching } = GetUserMe();
 
@@ -28,6 +32,21 @@ const SignedInRoot = () => {
       setForcePass(false);
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isFetchedAfterMount, isRefetching]);
+
+   useEffect(() => {
+      function anotherLogin() {
+         if(data?.data?.roles?.some((item) => item.role === 'candidate')){
+            setIsOpen(true);
+            setTimeout(() => SignOut(), 3000);
+         }
+      }
+
+      socket?.on('another_login', anotherLogin);
+
+      return () => {
+         socket?.off('another_login', anotherLogin);
+      };
+   }, []);
 
    if (isLoading) {
       return <Loading load={isLoading} />;
@@ -42,11 +61,14 @@ const SignedInRoot = () => {
    // }
 
    // userdata?.roles?.some((item) => item.role === 'candidate')
-
    // pass aa solison ch alga bolohgui baigaa
-   
+
    return (
       <>
+         {' '}
+         <Dialog title="Давхар хандалт!" isOpen={isOpen} onOpenChange={() => setIsOpen(true)}>
+            <div className="text-center mb-10 text-lg text-orange-500"> Та олон төхөөрөмжөөс зэрэг хандах боломжгүй !</div>
+         </Dialog>
          <Dialog isOpen={forcePass} onOpenChange={() => setForcePass(true)} title="Та нууц үгээ солино уу!">
             <ForceChangePass afterSuccess={() => (setForcePass(false), refetch())} />
          </Dialog>

@@ -25,7 +25,7 @@ import { type TExamSection } from '@/pages/exams';
 import { Input } from '@/components/ui/Input';
 import { queryKeyOfEXam } from './ExamsList';
 
-const socket = io(import.meta.env.VITE_MAIN_URL, {
+export const socket = io(import.meta.env.VITE_MAIN_URL, {
    extraHeaders: {
       // webid: getWebId(),
       authorization: getJwt() ?? '',
