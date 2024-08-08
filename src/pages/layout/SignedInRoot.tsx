@@ -19,7 +19,6 @@ import TopMenu from './TopMenu';
 
 const SignedInRoot = () => {
    const [isOpen, setIsOpen] = useState(false);
-
    const [forcePass, setForcePass] = useState(false);
    const { data, isLoading, isFetchedAfterMount, refetch, isRefetching } = GetUserMe();
 

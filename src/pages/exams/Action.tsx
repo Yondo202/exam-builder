@@ -87,7 +87,11 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          }),
    });
 
-   const { data: invitedUsers, refetch } = useQuery({
+   const {
+      data: invitedUsers,
+      refetch,
+      isLoading: userLoading,
+   } = useQuery({
       queryKey: [`exam_with_users/${mainInviteType}`, [typeid, mainInviteType]],
       queryFn: () =>
          request<FinalRespnse<TInvitedCandidate[]>>({
@@ -128,15 +132,17 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       setDeleteAction({ isOpen: true, data: data.data as TUserEmployee });
    };
 
-   useEffect(()=>{
-      if(isCompAdmin){
-         setValidInvite(true)
+   useEffect(() => {
+      if (isCompAdmin) {
+         setValidInvite(true);
       }
-   },[isCompAdmin])
+   }, [isCompAdmin]);
 
    const isValidInviteUser = data?.data?.variants && data?.data?.variants?.length > 0 && validInvite;
-   const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction }; // hideAction: true,
+   const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction, isLoading: userLoading }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
+
+   console.log(invitedUsers, '------------>invitedUsers');
 
    return (
       <>
@@ -205,11 +211,13 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                      <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-md z-50" />
                   </Tooltip>
                )}
+
                <AnimatedTabs
                   items={Object.keys(mainInviteTabs)?.map((item) => ({ label: mainInviteTabs[item as TMainKeys]?.label, key: item }))}
                   activeKey={mainInviteType}
                   onChange={(value) => setMainInviteType(value as TMainKeys)}
                />
+
                {mainInviteType === 'candidate' && (
                   <AnimatedTabs
                      className="text-xs"
@@ -225,20 +233,32 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                      onChange={(value) => setCurrent(value as TKeys)}
                   />
                )}
-               {current === 'user' && mainInviteType === 'candidate' ? (
-                  <DataTable
-                     {...invitedTable}
-                     hideActionButton="edit"
-                     data={invitedUsers?.data?.filter((item) => !!item.user)?.map((item) => ({ invited_date: item.created_at, ...item.user })) ?? []}
-                     columns={canditateColumnDef}
-                  />
-               ) : (
+
+               {mainInviteType === 'inspector' ? (
                   <DataTable
                      {...invitedTable}
                      hideActionButton="edit"
                      data={invitedUsers?.data?.filter((item) => !!item.employee)?.map((item) => ({ invited_date: item.created_at, ...item.employee })) ?? []}
                      columns={empColumnDef}
                   />
+               ) : (
+                  <>
+                     {current === 'user' && mainInviteType === 'candidate' ? (
+                        <DataTable
+                           {...invitedTable}
+                           hideActionButton="edit"
+                           data={invitedUsers?.data?.filter((item) => !!item.user)?.map((item) => ({ invited_date: item.created_at, ...item.user })) ?? []}
+                           columns={canditateColumnDef}
+                        />
+                     ) : (
+                        <DataTable
+                           {...invitedTable}
+                           hideActionButton="edit"
+                           data={invitedUsers?.data?.filter((item) => !!item.employee)?.map((item) => ({ invited_date: item.created_at, ...item.employee })) ?? []}
+                           columns={empColumnDef}
+                        />
+                     )}
+                  </>
                )}
             </div>
          )}

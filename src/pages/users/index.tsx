@@ -1,6 +1,6 @@
 // import { useMatches, matchRoutes, matchPath } from "react-router-dom"
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { UseReFetch, request } from '@/lib/core/request';
+import { request } from '@/lib/core/request';
 import { useState, useEffect } from 'react';
 import { DataTable, BreadCrumb, AnimatedTabs, Dialog, Checkbox, Label, Loading } from '@/components/custom';
 import { type FinalRespnse, type TAction, UserRolesAsset, type TUserRoles, type TUserEmployee } from '@/lib/sharedTypes';
@@ -9,7 +9,7 @@ import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import Candidates from './Candidates';
 import { RowSelectionState } from '@tanstack/react-table';
-
+// UseReFetch, 
 // type CandidateUser = {
 //    email: '';
 //    lastname: '';
@@ -181,7 +181,7 @@ export const EmployeeDetail = ({ detailData, onChanged, isRoleAction }: { detail
       mutationFn: (body: { urlKey: TUrlKey; data: { user_id: string; role: TUserRoles } }) => request({ method: 'post', url: `user/role/${body.urlKey}`, body: body.data }),
       onSuccess: () => {
          refetch(), onChanged?.();
-         UseReFetch({ queryKey: 'user/me' }); // ene barag hereggui daraa ustga
+         // UseReFetch({ queryKey: 'user/me' }); // ene barag hereggui daraa ustga
       },
    });
 
