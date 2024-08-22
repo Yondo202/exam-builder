@@ -142,7 +142,8 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction, isLoading: userLoading }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
 
-   console.log(invitedUsers, '------------>invitedUsers');
+   // console.log(invitedUsers, '------------>invitedUsers');
+   // console.log(typeid, "------------------->typeid")
 
    return (
       <>

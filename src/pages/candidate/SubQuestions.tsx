@@ -44,8 +44,11 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
          parentQuestion?.sub_questions?.forEach((item: any) => {
             const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
             // setValue(`score-${item.id}`, totalScore === 0 ? undefined : totalScore);
-            scoreValues[`score-${item.id}`] = totalScore === 0 ? undefined : totalScore;
-
+            if(item.type === "checkbox" || item.input_type === 'fill_with_choice'){
+               scoreValues[`score-${item.id}`] = totalScore;
+            }else{
+               scoreValues[`score-${item.id}`] = totalScore === 0 ? undefined : totalScore;
+            }
             settleValue[item.id] = userAnswerToProgress(item);
          });
 
@@ -167,6 +170,7 @@ const SubQuestions = ({ parentQuestion, score_visible, socket, progressId, subQu
                                        sub.setSubValue({ [parentQuestion.id]: { ...scoreWatch(), [field.name]: isNaN(parseFloat(value)) ? undefined : parseFloat(value) } });
                                        field.onChange(value);
                                     };
+
                                     return (
                                        <div className="relative">
                                           <Input

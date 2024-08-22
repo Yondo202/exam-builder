@@ -15,11 +15,12 @@ export type TCompany = {
    id: string;
    name: string;
    created_at: string;
+   green_id: '';
+   odoo_id: '';
+}
 
-   green_id: 'FIN';
-   odoo_id: 'TBF';
-};
-
+// FIN
+// TBF
 const Company = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const [action, setAction] = useState<TAction<TCompany>>({ isOpen: false, type: 'add', data: {} as TCompany });
 
@@ -58,6 +59,7 @@ const Company = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          />
          <DataTable
             rowAction={(data) => setAction(data)}
+            hideActionButton="delete"
             headAction={
                <Drawer
                   open={action.isOpen}
@@ -91,8 +93,8 @@ const CompanyAction = ({ setClose, action }: TActionProps<TCompany>) => {
    } = useForm<TCompany>({
       defaultValues: {
          name: '',
-         green_id: 'FIN',
-         odoo_id: 'TBF',
+         green_id: '',
+         odoo_id: '',
       },
    });
 
@@ -102,7 +104,7 @@ const CompanyAction = ({ setClose, action }: TActionProps<TCompany>) => {
    const { isPending, mutate } = useMutation({
       mutationFn: (body?: TCompany) =>
          request<TCompany>({
-            method: 'post',
+            method: action.type === 'add' ? 'post' : 'put',
             url: action.type === 'add' ? `org/register` : `org/update/${action.data?.id}`,
             body: body,
          }),
@@ -130,12 +132,14 @@ const CompanyAction = ({ setClose, action }: TActionProps<TCompany>) => {
    //    if (action.type === 'delete') {
    //       return <DeleteContent setClose={setClose} submitAction={() => mutate(undefined)} isLoading={isPending} className="pb-6" />;
    //    }
-
+   // rules={{ required: `green_id` }}
    return (
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
          <TextInput floatLabel={false} autoFocus placeholder="Байгууллагын нэр" label="Байгууллагын нэр" name="name" control={control} rules={{ required: `Байгууллагын нэр` }} />
+         <TextInput floatLabel={false} placeholder="Green Id" label="Green Id" name="green_id" control={control} />
+         <TextInput floatLabel={false} placeholder="ODOO_ERP Id" label="ODOO_ERP Id" name="odoo_id" control={control} />
 
-         <div className="flex justify-end w-full pt-10">
+         <div className="flex justify-end w-full pt-4">
             <Button isLoading={isPending} type="submit" disabled={!isDirty}>
                Хадгалах
             </Button>
@@ -148,6 +152,14 @@ const columnDef: ColumnDef<TCompany>[] = [
    {
       header: 'Байгууллагын нэр',
       accessorKey: 'name',
+   },
+   {
+      header: 'Green Id',
+      accessorKey: 'green_id',
+   },
+   {
+      header: 'ODOO ID',
+      accessorKey: 'odoo_id',
    },
    {
       header: 'Үүсгэсэн огноо',

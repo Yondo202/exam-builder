@@ -164,7 +164,7 @@ const columnDef: ColumnDef<TMaterialList>[] = [
       header: 'Оролцогч',
       accessorKey: 'user_exam.user.firstname',
       cell: ({ row }) => {
-         const user = row?.original?.user_exam.user;
+         const user = row?.original?.user_exam.user || row?.original?.user_exam?.employee;
          return (
             <div>
                {user?.lastname?.slice(0, 1)}. {user?.firstname}

@@ -21,6 +21,7 @@ type TUserInExam = {
 type TUserExam = {
    id: string;
    user: TUserInExam;
+   employee:TUserInExam;
 };
 
 export const userAnswerToProgress = (item: any) => {
@@ -135,6 +136,8 @@ const ExamMaterialAction = () => {
       }
    };
 
+   const user_name = data?.data?.user_exam?.user ? `${data?.data?.user_exam?.user?.lastname?.slice(0, 1)}. ${data?.data?.user_exam?.user?.firstname}` :  `${data?.data?.user_exam?.employee?.lastname?.slice(0, 1)}. ${data?.data?.user_exam?.employee?.firstname}`
+
    return (
       <div>
          {/* <h1 onClick={setError}>test</h1> */}
@@ -153,7 +156,7 @@ const ExamMaterialAction = () => {
             ]}
          />
 
-         <Header title={`${data?.data?.user_exam?.user?.lastname?.slice(0, 1)}. ${data?.data?.user_exam?.user?.firstname} - материал засах`} />
+         <Header title={`${user_name} - материал засах`} />
 
          <form onSubmit={handleSubmit(onSubmit)}>
             <QuestionActionSector

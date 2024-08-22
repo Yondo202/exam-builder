@@ -101,7 +101,6 @@ const RouteStore: TRouteOmit[] = [
       label: 'Тайлан',
       component: ReportList,
    },
-
    // {
    //    to: 'profile', //groups
    //    label: 'Өөрийн мэдээлэл',
@@ -109,16 +108,13 @@ const RouteStore: TRouteOmit[] = [
    //    visibleType: ['company_admin', 'inspector'],
    //    component: Profile,
    // },
-
    // { to: '/report', icon: Document, label: 'Тайлан' },
-
    // {
    //    to: '/', //groups
    //    icon: Group,
    //    label: 'Candidate',
    //    component: Category,
    // },
-
    // {
    //    to: '/groups',
    //    icon: Group,
