@@ -30,7 +30,7 @@ const questionAsset: TQuestionTypesInFront = {
       icon: BsChatSquareText,
    },
    answer: {
-      label: 'Харуилт хэсэг',
+      label: 'Хариулт хэсэг',
       description: 'Шалгалтанд оролцогч нөхөж бичих хэсэг',
       icon: BsQuestionSquare,
    },

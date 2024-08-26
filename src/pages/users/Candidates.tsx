@@ -206,6 +206,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
 
    const { data } = useQuery({
       queryKey: [`company`],
+      // enabled:!action.data?.empid || !!isFromAdmin,
       queryFn: () =>
          request<FinalRespnse<TCompany[]>>({
             method: 'post',

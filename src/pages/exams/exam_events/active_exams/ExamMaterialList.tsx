@@ -41,7 +41,7 @@ export type TMaterialList = {
    status: keyof typeof SubmissionTypes;
    variant: { name: string; achievable_score: number };
    temp_exam_code: string;
-};
+}
 
 export const GetExamDetial = ({ examid }: { examid?: string }) => {
    return useQuery({

@@ -16,6 +16,7 @@ import { RiArrowDropRightLine } from 'react-icons/ri';
 import { FaCheckCircle } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { GoCheckCircle } from 'react-icons/go';
 import { getJwt } from '@/lib/core/request';
 import { Controller, useForm, type Control, type FieldValues } from 'react-hook-form';
 import SubQuestions from './SubQuestions';
@@ -132,6 +133,7 @@ const ExamStartAction = () => {
    const [timer, setTimer] = useState({ isStarted: false, isDone: false });
    // const [socketConnect, setSocketConnect] = useState({ isConnected: false });
    const { control, reset, watch, handleSubmit } = useForm({ mode: 'onSubmit' });
+   const [finishAlert, setFinishAlert] = useState(false);
 
    const navigate = useNavigate();
    const { inviteid } = useParams();
@@ -142,6 +144,7 @@ const ExamStartAction = () => {
    // }, [socket?.connected]);
 
    const { data: InviteDetail, isFetchedAfterMount } = useQuery({
+      enabled:!finishAlert,
       refetchOnMount: true,
       refetchOnReconnect: true,
       queryKey: [queryKeyOfEXam.getinvite], //inviteid
@@ -178,7 +181,11 @@ const ExamStartAction = () => {
       mutationFn: () => request({ method: 'post', url: `user/exam/end/${ProgressData?.data.id}`, passToken: true }),
       onSuccess: () => {
          toast.success('Шалгалт амжилттай дууслаа');
-         navigate('/');
+         if (!finishAlert) {
+            navigate('/');
+         }
+
+         // setFinishAlert(true);
          // setTimer({ isDone:true, isStarted:false });
       },
       // onSettled: () => setTimer({ isDone: true, isStarted: false }),
@@ -248,7 +255,8 @@ const ExamStartAction = () => {
    }, [isProgressFetched]);
 
    useEffect(() => {
-      if (timer.isDone) {
+      if (timer.isDone && !finishAlert) {
+         setFinishAlert(true);
          fullSaveMutate();
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -338,6 +346,20 @@ const ExamStartAction = () => {
    return (
       <>
          <Header className="pt-2.5" title={data?.data?.name} />
+         <Dialog
+            // className={cn('pt-0', action.type === 'delete' ? 'w-[600px]' : 'w-[800px]')}
+            className="p-6 w-[300px]"
+            isOpen={finishAlert}
+            onOpenChange={() => null}
+            title="Шалгалтын цаг дууслаа"
+         >
+            <div className="flex flex-col gap-8 items-center justify-center">
+               <GoCheckCircle className="w-24 h-24 text-green-500" />
+               <Button onClick={() => (setFinishAlert(false), navigate('/'))} className="w-full rounded-full" size="lg" variant="secondary">
+                  Нүүр хуудас
+               </Button>
+            </div>
+         </Dialog>
          <div className="py-0 grid grid-cols-[minmax(0,1fr)_minmax(0,280px)] gap-32 max-sm:grid-cols-1 max-sm:gap-6">
             <form className="mb-14" onSubmit={handleSubmit(onExamSubmit)}>
                <QuestionActionSector

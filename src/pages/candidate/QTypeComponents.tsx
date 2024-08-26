@@ -122,10 +122,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                            {/* <span className="text-muted-text/70 text-sm">{index + 1}. </span> */}
                            <label
                               htmlFor={item.id}
-                              className={cn(
-                                 'flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer',
-                                 isFromInspector && item.is_correct ? `border-green-500` : ``
-                              )}
+                              className={cn('flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer', isFromInspector && item.is_correct ? `border-green-500` : ``)}
                            >
                               <Checkbox checked={item.is_correct} disabled={true || isFromInspector} className="disabled:opacity-90" />
                               <Label htmlFor={item.id} className="mb-0 select-none text-text">
@@ -147,6 +144,24 @@ type TFillAnswer = {
    answer: string;
    fill_index: number;
 };
+
+function shuffle(array: TAnswers[]) {
+   let currentIndex = array.length;
+   if(currentIndex === 0 || !array){
+      return []
+   }
+   // While there remain elements to shuffle...
+   while (currentIndex != 0) {
+      // Pick a remaining element...
+      let randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+   }
+
+   return array
+}
 
 export const FillQuestion = ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => {
    const [questionArr, setQuestionArr] = useState<string[]>([]);
@@ -244,7 +259,7 @@ export const FillQuestion = ({ question, field, socket, progressId, isFromInspec
                                  <SelectValue placeholder={'Сонго...'} className="placeholder:text-muted-text/20 " />
                               </SelectTrigger>
                               <SelectContent>
-                                 {question.answers?.map((item, index) => (
+                                 {shuffle(question.answers)?.map((item, index) => (
                                     <SelectItem key={index} value={item.id ?? ''}>
                                        {item.answer}
                                     </SelectItem>

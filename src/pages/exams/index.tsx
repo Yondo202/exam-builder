@@ -55,6 +55,7 @@ export type TExam = {
    created_at: Date;
    updated_at: Date;
    variants: TVariant[];
+   grade_status_count?: { count:string, status:string }[]
 };
 
 // {

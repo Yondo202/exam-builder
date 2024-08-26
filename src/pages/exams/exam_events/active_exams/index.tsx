@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { type FinalRespnse } from '@/lib/sharedTypes';
-import { DataTable, BreadCrumb, Header, Badge } from '@/components/custom';
+import { DataTable, BreadCrumb, Header, Badge, Tooltip } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -69,15 +69,27 @@ const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                   header: 'Шалгалтын нэр',
                   accessorKey: 'name',
                   // size:500,
+                  cell: ({ getValue }) => {
+                     return (
+                        <Tooltip className="one_line" side="top" content={getValue() as TExam['name']}>
+                           {getValue() as TExam['name']}
+                        </Tooltip>
+                     );
+                  },
                },
                {
                   header: 'Бүлэг',
                   accessorKey: 'category_id',
                   cell: ({ row }) => {
-                     return <div>{CategoryData?.data?.find((item) => item.id === row.original.category_id)?.name}</div>;
+                     const found = CategoryData?.data?.find((item) => item.id === row.original.category_id)?.name;
+                     return (
+                        <Tooltip className="one_line" side="top" content={found}>
+                           {found}
+                        </Tooltip>
+                     );
                   },
                },
-               ...columnDef
+               ...columnDef,
             ]}
             isLoading={isLoading}
          />
@@ -147,6 +159,14 @@ const columnDef: ColumnDef<TExam>[] = [
          );
       },
    },
+   {
+      header: 'Шалгасан',
+      accessorKey: 'grade_status_count',
+      size: 50,
+      cell: ({ row }) => {
+         return row.original?.grade_status_count?.find((item) => item.status === 'graded')?.count;
+      },
+   },
    // {
    //    header: 'Код',
    //    accessorKey: 'code',
@@ -162,7 +182,6 @@ const columnDef: ColumnDef<TExam>[] = [
    //       );
    //    },
    // },
-
    // {
    //    header: '',
    //    accessorKey: 'as_action',
