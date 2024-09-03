@@ -2,7 +2,6 @@ import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { Header, BreadCrumb, Loading, DataTable, DatePicker, Button } from '@/components/custom'; //BreadCrumb
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
-// import { formatDateToCustomISO } from '@/lib/utils';
 import { FinalRespnse } from '@/lib/sharedTypes';
 import { endOfDay, startOfDay, subMonths } from 'date-fns';
 import { CategorySelect } from '../questions/Action';
@@ -81,11 +80,15 @@ const ReportList = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             },
          }),
       onSuccess: (resdata: any) => {
-         const url = URL.createObjectURL(new Blob([resdata], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
-         const link = document.createElement('a');
-         link.href = url;
-         link.setAttribute('download', 'Шалгалтын тайлан.xlsx');
-         link.click();
+         const url = window.URL.createObjectURL(new Blob([resdata], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+         const a = document.createElement('a');
+         a.href = url;
+         a.download = `Тайлан_${watch('start_range')?.slice(0,10)}_${watch('end_range')?.slice(0,10)}.xlsx`;
+         document.body.appendChild(a);
+         a.click();
+
+         window.URL.revokeObjectURL(url);
+         a.remove();
       },
    });
 

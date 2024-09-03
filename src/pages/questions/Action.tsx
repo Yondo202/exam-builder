@@ -130,7 +130,7 @@ export const CategorySelect = <TFieldValues extends FieldValues>({
 const GroupAction = ({ breadcrumbs, pathId, setClose, isFromExam }: { breadcrumbs?: TBreadCrumb[]; pathId?: string; setClose?: () => void; isFromExam?: boolean }) => {
    const [search] = useSearchParams({});
    const searchAsObject = Object.fromEntries(new URLSearchParams(search));
-
+   
    return (
       <>
          {!pathId && !isFromExam && (
@@ -152,7 +152,7 @@ export default GroupAction;
 // eslint-disable-next-line react-refresh/only-export-components
 export const InitialAnswer: TAnswers = { answer: '', is_correct: false, mark: 0, sort_number: 0 }; //sort_number: 0,
 
-const inititalState = { question: '', sort_number: 0, score: 0, category_id: '', sub_category_id: '', answers: [], sub_questions: [] };
+const inititalState = { question: '', sort_number: 0,score: 0, category_id: '', sub_category_id: '', answers: [], sub_questions: [] };
 
 const InitialonCreate = ({ type }: { type: TQuestion }) => {
    return {
@@ -287,7 +287,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
          ...data,
          score: data.score + subTotal,
          sort_number: 0,
-         sub_questions: data?.sub_questions?.map((item, index) => ({ ...item, sort_number: index })),
+         sub_questions: data?.sub_questions?.map((item, index) => ({ ...item, sort_number: index, fill_index: index })),
          answers: answers?.map((el, index) => ({ ...el, sort_number: index, fill_index: index })),
       });
    };

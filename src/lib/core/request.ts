@@ -29,7 +29,7 @@ export const getJwt = () => {
 };
 
 export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic, passToken }: TRequest<T>) => {
-   if (!isPublic && method === "get") {
+   if (!isPublic && method === 'get') {
       if (!getJwt() && !passToken) {
          SignOut();
       }
@@ -42,26 +42,26 @@ export const request = async <T>({ mainUrl, url = '', method = 'get', body = und
          // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
          toast.error(error?.response?.data?.message);
-         if(!passToken){
+         if (!passToken) {
             SignOut();
          }
       }
    }
 
-   const reqAsset = { headers: { Authorization: `Bearer ${getJwt()}` }, params: queryParams };
+   const reqAsset = {
+      headers: { Authorization: `Bearer ${getJwt()}` },
+      params: queryParams,
+   };
+
    const fullUrl = `${mainUrl ?? import.meta.env.VITE_MAIN_URL}${url}`;
 
    try {
       // const response = await axios<ResponseType<T>>({ url: fullUrl, method: method, data: body ?? filterBody ?? {}, ...reqAsset }); // tur ashiglaj baigaa data naas shaltgalaad tur darsan
-      const response = await axios<T>({ url: fullUrl, method: method, data: body ?? filterBody ?? {}, ...reqAsset });
+      const response = await axios<T>({ url: fullUrl, responseType: url.includes('download') ? 'arraybuffer' : 'json', method: method, data: body ?? filterBody ?? {}, ...reqAsset });
       if (method !== 'get' && !offAlert) {
          toast.success('Хүсэлт амжилттай');
       }
 
-      // if(method === "post"){
-      //    return response.data?.data
-      // }
-      // return response.data.data;
       return response.data;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
    } catch (err: any) {
