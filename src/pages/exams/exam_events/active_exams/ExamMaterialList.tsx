@@ -8,6 +8,7 @@ import { cn, finalRenderDate } from '@/lib/utils';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { TExam } from '@/pages/exams';
 import { StatusLabels } from '@/pages/candidate/ExamsList';
+import { useEffect, useState } from 'react';
 
 export type TUserInfo = {
    attempt: number;
@@ -41,7 +42,7 @@ export type TMaterialList = {
    status: keyof typeof SubmissionTypes;
    variant: { name: string; achievable_score: number };
    temp_exam_code: string;
-}
+};
 
 export const GetExamDetial = ({ examid }: { examid?: string }) => {
    return useQuery({
@@ -54,14 +55,16 @@ export const GetExamDetial = ({ examid }: { examid?: string }) => {
 };
 
 const ExamMaterialList = () => {
+   const [listData, setListData] = useState<TMaterialList[]>([]);
    const isResult = useLocation()?.pathname?.startsWith('/handle/examresults');
+   const pathname = useLocation()?.pathname;
    const navigate = useNavigate();
    const { examid } = useParams();
    // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
 
    const { data: examDAta } = GetExamDetial({ examid: examid });
 
-   const { data, isLoading } = useQuery({
+   const { data, isLoading, isFetchedAfterMount } = useQuery({
       queryKey: ['exam/inspector', [examid, isResult]],
       refetchOnWindowFocus: true,
       queryFn: () =>
@@ -78,6 +81,24 @@ const ExamMaterialList = () => {
             },
          }),
    });
+
+   useEffect(() => {
+      if (isFetchedAfterMount) {
+         const temp: TMaterialList[] = [];
+         // if (isResult) {
+            data?.data?.forEach((item) => {
+               if (isResult && item.status !== 'not_graded_yet') {
+                  temp.push(item);
+               }
+               if (!isResult && item.status === 'not_graded_yet') {
+                  temp.push(item);
+               }
+            });
+         // }
+
+         setListData(temp ?? []);
+      }
+   }, [isFetchedAfterMount, pathname, isResult]);
 
    // const afterSuccess = (id: string) => {
    //    setAction((prev) => ({ ...prev, isOpen: false }));
@@ -101,7 +122,8 @@ const ExamMaterialList = () => {
          <Config data={examDAta} isCompAdmin />
 
          <DataTable
-            data={data?.data?.filter((item) => (isResult ? item.status !== 'not_graded_yet' : item.status === 'not_graded_yet')) ?? []}
+            isLoading={isLoading}
+            data={listData}
             defaultSortField="active_start_at"
             rowAction={(data) => navigate(data?.data?.id ?? '')}
             hideActionButton="delete"
@@ -140,7 +162,6 @@ const ExamMaterialList = () => {
                        },
                     },
             ]}
-            isLoading={isLoading}
          />
       </div>
    );
@@ -227,12 +248,12 @@ const columnDef: ColumnDef<TMaterialList>[] = [
    },
    {
       header: 'Авсан хувь',
-      accessorKey: 'attempt_score',
+      accessorKey: 'achievable_score',
       cell: ({ row }) => {
-         const persentage = (row.original.attempt_score / row.original.variant?.achievable_score) * 100
+         const persentage = (row.original.attempt_score / row.original.variant?.achievable_score) * 100;
          return (
             // <Badge variant="secondary" className="text-[11px]">
-               <>{(isNaN(persentage)?0:persentage)?.toLocaleString()} %</>
+            <>{(isNaN(persentage) ? 0 : persentage)?.toLocaleString()} %</>
             // </Badge>
          );
       },

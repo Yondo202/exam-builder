@@ -287,7 +287,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
          ...data,
          score: data.score + subTotal,
          sort_number: 0,
-         sub_questions: data?.sub_questions?.map((item, index) => ({ ...item, sort_number: index, fill_index: index })),
+         sub_questions: data?.sub_questions?.map((item, index) => ({ ...item, sort_number: index, answers:item?.answers?.map((el,ind)=>({ ...el, fill_index: ind })) })),
          answers: answers?.map((el, index) => ({ ...el, sort_number: index, fill_index: index })),
       });
    };
