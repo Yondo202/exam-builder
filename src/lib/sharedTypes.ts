@@ -26,9 +26,8 @@ export type TActionProps<TData> = {
 
 export type TControllerProps<TFieldValues extends FieldValues = FieldValues> = {
    control: Control<TFieldValues>;
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
    name: FieldPath<TFieldValues> | never;
-   rules?: Exclude<RegisterOptions, 'valueAsNumber' | 'valueAsDate' | 'setValueAs'>;
+   rules?: Exclude<RegisterOptions, 'valueAsNumber' | 'valueAsDate' | 'setValueAs'> | any;
    className?: string;
 };
 
