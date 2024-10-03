@@ -8,7 +8,7 @@ import { SignOut } from '../Auth';
 export type TRequest<T> = {
    method?: 'get' | 'post' | 'put' | 'delete';
    url?: string;
-   mainUrl?: string;
+   // mainUrl?: string;
    body?: T;
    filterBody?: unknown;
    queryParams?: unknown;
@@ -28,7 +28,7 @@ export const getJwt = () => {
       ?.split('=')[1];
 };
 
-export const request = async <T>({ mainUrl, url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic, passToken }: TRequest<T>) => {
+export const request = async <T>({ url = '', method = 'get', body = undefined, queryParams, offAlert = false, filterBody, isPublic, passToken }: TRequest<T>) => {
    if (!isPublic && method === 'get') {
       if (!getJwt() && !passToken) {
          SignOut();
@@ -53,7 +53,7 @@ export const request = async <T>({ mainUrl, url = '', method = 'get', body = und
       params: queryParams,
    };
 
-   const fullUrl = `${mainUrl ?? import.meta.env.VITE_MAIN_URL}${url}`;
+   const fullUrl = import.meta.env.VITE_MAIN_URL + url;
 
    try {
       // const response = await axios<ResponseType<T>>({ url: fullUrl, method: method, data: body ?? filterBody ?? {}, ...reqAsset }); // tur ashiglaj baigaa data naas shaltgalaad tur darsan
