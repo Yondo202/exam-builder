@@ -4,14 +4,15 @@ import { type FinalRespnse, type TAction } from '@/lib/sharedTypes';
 import { DataTable, BreadCrumb, Header, Button, Drawer, Badge } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { IoSettingsOutline } from "react-icons/io5";
 import { MdOutlineAdd } from 'react-icons/md';
 import { CategorySelect } from '../questions/Action';
 import ConfigAction from '@/pages/exams/ConfigAction';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { finalRenderDate } from '@/lib/utils';
-import { IoArrowForwardSharp } from 'react-icons/io5';
+// import { IoArrowForwardSharp } from 'react-icons/io5';
 import { AllTypesQuestionTypes } from '../questions';
 import { GetUserMe } from '@/pages/auth/Profile';
 
@@ -55,7 +56,7 @@ export type TExam = {
    created_at: Date;
    updated_at: Date;
    variants: TVariant[];
-   grade_status_count?: { count:string, status:string }[]
+   grade_status_count?: { count: string; status: string }[];
 };
 
 // {
@@ -116,7 +117,6 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       if (id !== 'delete') {
          navigate(id);
       }
-
       // row.original?.id ?? '/'
    };
 
@@ -165,9 +165,34 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          <DataTable
             hideAction={isCompAdmin}
             defaultSortField="active_start_at"
-            rowAction={(data) => (isCompAdmin ? navigate(data?.data?.id ?? '/') : setAction(data))}
+            // rowAction={(data) => (isCompAdmin ? navigate(data?.data?.id ?? '/') : setAction(data))}
+            rowAction={(data) => (isCompAdmin ? navigate(data?.data?.id ?? '/') : navigate(data?.data?.id ?? '/'))}
             data={data?.data ?? []}
-            columns={columnDef}
+            columns={[
+               ...columnDef,
+               {
+                  header: '',
+                  accessorKey: 'as_action',
+                  size: 60,
+                  enableSorting: false,
+                  enableHiding: false,
+                  cell: ({ row }) => (
+                     <div
+                        // to={row.original?.id ?? '/'}
+                        onClick={() => setAction({ isOpen:true, type:'edit', data:row.original })}
+                        className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline"
+                     >
+                        Тохиргоо <IoSettingsOutline />
+                     </div>
+                     // <Link
+                     //    to={row.original?.id ?? '/'}
+                     //    className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline"
+                     // >
+                     //    Дэлгэрэнгүй <IoArrowForwardSharp />
+                     // </Link>
+                  ),
+               },
+            ]}
             isLoading={isLoading}
             manualPagination
             pagination={pagination}
@@ -175,6 +200,7 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             search={search}
             setSearch={setSearch}
             headActionClassName="items-end"
+            hideActionButton="delete"
             headAction={
                <div className="flex gap-5">
                   <CategorySelect
@@ -264,17 +290,5 @@ const columnDef: ColumnDef<TExam>[] = [
             )
          );
       },
-   },
-   {
-      header: '',
-      accessorKey: 'as_action',
-      size: 100,
-      enableSorting: false,
-      enableHiding: false,
-      cell: ({ row }) => (
-         <Link to={row.original?.id ?? '/'} className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline">
-            Дэлгэрэнгүй <IoArrowForwardSharp />
-         </Link>
-      ),
    },
 ];

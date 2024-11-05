@@ -144,7 +144,7 @@ const ExamStartAction = () => {
    // }, [socket?.connected]);
 
    const { data: InviteDetail, isFetchedAfterMount } = useQuery({
-      enabled:!finishAlert,
+      enabled: !finishAlert,
       refetchOnMount: true,
       refetchOnReconnect: true,
       queryKey: [queryKeyOfEXam.getinvite], //inviteid
@@ -274,7 +274,7 @@ const ExamStartAction = () => {
          const sortedQuestion = !data?.data?.scrumble_questions ? item.questions?.sort((a, b) => a?.sort_number - b?.sort_number) : item.questions;
          return (
             <div key={index}>
-               <div className="truncate text-[11px] font-semibold mb-1 sticky top-0 bg-body-bg py-0.5">{item.name}</div>
+              {sortedQuestion?.length > 0 && <div className="truncate text-[11px] font-semibold mb-1 sticky top-0 bg-body-bg py-0.5">{item.name}</div>} 
                <div className="pl-2">
                   {sortedQuestion?.map((el, ind) => {
                      const questionScore = el?.sub_questions?.length > 0 ? el.score - el?.sub_questions.reduce((a, b) => a + b.score, 0) : el.score;
@@ -361,6 +361,9 @@ const ExamStartAction = () => {
             </div>
          </Dialog>
          <div className="py-0 grid grid-cols-[minmax(0,1fr)_minmax(0,280px)] gap-32 max-sm:grid-cols-1 max-sm:gap-6">
+            <div className="sticky top-0 z-50 md:hidden">
+               {timer.isStarted && inviteid && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
+            </div>
             <form className="mb-14" onSubmit={handleSubmit(onExamSubmit)}>
                <QuestionActionSector
                   sectionData={data?.data?.variants?.[0]?.sections}
@@ -389,12 +392,14 @@ const ExamStartAction = () => {
                   </div>
                </Dialog>
             </form>
-
             <div className="sticky top-2 z-40 h-min">
+               {/* max-sm:fixed left-0 top-14 w-full */}
+
                <div className="wrapper p-0 mb-0">
                   {/* <div className="mb-2 text-muted-text absolute">Үлдсэн хугацаа</div> */}
-
-                  {timer.isStarted && inviteid && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
+                  <div className="max-md:hidden">
+                     {timer.isStarted && inviteid && <ShiftingCountdown endAt={ProgressData?.data?.end_at} timer={timer} FinalFinish={() => setTimer({ isStarted: false, isDone: true })} />}
+                  </div>
 
                   <div className="p-4">
                      <div className="pb-2 text-muted-text">
@@ -442,7 +447,7 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
          <div className="mb-10" key={index}>
             <div
                className={cn(
-                  'wrapper p-6 py-3 text-sm border-b font-medium truncate border-t-[3px] rounded-b-sm border-t-primary sticky top-0 h-min z-[10]',
+                  'wrapper p-6 py-3 text-sm border-b font-medium truncate border-t-[3px] rounded-b-sm border-t-primary sticky top-0 max-sm:top-14 h-min z-[10]',
                   `z-[calc(10 + ${index})]`,
                   !item?.description ? `mb-2 rounded-b-md` : `mb-0`
                )}

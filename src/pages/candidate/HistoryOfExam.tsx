@@ -86,6 +86,7 @@ const HistoryOfExam = () => {
             // return (
             <div className="grid grid-cols-3 gap-6 max-sm:grid-cols-1 pb-3 mb-3">
                {data?.data?.map((item, index) => {
+                  const persentage = (item.attempt_score / item?.variant?.achievable_score) * 100;
                   return (
                      <div className="wrapper p-0 group hover:shadow-md " key={index}>
                         <div className="text-base font-normal px-5 py-3 border-b">
@@ -117,7 +118,11 @@ const HistoryOfExam = () => {
                            </div>
 
                            <div className="flex items-center gap-2 text-muted-text mb-3">
-                              Ш / эхэлсэн огноо: <span className="text-text ">{finalRenderDate(item?.start_date)}</span>
+                              Авсан хувь: <span className="text-text">{(isNaN(persentage) ? 0 : persentage)?.toLocaleString()} %</span>
+                           </div>
+
+                           <div className="flex items-center gap-2 text-muted-text mb-3">
+                              Ш / эхэлсэн огноо: <span className="text-text">{finalRenderDate(item?.start_date)}</span>
                            </div>
                            <div className="flex items-center gap-2 text-muted-text mb-3">
                               Ш / дуусгасан огноо: <span className="text-text">{finalRenderDate(item?.end_date)}</span>
