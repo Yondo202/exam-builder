@@ -80,6 +80,8 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
          reviewable: true,
          score_visible: false,
          scrumble_questions: false,
+
+         grade_visible: false,
       },
    });
 
@@ -185,7 +187,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
          </div>
 
          {/* <div className="grid grid-cols-[1fr_1fr] gap-10 mb-6"> */}
-            {/* <TextInput
+         {/* <TextInput
                beforeAddon={<IoIosCheckmarkCircleOutline />}
                className="w-full mb-0"
                name="pass_score"
@@ -195,7 +197,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                placeholder="Оноо оруулах"
                type="number"
             /> */}
-            {/* <div className="flex items-center gap-2">
+         {/* <div className="flex items-center gap-2">
                <TextInput
                   beforeAddon={<RxClock />}
                   className="w-full mb-0"
@@ -222,7 +224,7 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
             <DateInputCustom {...{ control, watch, setValue }} fieldName="active_end_at" label="Шалгалт дуусах огноо" />
          </div>
 
-         <div className="grid grid-cols-[1fr_1fr_1fr] gap-5 mb-2">
+         <div className="grid grid-cols-[35%_1fr] gap-5 mb-4">
             <Controller
                control={control}
                name="reviewable"
@@ -240,6 +242,23 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
 
             <Controller
                control={control}
+               name="scrumble_questions"
+               render={({ field }) => {
+                  return (
+                     <div className="flex items-center gap-3">
+                        <Checkbox id={field.name} checked={field.value} onCheckedChange={(e) => field.onChange(e)} />{' '}
+                        <Label htmlFor={field.name} className="m-0">
+                           Асуултыг санамсаргүй байдлаар холих боломжтой
+                        </Label>
+                     </div>
+                  );
+               }}
+            />
+         </div>
+
+         <div className="grid grid-cols-[35%_1fr] gap-5 mb-2">
+            <Controller
+               control={control}
                name="score_visible"
                render={({ field }) => {
                   return (
@@ -252,16 +271,15 @@ const ConfigAction = ({ afterSuccess, action }: TConfigAction) => {
                   );
                }}
             />
-
             <Controller
                control={control}
-               name="scrumble_questions"
+               name="grade_visible"
                render={({ field }) => {
                   return (
                      <div className="flex items-center gap-3">
                         <Checkbox id={field.name} checked={field.value} onCheckedChange={(e) => field.onChange(e)} />{' '}
                         <Label htmlFor={field.name} className="m-0">
-                           Асуултыг санамсаргүй байдлаар холих боломжтой
+                           Оролцогч шалгалт дууссаны дараа өөрийн авсан хувиа харж болох эсээх
                         </Label>
                      </div>
                   );

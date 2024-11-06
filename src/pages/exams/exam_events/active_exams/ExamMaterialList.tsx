@@ -38,6 +38,7 @@ export type TMaterialList = {
    passed: boolean;
    attempt_score: number;
    end_date: string;
+   grade_visible:boolean;
    user_exam: TUserInfo;
    status: keyof typeof SubmissionTypes;
    variant: { name: string; achievable_score: number };

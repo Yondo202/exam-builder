@@ -117,9 +117,11 @@ const HistoryOfExam = () => {
                               </Badge>
                            </div>
 
-                           <div className="flex items-center gap-2 text-muted-text mb-3">
-                              Авсан хувь: <span className="text-text">{(isNaN(persentage) ? 0 : persentage)?.toLocaleString()} %</span>
-                           </div>
+                           {item?.grade_visible && (
+                              <div className="flex items-center gap-2 text-muted-text mb-3">
+                                 Авсан хувь: <span className="text-text">{(isNaN(persentage) ? 0 : persentage)?.toLocaleString()} %</span>
+                              </div>
+                           )}
 
                            <div className="flex items-center gap-2 text-muted-text mb-3">
                               Ш / эхэлсэн огноо: <span className="text-text">{finalRenderDate(item?.start_date)}</span>

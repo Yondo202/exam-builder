@@ -13,6 +13,7 @@ import { GoLock } from 'react-icons/go';
 import { RowSelectionState } from '@tanstack/react-table';
 import { MdOutlineAdd } from 'react-icons/md';
 import { useQuery } from '@tanstack/react-query';
+// import { type TInvitedCandidate } from '../exams/Action';
 // import { EmployeeDetail } from '.';
 
 // type TUserEmployee = {
@@ -28,7 +29,7 @@ import { useQuery } from '@tanstack/react-query';
 //    age: number;
 // };
 
-const Candidates = ({ fromAction }: { fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
+const Candidates = ({ fromAction, selectedData }: { selectedData?: string[]; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
    const [action, setAction] = useState<TAction<TUserEmployee>>({ isOpen: false, type: 'add', data: {} as TUserEmployee });
    const { data, isLoading } = useQuery({
@@ -59,11 +60,11 @@ const Candidates = ({ fromAction }: { fromAction?: (row: RowSelectionState) => R
       <>
          {fromAction?.(rowSelection)}
          <DataTable
-            enableMultiRowSelection={false}
+            enableMultiRowSelection={true}
             setRowSelection={setRowSelection}
             rowSelection={fromAction ? rowSelection : undefined}
             defaultSortField="created_at"
-            data={data?.data ?? []}
+            data={fromAction ? data?.data?.filter((item) => !selectedData?.includes(item.id)) ?? [] : data?.data ?? []}
             columns={[
                ...canditateColumnDef,
                !!fromAction
@@ -383,7 +384,7 @@ export const CandidateAction = ({ setClose, action, isFromAdmin }: TActionProps<
                   name="company_applied"
                   control={control}
                   rules={{ required: `Горилж буй байгууллага оруулна уу` }}
-                  options={data?.data?.map((item) => ({ label: item.name, value: item.id }))??[]}
+                  options={data?.data?.map((item) => ({ label: item.name, value: item.id })) ?? []}
                />
                {/* <TextInput
                   disabled={!!action.data?.empid || !isFromAdmin}

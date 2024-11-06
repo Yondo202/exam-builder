@@ -49,6 +49,7 @@ export type TExam = {
    category_id: string;
    sub_category_id: string;
    reviewable: boolean;
+   grade_visible: boolean;
    scrumble_questions: boolean;
    score_visible: boolean;
    active_start_at: string;

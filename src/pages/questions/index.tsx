@@ -196,7 +196,7 @@ const Questions = ({ breadcrumbs, fromAction, prevData, parentData }: TQuestionP
          <div className={cn('grid transition-all grid-cols-1 gap-0', fromAction ? ` grid-cols-[60%_1fr] gap-8` : ``)}>
             <div>
                <div className={cn('wrapper p-6 pt-3 mb-4 grid grid-cols-[40%_1fr] items-end flex-wrap gap-10 relative', fromAction ? `grid-cols-[1fr] gap-5` : ``)}>
-                  <div className="flex gap-5">
+                  <div className="grid grid-cols-2 gap-5">
                      <CategorySelect
                         control={control}
                         name="category_id"

@@ -9,7 +9,8 @@ import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { CheckedState } from '@radix-ui/react-checkbox';
 import Candidates from './Candidates';
 import { RowSelectionState } from '@tanstack/react-table';
-// UseReFetch, 
+
+// UseReFetch,
 // type CandidateUser = {
 //    email: '';
 //    lastname: '';
@@ -47,7 +48,17 @@ const catAsset = {
 
 export type TKeys = keyof typeof catAsset;
 
-const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadCrumb[]; is_inspector?: boolean; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
+const Users = ({
+   breadcrumbs,
+   fromAction,
+   is_inspector,
+   // selectedData,
+}: {
+   // selectedData?: string[];
+   breadcrumbs: TBreadCrumb[];
+   is_inspector?: boolean;
+   fromAction?: (row: RowSelectionState) => React.ReactNode;
+}) => {
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
    const [search, setSearch] = useState('');
    const [current, setCurrent] = useState<TKeys>('candidate');
@@ -97,6 +108,8 @@ const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadC
       // setAction(data);
    };
 
+   // console.log(selectedData, "---------------->selectedData")
+
    return (
       <>
          <Dialog
@@ -124,7 +137,7 @@ const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadC
             <Candidates />
          ) : (
             <DataTable
-               enableMultiRowSelection={false}
+               enableMultiRowSelection={!is_inspector}
                setRowSelection={setRowSelection}
                rowSelection={fromAction ? rowSelection : undefined}
                manualPagination
@@ -137,6 +150,7 @@ const Users = ({ breadcrumbs, fromAction, is_inspector }: { breadcrumbs: TBreadC
                setSearch={setSearch}
                // defaultSortField="hired_date"
                data={data?.data ?? []}
+               // data={fromAction ? data?.data?.filter((item) => !selectedData?.includes(item.id)) ?? [] : data?.data ?? []}
                columns={empColumnDef}
                isLoading={isLoading}
             />

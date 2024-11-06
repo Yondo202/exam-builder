@@ -7,6 +7,7 @@ import { type TExam, onlyCompanyAdmin } from '.';
 import { type FinalRespnse, type TAction, type TUserEmployee } from '@/lib/sharedTypes';
 import { useParams } from 'react-router-dom';
 import { request } from '@/lib/core/request';
+import { toast } from 'sonner';
 import Config from './actions/Config';
 import Variants from './actions/Variants';
 import { RowSelectionState } from '@tanstack/react-table';
@@ -85,7 +86,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          request<FinalRespnse<TExam>>({
             url: `exam/id/${typeid}`,
          }),
-   });
+   })
 
    const {
       data: invitedUsers,
@@ -141,9 +142,6 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const isValidInviteUser = data?.data?.variants && data?.data?.variants?.length > 0 && validInvite;
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction, isLoading: userLoading }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
-
-   // console.log(invitedUsers, '------------>invitedUsers');
-   // console.log(typeid, "------------------->typeid")
 
    return (
       <>
@@ -266,9 +264,17 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
          <Dialog title="Шалгалтанд урих" className={`p-6 pt-0 w-[80dvw]`} isOpen={invite.isOpen} onOpenChange={(e) => setInvite((prev) => ({ ...prev, isOpen: e }))}>
             {invite.type === 'user' ? (
-               <Candidates fromAction={(row) => <FromActionComponent row={row} {...inviteActionProps} />} />
+               <Candidates
+                  selectedData={invitedUsers?.data?.filter((item) => !!item.user)?.map((item) => item.user.id) ?? []}
+                  fromAction={(row) => <FromActionComponent row={row} {...inviteActionProps} />}
+               />
             ) : (
-               <Employee is_inspector={invite.is_inspector} breadcrumbs={[]} fromAction={(row) => <FromActionComponent row={row} {...inviteActionProps} />} />
+               <Employee
+                  // selectedData={!invite.is_inspector ? invitedUsers?.data?.filter((item) => !!item.user)?.map((item) => item.user.id) ?? [] : []}
+                  breadcrumbs={[]}
+                  is_inspector={invite.is_inspector}
+                  fromAction={(row) => <FromActionComponent is_inspector={invite.is_inspector} row={row} {...inviteActionProps} />}
+               />
             )}
          </Dialog>
       </>
@@ -277,11 +283,24 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
 export default ExamAction;
 
-const FromActionComponent = ({ row, type, exam_id, setClose }: { row: RowSelectionState; type: inviteTypes; exam_id?: string; setClose: () => void }) => {
+const FromActionComponent = ({
+   row,
+   type,
+   exam_id,
+   setClose,
+   is_inspector,
+}: {
+   row: RowSelectionState;
+   type: inviteTypes;
+   exam_id?: string;
+   setClose: () => void;
+   is_inspector?: boolean;
+}) => {
    // let addition = '/employee';
    // if (type === 'user') {
    //    addition = '';
    // }
+
    const { data, isLoading } = useQuery({
       enabled: !!Object.keys(row)?.at(0),
       queryKey: ['user_detail', Object.keys(row)?.at(0)],
@@ -294,7 +313,8 @@ const FromActionComponent = ({ row, type, exam_id, setClose }: { row: RowSelecti
             method: 'post',
             url: `user/exam/invite${type !== 'user' ? `/${type}` : ``}`,
             body: {
-               user_id: data?.data?.id,
+               // user_id: data?.data?.id,
+               user_id: is_inspector ? data?.data?.id : Object.keys(row),
                exam_id: exam_id,
             },
          }),
@@ -303,12 +323,22 @@ const FromActionComponent = ({ row, type, exam_id, setClose }: { row: RowSelecti
       },
    });
 
+   const FinalSubmit = () => {
+      if (Object.keys(row)?.length === 0) {
+         toast.error('Та сонголтоо хийнэ үү!');
+         return;
+      }
+
+      mutate();
+   };
+
    return (
       <div className="sticky z-20 top-0 left-0 bg-card-bg flex justify-between items-center mb-2 py-2">
          <div className="text-muted-text">
-            Сонгогдсон {type === 'user' ? `ажил горилогч` : `ажилтан`}: <span className="text-primary font-semibold">{data?.data?.firstname}</span>
+            Сонгогдсон {type === 'user' ? `ажил горилогч` : `ажилтан`}:{' '}
+            <span className="text-primary font-semibold">{Object.keys(row)?.length > 1 ? Object.keys(row)?.length : data?.data?.firstname}</span>
          </div>
-         <Button isLoading={isPending || isLoading} onClick={() => mutate()} className="rounded-full">
+         <Button isLoading={isPending || isLoading} onClick={() => FinalSubmit()} className="rounded-full">
             Шалгалтанд урих <VscSend />
          </Button>
       </div>

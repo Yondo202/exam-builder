@@ -75,7 +75,7 @@ const SelectInput = <TFieldValues extends FieldValues>({
                               fieldState.error ? `border-danger-color focus:outline-offset-1 focus:outline-danger-color focus:outline-1` : ``
                            )}
                         >
-                           <SelectValue placeholder={placeholder ?? 'Сонго...'} className="placeholder:text-muted-text/20" />
+                           <SelectValue placeholder={placeholder ?? 'Сонго...'} className="placeholder:text-muted-text/20 max-w-full truncate" />
                         </SelectTrigger>
                         <SelectContent>
                            {options?.length > 0 ? (
