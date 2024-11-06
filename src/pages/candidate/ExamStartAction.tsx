@@ -172,7 +172,8 @@ const ExamStartAction = () => {
 
    const { data, isFetchedAfterMount: isExamMaterialFetched } = useQuery({
       // shalgaltiin material
-      enabled: isProgressFetched,
+      // enabled: isProgressFetched,
+      enabled: isProgressFetched && !!ProgressData?.data?.id,
       queryKey: [queryKeyOfEXam.getmyexam], //ProgressData?.data?.id
       queryFn: () => request<FinalRespnse<TExam>>({ offAlert: true, method: 'post', url: `user/exam/progress/${ProgressData?.data?.id}`, passToken: true }), // ProgressData?.data?.id
    });
