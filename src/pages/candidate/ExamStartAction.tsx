@@ -168,8 +168,6 @@ const ExamStartAction = () => {
          }),
    }); // shalgaltiin yvts
 
-   // console.log(ProgressData?.data?.id, '-------------> ProgressData?.data?.id');
-
    const { data, isFetchedAfterMount: isExamMaterialFetched } = useQuery({
       // shalgaltiin material
       // enabled: isProgressFetched,

@@ -25,6 +25,7 @@ type TUserExam = {
 };
 
 export const userAnswerToProgress = (item: any) => {
+   // console.log(item, "---------->item")
    if (item?.input_type === 'essay') {
       return item.user_answers?.[0]?.essay?.essay ?? '';
    }
@@ -33,6 +34,7 @@ export const userAnswerToProgress = (item: any) => {
    }
 
    if (item?.input_type === 'select') {
+
       return item.user_answers?.[0]?.answer_id ?? '';
    }
 
@@ -92,7 +94,6 @@ const ExamMaterialAction = () => {
             // const finalScore = totalScore - (item?.sub_questions?.reduce((a: any, b: any) => a + b?.user_answers?.reduce((aa: any, bb: any) => aa + bb?.mark, 0), 0) ?? 0);
 
             scoreValues[`score-${item.id}`] = totalScore;
-
             settleValue[item.id] = userAnswerToProgress(item);
          });
 

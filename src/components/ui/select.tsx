@@ -3,9 +3,7 @@ import { LuCheck } from 'react-icons/lu';
 import { HiChevronUp } from 'react-icons/hi2';
 import { GoChevronDown } from 'react-icons/go';
 import * as SelectPrimitive from '@radix-ui/react-select';
-
 import { IoClose } from 'react-icons/io5';
-
 import { cn } from '@/lib/utils';
 
 const Select = SelectPrimitive.Root;
@@ -95,7 +93,7 @@ const SelectItem = React.forwardRef<React.ElementRef<typeof SelectPrimitive.Item
    <SelectPrimitive.Item
       ref={ref}
       className={cn(
-         'relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-hover-bg data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+         'relative flex w-full cursor-pointer items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-hover-bg data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
          className
       )}
       {...props}

@@ -68,26 +68,27 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
    return (
       <>
          {question.input_type === 'select' ? (
-            <article className="prose-sm dark:prose-invert mb-4">
+            <article className="prose-sm dark:prose-invert mb-4 select-text">
                <span dangerouslySetInnerHTML={{ __html: question.question }} />
             </article>
          ) : (
-            <div className="mb-4 text-sm leading-6">{question.question}</div>
+            <div className="mb-4 text-sm leading-6 select-text">{question.question}</div>
          )}
 
-         <div className="pb-4 text-primary flex justify-between items-center">
+         <div className="pb-4 text-primary">
+            {/* flex justify-between items-center */}
             <span>{isFromInspector ? `Оролцогчийн хариулт` : `Хариулт`} </span>{' '}
-            {question.input_type === 'multi_select' && (
+            {/* {question.input_type === 'multi_select' && (
                <Badge variant="secondary" className="opacity-70 text-green-600">
                   Дээд тал нь 2 хариулт сонгох боломжтой
                </Badge>
-            )}
+            )} */}
          </div>
          {/* border border-border/80  */}
          <div className="grid grid-cols-1 gap-y-4 gap-x-5 max-sm:grid-cols-1">
             {question?.answers?.map((item, index) => {
                const isChecked = question.input_type === 'multi_select' ? field.value?.some((element: string) => element === item.id) : field.value === item.id;
-               const isDisabled = question.input_type === 'multi_select' && !isChecked && field.value?.length >= 2;
+               const isDisabled = question.input_type === 'multi_select' && !isChecked && field.value?.length >= 3;
                return (
                   <div key={index} className="grid items-center gap-2 grid-cols-[auto_minmax(0,1fr)]">
                      {/* <span className="text-muted-text/70 text-sm">{index + 1}.</span> */}
@@ -102,7 +103,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                            id={`${item.id}${question.id}`}
                            className="disabled:opacity-90"
                         />
-                        <Label htmlFor={`${item.id}${question.id}`} className="mb-0 select-none text-text">
+                        <Label htmlFor={`${item.id}${question.id}`} className="mb-0 text-text">
                            {/* truncate */}
                            {item.answer}
                         </Label>
@@ -125,7 +126,7 @@ export const SelectQuestion = ({ question, field, socket, progressId, isFromInsp
                               className={cn('flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer', isFromInspector && item.is_correct ? `border-green-500` : ``)}
                            >
                               <Checkbox checked={item.is_correct} disabled={true || isFromInspector} className="disabled:opacity-90" />
-                              <Label htmlFor={item.id} className="mb-0 select-none text-text">
+                              <Label htmlFor={item.id} className="mb-0 text-text">
                                  {/* truncate */}
                                  {item.answer}
                               </Label>
@@ -147,8 +148,8 @@ type TFillAnswer = {
 
 function shuffle(array: TAnswers[]) {
    let currentIndex = array.length;
-   if(currentIndex === 0 || !array){
-      return []
+   if (currentIndex === 0 || !array) {
+      return [];
    }
    // While there remain elements to shuffle...
    while (currentIndex != 0) {
@@ -160,7 +161,7 @@ function shuffle(array: TAnswers[]) {
       [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
    }
 
-   return array
+   return array;
 }
 
 export const FillQuestion = ({ question, field, socket, progressId, isFromInspector, setLocalProgress }: TQuestionProps) => {

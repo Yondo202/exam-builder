@@ -65,7 +65,7 @@ const Tabitems = ({ item, activeKey, onChange, setActiveBorder, tabClassName }: 
          onClick={() => onChange(item.key)}
          type="button"
          className={cn(
-            'leading-[48px] text-muted-text/90  select-none flex justify-center rounded-sm',
+            'leading-[48px] text-muted-text/90 flex justify-center rounded-sm',
             tabClassName,
             activeKey === item.key ? 'text-secondary font-medium' : '',
             item?.disabled ? `disabled:opacity-50 disabled:cursor-not-allowed` : ``
