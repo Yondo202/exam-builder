@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 
 export type TUserInfo = {
    attempt: number;
-   employee: null | string;
+   employee: { firstname: string; lastname: string };
    // id: '47c7e229-830c-497b-aee2-87c844d3df98';
    status: keyof typeof StatusLabels;
    user: { firstname: string; lastname: string };
@@ -38,7 +38,7 @@ export type TMaterialList = {
    passed: boolean;
    attempt_score: number;
    end_date: string;
-   grade_visible:boolean;
+   grade_visible: boolean;
    user_exam: TUserInfo;
    status: keyof typeof SubmissionTypes;
    variant: { name: string; achievable_score: number };
@@ -87,14 +87,15 @@ const ExamMaterialList = () => {
       if (isFetchedAfterMount) {
          const temp: TMaterialList[] = [];
          // if (isResult) {
-            data?.data?.forEach((item) => {
-               if (isResult && item.status !== 'not_graded_yet') {
-                  temp.push(item);
-               }
-               if (!isResult && item.status === 'not_graded_yet') {
-                  temp.push(item);
-               }
-            });
+         data?.data?.forEach((item) => {
+            const userItem = { ...item, user_exam: { ...item.user_exam, user: !!item.user_exam?.employee ? item.user_exam?.employee : item.user_exam?.user } };
+            if (isResult && item.status !== 'not_graded_yet') {
+               temp.push(userItem);
+            }
+            if (!isResult && item.status === 'not_graded_yet') {
+               temp.push(userItem);
+            }
+         });
          // }
 
          setListData(temp ?? []);
@@ -124,10 +125,11 @@ const ExamMaterialList = () => {
 
          <DataTable
             isLoading={isLoading}
-            data={listData}
+            data={listData ?? []}
             defaultSortField="active_start_at"
             rowAction={(data) => navigate(data?.data?.id ?? '')}
             hideActionButton="delete"
+            // manualPagination
             // headAction={
             //    <div>
             //          asdf
@@ -186,7 +188,8 @@ const columnDef: ColumnDef<TMaterialList>[] = [
       header: 'Оролцогч',
       accessorKey: 'user_exam.user.firstname',
       cell: ({ row }) => {
-         const user = row?.original?.user_exam.user || row?.original?.user_exam?.employee;
+         const user = row?.original?.user_exam.user;
+         // || row?.original?.user_exam?.employee;s
          return (
             <div>
                {user?.lastname?.slice(0, 1)}. {user?.firstname}

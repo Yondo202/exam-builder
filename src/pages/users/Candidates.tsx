@@ -31,8 +31,9 @@ import { useQuery } from '@tanstack/react-query';
 
 const Candidates = ({ fromAction, selectedData }: { selectedData?: string[]; fromAction?: (row: RowSelectionState) => React.ReactNode }) => {
    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+   const [ userData, setUserData ] = useState<TUserEmployee[]>([])
    const [action, setAction] = useState<TAction<TUserEmployee>>({ isOpen: false, type: 'add', data: {} as TUserEmployee });
-   const { data, isLoading } = useQuery({
+   const { data, isLoading, isFetchedAfterMount } = useQuery({
       queryKey: [`users/candidate`],
       queryFn: () =>
          request<FinalRespnse<TUserEmployee[]>>({
@@ -56,6 +57,17 @@ const Candidates = ({ fromAction, selectedData }: { selectedData?: string[]; fro
       setAction(data);
    };
 
+   useEffect(()=>{
+      if(isFetchedAfterMount){
+         if(!!fromAction){
+            // const userItem = { ...item, user_exam: { ...item.user_exam, user: !!item.user_exam?.employee ? item.user_exam?.employee : item.user_exam?.user } };
+            setUserData(data?.data?.filter((item) => !selectedData?.includes(item.id)) ?? [])
+         }else{
+            setUserData(data?.data ?? [])
+         }
+      }
+   },[isFetchedAfterMount])
+
    return (
       <>
          {fromAction?.(rowSelection)}
@@ -64,7 +76,7 @@ const Candidates = ({ fromAction, selectedData }: { selectedData?: string[]; fro
             setRowSelection={setRowSelection}
             rowSelection={fromAction ? rowSelection : undefined}
             defaultSortField="created_at"
-            data={fromAction ? data?.data?.filter((item) => !selectedData?.includes(item.id)) ?? [] : data?.data ?? []}
+            data={userData}
             columns={[
                ...canditateColumnDef,
                !!fromAction
@@ -116,8 +128,8 @@ export default Candidates;
 export const canditateColumnDef: ColumnDef<TUserEmployee>[] = [
    {
       header: 'Овог нэр',
-      accessorKey: 'firstName',
-      cell: ({ row }) => `${row.original?.lastname ?? ''} ${row.original?.firstname ?? ''}`,
+      accessorKey: 'firstname',
+      cell: ({ row }) => `${row.original?.lastname?.slice(0,1) ?? ''}. ${row.original?.firstname ?? ''}`,
    },
    {
       header: 'Е-мэйл',
