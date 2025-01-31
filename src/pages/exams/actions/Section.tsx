@@ -23,7 +23,7 @@ import { SelectQuestionType } from '@/pages/questions';
 type TVairantTabs = {
    // exam_id?: string;
    variant_id: string;
-   setValidInvite: React.Dispatch<React.SetStateAction<boolean>>;
+   // setValidInvite: React.Dispatch<React.SetStateAction<boolean>>;
    parentData: TExam;
    scrumble_questions?: boolean;
    //   sections?: TExamSection[];
@@ -62,7 +62,7 @@ type TActionDelete = {
    data?: { questionId: string; section_id: string };
 };
 
-const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }: TVairantTabs) => {
+const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) => {
    const { typeid } = useParams();
    // const [activeSection, setActiveSection] = useState([]);
    const [deleteAction, setDeleteAction] = useState<TActionDelete>({ isOpen: false, data: {} as TActionDelete['data'] });
@@ -71,7 +71,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
    const [action, setAction] = useState<TAction<TExamSection>>({ isOpen: false, type: 'add', data: {} as TExamSection });
    const [actionQuestion, setActionQuestion] = useState<TAction<TActionQuestion>>({ isOpen: false, type: 'add', data: {} as TActionQuestion });
 
-   const { data, isFetchedAfterMount, isRefetching, refetch } = useQuery({
+   const { data, isRefetching, refetch } = useQuery({
       enabled: !!variant_id,
       queryKey: ['exam/section', variant_id],
       queryFn: () =>
@@ -87,7 +87,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
          request({
             method: 'post',
             url: 'exam/arrange/question',
-            offAlert:true,
+            offAlert: true,
             body: {
                exam_id: typeid,
                variant_id: variant_id,
@@ -102,24 +102,24 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
       },
    });
 
-   useEffect(() => {
-      if (isFetchedAfterMount && data?.data) {
-         if (data?.data?.length > 0) {
-            const quetions = data?.data?.filter((element) => element.questions?.length > 0);
-            if (quetions?.length > 0) {
-               setValidInvite(true);
-               return;
-            }
-            setValidInvite(false);
-            // console.log(data?.data?.map(element=>element.questions))
+   // useEffect(() => {
+   //    if (isFetchedAfterMount && data?.data) {
+   //       if (data?.data?.length > 0) {
+   //          const quetions = data?.data?.filter((element) => element.questions?.length > 0);
+   //          if (quetions?.length > 0) {
+   //             setValidInvite(true);
+   //             return;
+   //          }
+   //          setValidInvite(false);
+   //          // console.log(data?.data?.map(element=>element.questions))
 
-            return;
-         }
+   //          return;
+   //       }
 
-         setValidInvite(false);
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [isFetchedAfterMount, isRefetching]);
+   //       setValidInvite(false);
+   //    }
+   //    // eslint-disable-next-line react-hooks/exhaustive-deps
+   // }, [isFetchedAfterMount, isRefetching]);
 
    // const { data: dataOne } = useQuery({
    //    enabled: !!variant_id,
@@ -135,6 +135,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
          onSuccess: () => {
             refetch();
             setDeleteAction({ isOpen: false, data: { section_id: '', questionId: '' } });
+            UseReFetch({ queryKey: 'exam', queryId: typeid });
          },
       });
    };
@@ -221,7 +222,7 @@ const Section = ({ variant_id, setValidInvite, parentData, scrumble_questions }:
                                                 </SortableDragHandle>
 
                                                 <div
-                                                   onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
+                                                   // onClick={() => setQuestionDetail({ isOpen: true, pathId: element.id })}
                                                    className="group-hover/items:opacity-60 bg-card-bg px-6 py-3 rounded-md hover:shadow-lg cursor-pointer overflow-hidden shadow-sm group/items relative transition-all"
                                                 >
                                                    {element.input_type === 'richtext' || element.input_type === 'essay' || element.input_type === 'select' ? (
@@ -327,6 +328,7 @@ import { Label } from '@radix-ui/react-label';
 // };
 
 const SelectRowAction = ({ action, setClose, variant_id, parentData }: { variant_id: string; parentData: TExam } & TActionProps<TActionQuestion>) => {
+   const { typeid } = useParams();
    // const [actionAdd, setActionAdd] = useState<TActionAdd<AllTypesQuestionTypes>>({ isOpen: false, type: 'checkbox', data: {} as AllTypesQuestionTypes });
    const [isAddOpen, setIsAddOpen] = useState(false);
    const [, setSearch] = useSearchParams({});
@@ -354,6 +356,7 @@ const SelectRowAction = ({ action, setClose, variant_id, parentData }: { variant
             toast.success('Хүсэлт амжилттай');
          }
          UseReFetch({ queryKey: 'exam/section', queryId: variant_id });
+         UseReFetch({ queryKey: 'exam', queryId: typeid });
          setClose?.({});
       };
 
@@ -510,7 +513,7 @@ export const SectionAction = ({ setClose, action, variant_id, sectionList }: TSe
             placeholder={`Дэд бүлэгийн тайлбар`}
             label={`Дэд бүлэгийн тайлбар оруулах`}
             name="description"
-            className='mb-2'
+            className="mb-2"
             control={control}
             rules={{ required: false }}
          />
@@ -524,7 +527,7 @@ export const SectionAction = ({ setClose, action, variant_id, sectionList }: TSe
                   <>
                      <Label>Өнгө сонгох</Label>
                      <div className="flex items-center gap-3">
-                        <input className=' h-8 w-8' value={field.value} onChange={(e) => field.onChange(e.target.value)} type="color" />
+                        <input className=" h-8 w-8" value={field.value} onChange={(e) => field.onChange(e.target.value)} type="color" />
                         <div>{field.value}</div>
                      </div>
                   </>

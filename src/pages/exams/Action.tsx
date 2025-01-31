@@ -86,7 +86,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          request<FinalRespnse<TExam>>({
             url: `exam/id/${typeid}`,
          }),
-   })
+   });
 
    const {
       data: invitedUsers,
@@ -108,8 +108,27 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
    useEffect(() => {
       if (data?.data?.variants?.length ?? 0 > 0) {
-         setVariantId(data?.data?.variants?.[0]?.id ?? '');
+         const tempOne = data?.data?.variants?.find((item) => item.id === variantId);
+         setVariantId(tempOne ? tempOne?.id : data?.data?.variants?.[0]?.id ?? '');
       }
+
+      const temp = [];
+
+      data?.data?.variants?.forEach((item) => {
+         item?.sections?.forEach((el) => {
+            el?.questions?.forEach((question) => {
+               temp.push(question);
+            });
+         });
+      });
+
+      if (temp?.length > 0) {
+         setValidInvite(true);
+         return;
+      }
+
+      setValidInvite(false);
+
       // eslint-disable-next-line react-hooks/exhaustive-deps
    }, [isFetchedAfterMount, isRefetching]);
 
@@ -139,7 +158,10 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       }
    }, [isCompAdmin]);
 
-   const isValidInviteUser = data?.data?.variants && data?.data?.variants?.length > 0 && validInvite;
+   console.log(data?.data, '------>data?.data?.variants?.length');
+
+   // const validInvite = data?.data?.variants && data?.data?.variants?.length > 0 || validInvite;
+   // const isValidInviteUser = validInvite;
    const invitedTable = { defaultPageSize: 1000, hidePagination: true, rowAction: rowAction, isLoading: userLoading }; // hideAction: true,
    const inviteActionProps = { type: invite.type, exam_id: typeid, setClose: () => (setInvite((prev) => ({ ...prev, isOpen: false })), refetch()) };
 
@@ -157,12 +179,12 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             title={data?.data?.name}
             action={
                <div className="flex gap-4">
-                  <Button onClick={() => setInvite({ isOpen: true, type: 'inspector', is_inspector: true })} className="rounded-full" variant="outline" disabled={!isValidInviteUser}>
+                  <Button onClick={() => setInvite({ isOpen: true, type: 'inspector', is_inspector: true })} className="rounded-full" variant="outline" disabled={!validInvite}>
                      Шалгагч урих
                   </Button>
                   <Popover>
                      <PopoverTrigger asChild>
-                        <Button className="rounded-full" variant="outline" disabled={!isValidInviteUser}>
+                        <Button className="rounded-full" variant="outline" disabled={!validInvite}>
                            Оролцогч урих
                         </Button>
                      </PopoverTrigger>
@@ -196,7 +218,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                {data?.data?.variants?.map((item, index) => {
                   return (
                      <TabsContent key={index} value={item.id}>
-                        <Section scrumble_questions={data?.data?.scrumble_questions} variant_id={variantId} setValidInvite={setValidInvite} parentData={data?.data} />
+                        <Section scrumble_questions={data?.data?.scrumble_questions} variant_id={variantId} parentData={data?.data} />
                      </TabsContent>
                   );
                })}
@@ -205,7 +227,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
          {!isLoading && (
             <div className={cn('mt-5 relative')}>
-               {!isValidInviteUser && (
+               {!validInvite && (
                   <Tooltip content="Та эхлээд асуултаа оруулна уу">
                      <div className="absolute top-0 left-0 w-full h-full bg-white/50 rounded-md z-50" />
                   </Tooltip>
