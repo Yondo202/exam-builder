@@ -17,7 +17,6 @@ export type TCategory = {
    updated_at?: string;
    sub_categories?: TCategory[];
    category_id?: string;
-
    created_employee?: { lastname: string; firstname: string };
    // org_id:string
 };

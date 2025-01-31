@@ -15,6 +15,7 @@ const ActiveExams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const navigate = useNavigate();
    // const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
    const { data: CategoryData } = useGetCategories({ current: 'main_category' });
+   
    const { data, isLoading } = useQuery({
       queryKey: ['exam/inspector', isResult],
       refetchOnWindowFocus: true,
