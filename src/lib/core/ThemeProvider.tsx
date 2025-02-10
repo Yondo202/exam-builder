@@ -15,7 +15,15 @@ const ThemeProvuder = ({ children }: { children: React.ReactNode }) => {
 
    return (
       <>
-         <Toaster richColors />
+         <Toaster
+            richColors
+            toastOptions={{
+               closeButton: true,
+               classNames: {
+                  closeButton: '!bg-white !text-red-700 !border !border-red-400',
+               },
+            }}
+         />
          {children}
       </>
    );

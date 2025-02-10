@@ -13,18 +13,18 @@ import { MarkTotal } from '../components/utils';
 
 const SelectTypes: TInputTypeTab[] = [
    { label: 'Нэг зөв хариулттай', key: 'select' },
-   { label: 'Олон зөв хариулттай', key: 'multi_select' },
-];
+   { label: 'Олон зөв хариулттай', key: 'multi_select' }
+]
 
 export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: TQTypesProps) => {
-   const { fields, append, remove, move } = useFieldArray({ control, keyName: '_id', name: 'answers', rules: { required: 'Хариултаа оруулна уу' } });
+   const { fields, append, remove, move } = useFieldArray({ control, keyName: '_id', name: 'answers', rules: { required: 'Хариултаа оруулна уу' } })
 
    useEffect(() => {
       if (watch?.('input_type') === 'multi_select') {
          setValue('score', MarkTotal({ answers: watch()?.answers }));
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [JSON.stringify(watch?.('answers')), watch?.('input_type')]);
+   }, [JSON.stringify(watch?.('answers')), watch?.('input_type')])
 
    // console.log(, "watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0)")
 
@@ -105,6 +105,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
             }
          >
             <div className={cn('grid grid-cols-1 gap-y-6')}>
+               <div className='flex justify-between border-b pb-2 text-muted-text text-xs'>Хариултууд: <span><span className='text-primary'>{watch?.('answers')?.filter(item=>item.answer?.length > 0)?.length}</span> / {watch?.('answers')?.length} </span></div>
                {fields?.map((item, index) => {
                   return (
                      <SortableItem key={item._id} value={item._id} asChild>
@@ -113,7 +114,7 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
                               <PiDotsSixVerticalBold className="text-lg text-muted-text" aria-hidden="true" />
                            </SortableDragHandle>
                            <div className="relative">
-                              <TextInput
+                              {/* <TextInput
                                  control={control}
                                  name={`answers.${index}.answer`}
                                  rules={{ required: 'Хариултаа оруулна уу' }}
@@ -121,6 +122,17 @@ export const WithSelect = ({ control, watch, setValue, clearErrors, idPrefix }: 
                                  beforeAddon={<span className="font-light ml-1 text-base">{index + 1}.</span>}
                                  className="w-full"
                                  label="Хариулт оруулах"
+                                 idPrefix={idPrefix}
+                              /> */}
+                              <Textarea
+                                 control={control}
+                                 name={`answers.${index}.answer`}
+                                 rules={{ required: 'Хариултаа оруулна уу' }}
+                                 // sizes="lg"
+                                 // beforeAddon={<span className="font-light ml-1 text-base">{index + 1}.</span>}
+                                 className="w-full pr-36 h-9 min-h-9"
+                                 // label="Хариулт оруулах"
+                                 placeholder='Хариулт оруулах'
                                  idPrefix={idPrefix}
                               />
 

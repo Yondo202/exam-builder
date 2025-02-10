@@ -12,9 +12,10 @@ import ConfigAction from '@/pages/exams/ConfigAction';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { finalRenderDate } from '@/lib/utils';
-// import { IoArrowForwardSharp } from 'react-icons/io5';
 import { AllTypesQuestionTypes } from '../questions';
 import { GetUserMe } from '@/pages/auth/Profile';
+// import { toast } from 'sonner';
+// import { IoArrowForwardSharp } from 'react-icons/io5';
 
 export type TExamSection = {
    id: string;
@@ -125,7 +126,7 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       <div>
          <BreadCrumb pathList={breadcrumbs} />
          {/* {userData.roles} */}
-
+         {/* <h1 onClick={()=>toast.success(`heheheh`)}>alert render</h1> */}
          <Header
             title={breadcrumbs.find((item) => item.isActive)?.label}
             action={

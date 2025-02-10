@@ -21,13 +21,13 @@ import QuestionDetail from '@/pages/questions/Action';
 import { SelectQuestionType } from '@/pages/questions';
 
 type TVairantTabs = {
-   // exam_id?: string;
    variant_id: string;
-   // setValidInvite: React.Dispatch<React.SetStateAction<boolean>>;
    parentData: TExam;
    scrumble_questions?: boolean;
-   //   sections?: TExamSection[];
-   //    variantId: string;
+   // setValidInvite: React.Dispatch<React.SetStateAction<boolean>>;
+   // exam_id?: string;
+   // sections?: TExamSection[];
+   // variantId: string;
    //    setVariantId: (id: string) => void;
    //    variants?: FinalRespnse<TVariant[]>;
    //    children: React.ReactNode;
@@ -181,7 +181,6 @@ const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) =
                            <AccordionContent className="p-3 relative">
                               <div className="pb-2 mb-2 flex gap-3 text-primary/70 text-xs border-border border-b font-medium">
                                  <span>Асуултууд</span>
-
                                  {scrumble_questions && (
                                     <Tooltip content="Та санамсаргүй байдлаар холих сонгосон үед: Шалгалт өгч буй хүнд үндсэн асуулт энэхүү байрлалаар харагдахгүй">
                                        <span className="text-amber-500 flex items-center gap-1.5 font-normal">
@@ -190,6 +189,7 @@ const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) =
                                     </Tooltip>
                                  )}
                               </div>
+
                               {item.questions.length > 0 ? (
                                  <Sortable
                                     // value={fields.map((item) => ({ ...item, id: item._id }))}

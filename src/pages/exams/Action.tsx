@@ -158,7 +158,7 @@ const ExamAction = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       }
    }, [isCompAdmin]);
 
-   console.log(data?.data, '------>data?.data?.variants?.length');
+   // console.log(data?.data, '------>data?.data?.variants?.length');
 
    // const validInvite = data?.data?.variants && data?.data?.variants?.length > 0 || validInvite;
    // const isValidInviteUser = validInvite;

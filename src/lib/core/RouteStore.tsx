@@ -22,6 +22,8 @@ import { type TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { type TUserRoles, type TRolesAssetType } from '@/lib/sharedTypes';
 import Dashboard from '@/pages/report/Dashboard';
 import ReportList from '@/pages/report/ReportList';
+import ByCategory from '@/pages/exams/ongoing/ByCategory';
+import ByExam from '@/pages/exams/ongoing/ByExam';
 
 // const Category = React.lazy(() => import('@/pages/category'));
 // const Questions = React.lazy(() => import('@/pages/questions'));
@@ -80,6 +82,10 @@ const RouteStore: TRouteOmit[] = [
          { to: 'examresults/:examid/:materialid', component: ExamMaterialAction, visibleType: ['inspector', 'company_admin'], isHide: true },
          // { to: 'tocheck', label: 'Засах шалгалтууд', component: Category },
          // { to: 'result', label: 'Засах шалгалтууд', component: Groups },
+
+         { to: 'ongoing', label: 'Явагдаж буй шалгалтууд', component: ByCategory, visibleType: ['inspector', 'company_admin'] },
+         { to: 'ongoing/:examid', label: '', component: ByExam, visibleType: ['inspector', 'company_admin'], isHide: true },
+
       ],
    },
    {

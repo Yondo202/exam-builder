@@ -266,4 +266,8 @@ export const empColumnDef: ColumnDef<TUserEmployee>[] = [
       header: 'Хэлтэс',
       accessorKey: 'dep_name',
    },
+   {
+      header: 'Албан тушаал',
+      accessorKey: 'pname',
+   },
 ];

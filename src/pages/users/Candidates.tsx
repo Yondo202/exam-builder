@@ -59,6 +59,7 @@ const Candidates = ({ fromAction, selectedData }: { selectedData?: string[]; fro
 
    useEffect(()=>{
       if(isFetchedAfterMount){
+         // eslint-disable-next-line no-extra-boolean-cast
          if(!!fromAction){
             // const userItem = { ...item, user_exam: { ...item.user_exam, user: !!item.user_exam?.employee ? item.user_exam?.employee : item.user_exam?.user } };
             setUserData(data?.data?.filter((item) => !selectedData?.includes(item.id)) ?? [])
@@ -79,6 +80,7 @@ const Candidates = ({ fromAction, selectedData }: { selectedData?: string[]; fro
             data={userData}
             columns={[
                ...canditateColumnDef,
+               // eslint-disable-next-line no-extra-boolean-cast
                !!fromAction
                   ? {
                        header: 'Үүсгэсэн огноо',
@@ -138,6 +140,14 @@ export const canditateColumnDef: ColumnDef<TUserEmployee>[] = [
    {
       header: 'Утас',
       accessorKey: 'phone',
+   },
+   {
+      header: 'Утас',
+      accessorKey: 'phone',
+   },
+   {
+      header: 'Горилж буй / АТ',
+      accessorKey: 'position_applied',
    },
 ];
 

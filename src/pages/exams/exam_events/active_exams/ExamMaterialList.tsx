@@ -88,6 +88,7 @@ const ExamMaterialList = () => {
          const temp: TMaterialList[] = [];
          // if (isResult) {
          data?.data?.forEach((item) => {
+            // eslint-disable-next-line no-extra-boolean-cast
             const userItem = { ...item, user_exam: { ...item.user_exam, user: !!item.user_exam?.employee ? item.user_exam?.employee : item.user_exam?.user } };
             if (isResult && item.status !== 'not_graded_yet') {
                temp.push(userItem);

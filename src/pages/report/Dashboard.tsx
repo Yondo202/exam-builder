@@ -1,5 +1,5 @@
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-import { Header, BreadCrumb, DatePicker, Loading } from '@/components/custom'; //BreadCrumb
+import { Header, BreadCrumb, DatePicker, Loading, DataTable } from '@/components/custom'; //BreadCrumb
 import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { formatDateToCustomISO } from '@/lib/utils';
@@ -8,8 +8,10 @@ import { FinalRespnse } from '@/lib/sharedTypes';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
 import { subDays, endOfDay, startOfDay } from 'date-fns';
+import { ColumnDef } from '@tanstack/react-table';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { BarChart } from '@mui/x-charts/BarChart';
+// Хянах самбар
 
 type TExamResult = {
    exam_count: string;
@@ -74,6 +76,20 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
          }),
    });
 
+   const { data: AttemptStatsData, isPending: StatsLoading } = useQuery({
+      enabled: watch('end_range') !== '' && watch('start_range') !== '',
+      queryKey: ['attempt/stats', watch()],
+      queryFn: () =>
+         request<FinalRespnse<TAttemptStats>>({
+            url: 'attempt/stats',
+            method: 'post',
+            offAlert: true,
+            filterBody: {
+               range: watch(),
+            },
+         }),
+   });
+
    // const generateColors = (num: number) => {
    //    const colors = [];
    //    for (let i = 0; i < num; i++) {
@@ -87,7 +103,7 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 
    useEffect(() => {
       const currentDate = new Date();
-      const pastDate = startOfDay(subDays(currentDate, 7))
+      const pastDate = startOfDay(subDays(currentDate, 7));
       const Today = endOfDay(currentDate);
 
       reset({ start_range: formatDateToCustomISO(pastDate, true), end_range: formatDateToCustomISO(Today, true) });
@@ -97,6 +113,8 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    const examResults = data?.data.exam_result ?? [];
    // const backgroundColors = generateColors(examResults.length);
    // const borderColors = backgroundColors.map((color) => color.replace('0.2', '1'));
+
+   // console.log(AttemptStatsData, "----->AttemptStatsData")
 
    return (
       <div>
@@ -257,6 +275,8 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             </div>
          </div>
 
+         <DataTable headAction={<div className='text-primary text-base'>Шалгалтын үзүүлэлтүүд</div>} hideColumnVisibleAction isLoading={StatsLoading} data={Array.isArray(AttemptStatsData?.data) ? AttemptStatsData?.data : []} columns={columnDef} />
+
          {/* <div className="wrapper mb-5">
             <div className="px-5 py-2 border-b text-xs2">Дундаж оноо</div>
             <div className="p-5">
@@ -283,3 +303,30 @@ const Dashboard = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
 };
 
 export default Dashboard;
+
+type TAttemptStats = {
+   [`Шалгалтын нэр`]: string;
+   [`Урисан тоо`]: string;
+   [`Оролдлого тоо`]: string;
+   [`Хэрэглэгч (Давтагдашгүй)`]: string;
+   [`Тэнцсэн`]: string;
+   [`Унасан`]: string;
+};
+
+const columnDef: ColumnDef<TAttemptStats>[] = [
+   {
+      accessorKey: 'Шалгалтын нэр',
+   },
+   {
+      accessorKey: 'Оролдлого тоо',
+   },
+   {
+      accessorKey: 'Хэрэглэгч (Давтагдашгүй)',
+   },
+   {
+      accessorKey: 'Тэнцсэн',
+   },
+   {
+      accessorKey: 'Унасан',
+   },
+];
