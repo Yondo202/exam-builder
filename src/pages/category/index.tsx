@@ -21,7 +21,7 @@ export type TCategory = {
    // org_id:string
 };
 
-const catAsset = {
+export const catAsset = {
    main_category: {
       label: 'Үндсэн ангилал',
       url: 'cats/list/category',

@@ -5,7 +5,8 @@ import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
 import { PiDotsSixVerticalBold } from 'react-icons/pi';
-import { useGetCategories, type TKeys } from '../category';
+import { useGetCategories} from '../category';
+import { type TKeys } from '../category/Action';
 // import { FillConverter } from './components/utils';
 import { FillerSubmit, FillerSetConvert } from './question-types/Filler';
 import {

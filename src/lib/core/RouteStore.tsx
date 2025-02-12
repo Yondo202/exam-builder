@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 import { Users, Plan, Group, Document, Leaderboard, ReportSVG, QuestionsSVG } from '@/assets/svg'; //Document //Leaderboard
-import Category from '@/pages/category';
+import Category from '@/pages/category/MainCategory';
 import Questions from '@/pages/questions';
 import QuestionAction from '@/pages/questions/Action';
 import UsersList from '@/pages/users';
@@ -57,7 +57,7 @@ const RouteStore: TRouteOmit[] = [
    {
       to: '/category', //groups
       icon: Group,
-      label: 'Ангилал',
+      label: 'Үндсэн ангилал',
       component: Category,
    },
    { to: '/questions', icon: QuestionsSVG, label: 'Асуултын сан', component: Questions },

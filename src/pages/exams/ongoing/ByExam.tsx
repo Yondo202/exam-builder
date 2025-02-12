@@ -68,7 +68,7 @@ const ByExam = () => {
                pagination: {
                   page: 1,
                   page_size: 20,
-               },
+               }
             },
          }),
    });
@@ -94,7 +94,7 @@ const ByExam = () => {
             columns={columnDef}
          />
       </div>
-   );
+   )
 };
 
 export default ByExam;
@@ -111,7 +111,7 @@ const columnDef: ColumnDef<TOngoungByExam>[] = [
             <div>
                {user?.lastname?.slice(0, 1)}. {user?.firstname}
             </div>
-         );
+         )
       },
    },
    {
@@ -137,7 +137,7 @@ const columnDef: ColumnDef<TOngoungByExam>[] = [
                <ShiftingCountdown endAt={row.original.end_at} extraSM />
                <span className="text-xs">Цаг / Мин / Сек</span>
             </div>
-         );
-      },
+         )
+      }
    },
 ];

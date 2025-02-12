@@ -76,7 +76,6 @@ const ExamsList = () => {
       queryClient.resetQueries({ queryKey: ['my-invites'], exact: true });
    }, []);
 
-   // console.log(data?.data, '--------->');
    // dahin {5} oroldlogo hiih bolomjtoi -
 
    const StartExamNavigate = ({ id }: { id: string }) => {
