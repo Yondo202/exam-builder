@@ -148,6 +148,7 @@ const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) =
                {data?.data
                   ?.sort((a, b) => a.sort_number - b.sort_number)
                   .map((item, index) => {
+                     console.log(item?.questions, '------>data?.data');
                      return (
                         <AccordionItem key={index} value={item.id} className="border rounded-md bg-primary/5 mb-4 pr-1.5">
                            <div className="grid items-center grid-cols-[1fr_auto]">
@@ -159,13 +160,27 @@ const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) =
                                     className="pl-9 -top-1/4 -translate-y-1/2 translate-x-11 right-full"
                                  />
                               </AccordionTrigger>
-                              <div className="flex items-center gap-5">
+                              <div className="flex items-center gap-8">
                                  <div className="text-muted-text">
                                     Асуултын тоо: <span className="text-text font-medium">{item.questions.length}</span>
                                  </div>
-                                 <div className="text-muted-text">
-                                    Авах оноо: <span className="text-primary font-medium">{item.questions?.reduce((a, b) => a + b.score, 0)}</span>
+
+                                 <div className="relative flex gap-5 py-1 rounded-full bg-card-bg">
+                                    <div className="text-muted-text px-1.5 bg-card-bg z-10 rounded-l-full">
+                                       Үндсэн: <span className="text-primary font-medium">{item.questions?.reduce((a, b) => a + b.score, 0)}</span>
+                                    </div>
+                                    <div className="text-muted-text px-1.5 bg-card-bg z-10">
+                                       Нэмэлт: <span className="text-primary font-medium">{item.questions?.reduce((a, b) => a + b.sub_q_score_sum, 0)}</span>
+                                    </div>
+                                    <div className="text-muted-text px-1.5 bg-card-bg z-10 rounded-r-full">
+                                       Нийт авах оноо:{' '}
+                                       <span className="text-primary font-medium">
+                                          {item.questions?.reduce((a, b) => a + b.score, 0) + item.questions?.reduce((a, b) => a + b.sub_q_score_sum, 0)}
+                                       </span>
+                                    </div>
+                                    <div className="absolute top-1/2 left-0 -translate-y-1/2 h-0.5 w-full bg-primary/20" />
                                  </div>
+
                                  <Button
                                     size="sm"
                                     type="button"
