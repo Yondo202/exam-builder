@@ -224,17 +224,15 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
       // end sort hiine, bas subtotal iig hasaj score oo gargaj avj baigaa
 
       if (data?.data) {
-         const subTotal = data?.data?.sub_questions?.reduce((a, b) => a + b.score, 0) ?? 0;
-         const mainScore = data?.data?.score - subTotal;
-
+         // const subTotal = data?.data?.sub_questions?.reduce((a, b) => a + b.score, 0) ?? 0;
+         // const mainScore = data?.data?.score - subTotal;
          const finalAnswers: TAnswers[] = FillerSetConvert({ data: data?.data });
-
          // console.log(data?.data?.sub_questions?.sort((a,b)=>a.sort_number - b.sort_number), "=============================>data?.data?.sub_questions?.sort((a,b)=>a.sort_number - b.sort_number)")
 
          reset({
             ...data?.data,
             sub_questions: data?.data?.sub_questions?.sort((a, b) => a.sort_number - b.sort_number),
-            score: mainScore,
+            // score: mainScore,
             answers: data?.data.type === 'fill' ? finalAnswers : data?.data?.answers?.sort((a, b) => a.sort_number - b.sort_number),
          });
       }
@@ -274,7 +272,7 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
          }
       }
 
-      const subTotal = watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0;
+      // const subTotal = watch?.('sub_questions')?.reduce((a, b) => a + b.score, 0) ?? 0;
 
       let answers: TAnswers[] = [];
 
@@ -284,9 +282,11 @@ const ActionWrapper = ({ type, pathId, setCloseDialog, isFromExam, searchParams 
          answers = data.answers;
       }
 
+      console.log(data.score)
+
       mutate({
          ...data,
-         score: data.score + subTotal,
+         // score: data.score + subTotal,
          sort_number: 0,
          sub_questions: data?.sub_questions?.map((item, index) => ({ ...item, sort_number: index, answers:item?.answers?.map((el,ind)=>({ ...el, fill_index: ind })) })),
          answers: answers?.map((el, index) => ({ ...el, sort_number: index, fill_index: index })),
