@@ -42,6 +42,7 @@ export type AllTypesQuestionTypes = {
    id: string;
    question: string;
    score: number;
+   sub_q_score_sum: number; // total of sub_questions
    type: TQuestion;
    category_id: string;
    answers: TAnswers[];
@@ -354,11 +355,11 @@ const columnDef: ColumnDef<AllTypesQuestionTypes>[] = [
       accessorKey: 'score',
       size: 120,
       // cell: ({ row }) => <Badge variant="outline">{row.original?.score}</Badge>,
-      cell: ({ row }) => (
-         <Badge variant="outline" className="w-fit text-[11px] py-0.5 px-2 font-medium text-primary bg-secondary/5">
-            {row.original?.score}
-         </Badge>
-      ),
+      cell: ({ row }) => {
+         return <Badge variant="outline" className="w-fit text-[11px] py-0.5 px-2 font-medium text-primary bg-secondary/5">
+            {row.original?.score + row.original?.sub_q_score_sum}
+         </Badge>;
+      },
    },
    {
       header: 'Үүсгэсэн огноо',
