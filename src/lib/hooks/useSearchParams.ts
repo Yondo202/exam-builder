@@ -20,6 +20,7 @@ const useSearchParam = () => {
    //      }
    //    }
    // }
+   
    return [searchAsObject, setSearch, removeParam];
 };
 

@@ -468,7 +468,8 @@ export const QuestionActionSector = ({ sectionData, score_visible, control, Prog
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const subQuestions = ProgressData?.data.progress?.find((el: any) => el.question_id === element.id)?.sub_questions ?? [];
 
-                  const questionScore = element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score;
+                  // const questionScore = element?.sub_questions?.length > 0 ? element.score - element?.sub_questions.reduce((a, b) => a + b.score, 0) : element.score;
+                  const questionScore = element.score;
 
                   return (
                      <div className="wrapper mb-2.5 px-0 py-6 relative" key={ind} id={`id-${index}-${ind}`}>

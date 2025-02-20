@@ -25,10 +25,10 @@ type TUserExam = {
 };
 
 export const userAnswerToProgress = (item: any) => {
-   // console.log(item, "---------->item")
    if (item?.input_type === 'essay') {
       return item.user_answers?.[0]?.essay?.essay ?? '';
    }
+   
    if (item?.type === 'text') {
       return item.user_answers?.[0]?.answer ?? '';
    }
@@ -61,13 +61,13 @@ const ExamMaterialAction = () => {
    const { materialid, examid } = useParams();
    const { control, reset } = useForm();
 
-   const { control: scoreController, handleSubmit, reset: scoreReset } = useForm({ mode: 'onSubmit' });
+   const { control: scoreController, handleSubmit, reset: scoreReset } = useForm({ mode: 'onSubmit' })
 
-   const { data: examDAta } = GetExamDetial({ examid: examid });
+   const { data: examDAta } = GetExamDetial({ examid: examid })
 
    const { data, isFetchedAfterMount } = useQuery<FinalRespnse<Omit<TExam, 'variants' | 'user_exam'> & { variant: TVariant; user_exam: TUserExam }>>({
       queryKey: ['material', [materialid, pathname]],
-      queryFn: () => request({ url: `user/inspector/submissions/detail/${materialid}` }),
+      queryFn: () => request({ url: `user/inspector/submissions/detail/${materialid}` })
    });
 
    const { mutate, isPending } = useMutation({
@@ -90,9 +90,7 @@ const ExamMaterialAction = () => {
          questions?.forEach((item: any) => {
             const totalScore = item.user_answers?.reduce((a: any, b: any) => a + b?.mark, 0);
             // daraa soli
-
             // const finalScore = totalScore - (item?.sub_questions?.reduce((a: any, b: any) => a + b?.user_answers?.reduce((aa: any, bb: any) => aa + bb?.mark, 0), 0) ?? 0);
-
             scoreValues[`score-${item.id}`] = totalScore;
             settleValue[item.id] = userAnswerToProgress(item);
          });
@@ -127,7 +125,6 @@ const ExamMaterialAction = () => {
                const subQuestionAnswers: any = [];
                Object.keys(sub.subValue[item?.replace('score-', '')])?.forEach((element) => {
                   // console.log(parseFloat(sub.subValue?.[item?.replace('score-', '')]?.[element]),)
-
                   // console.log(sub.subValue?.[item?.replace('score-', '')]?.[element], "------------>sub.subValue?.[item?.replace('score-', '')]?.[element]")
                   subQuestionAnswers.push({ question_id: element?.replace('score-', ''), score: parseFloat(sub.subValue?.[item?.replace('score-', '')]?.[element]) });
                });
@@ -138,7 +135,7 @@ const ExamMaterialAction = () => {
             finalSubmitData.push({ question_id: item?.replace('score-', ''), score: data[item] });
          });
          // sub_question_answers:[]
-         mutate(finalSubmitData);
+         mutate(finalSubmitData)
       }
    };
 

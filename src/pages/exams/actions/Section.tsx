@@ -112,10 +112,8 @@ const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) =
    //          }
    //          setValidInvite(false);
    //          // console.log(data?.data?.map(element=>element.questions))
-
    //          return;
    //       }
-
    //       setValidInvite(false);
    //    }
    //    // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -148,7 +146,6 @@ const Section = ({ variant_id, parentData, scrumble_questions }: TVairantTabs) =
                {data?.data
                   ?.sort((a, b) => a.sort_number - b.sort_number)
                   .map((item, index) => {
-                     console.log(item?.questions, '------>data?.data');
                      return (
                         <AccordionItem key={index} value={item.id} className="border rounded-md bg-primary/5 mb-4 pr-1.5">
                            <div className="grid items-center grid-cols-[1fr_auto]">

@@ -1,19 +1,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { request } from '@/lib/core/request';
 import { type FinalRespnse, type TAction } from '@/lib/sharedTypes';
-import { DataTable, BreadCrumb, Header, Button, Drawer, Badge } from '@/components/custom';
+import { DataTable, BreadCrumb, Button, Drawer, Badge, AnimatedTabs } from '@/components/custom';
 import { ColumnDef } from '@tanstack/react-table';
 import { TBreadCrumb } from '@/components/custom/BreadCrumb';
-import { useNavigate } from 'react-router-dom';
-import { IoSettingsOutline } from "react-icons/io5";
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { IoSettingsOutline } from 'react-icons/io5';
 import { MdOutlineAdd } from 'react-icons/md';
 import { CategorySelect } from '../questions/Action';
 import ConfigAction from '@/pages/exams/ConfigAction';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { finalRenderDate } from '@/lib/utils';
+import { cn, finalRenderDate } from '@/lib/utils';
 import { AllTypesQuestionTypes } from '../questions';
 import { GetUserMe } from '@/pages/auth/Profile';
+import { LuArchive } from 'react-icons/lu';
+// import useSearchParam  from '@/lib/hooks/useSearchParams';
+
 // import { toast } from 'sonner';
 // import { IoArrowForwardSharp } from 'react-icons/io5';
 
@@ -75,10 +78,13 @@ export const onlyCompanyAdmin = () => {
 };
 
 const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
+   const navigate = useNavigate();
+   const [searchParam, setSearchParam] = useSearchParams();
+   const searchAsObject = Object.fromEntries(new URLSearchParams(searchParam));
    const isCompAdmin = onlyCompanyAdmin();
+   // const [examType, setInviteType] = useState<TExamType>('active');
    const { control, setValue, watch } = useForm({ defaultValues: { category_id: '', sub_category_id: '' } });
    const [search, setSearch] = useState('');
-   const navigate = useNavigate();
    const [action, setAction] = useState<TAction<TExam>>({ isOpen: false, type: 'add', data: {} as TExam });
 
    const [pagination, setPagination] = useState({
@@ -87,8 +93,17 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
       total: 0,
    });
 
+   const examType = searchAsObject?.archive ? 'archived' : 'active';
+
+   const setStatus = (status: typeof examType) => {
+      if (status === 'archived') {
+         return { status };
+      }
+      return {};
+   };
+
    const { data, isLoading, refetch, isFetchedAfterMount } = useQuery({
-      queryKey: ['exam/list', [pagination.pageIndex, pagination.pageSize, search, watch('category_id'), watch('sub_category_id')]],
+      queryKey: ['exam/list', [pagination.pageIndex, pagination.pageSize, search, watch('category_id'), watch('sub_category_id'), examType]],
       queryFn: () =>
          request<FinalRespnse<TExam[]>>({
             method: 'post',
@@ -98,6 +113,8 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                query: search,
                category_id: watch('category_id'),
                sub_category_id: watch('sub_category_id'),
+               ...setStatus(examType),
+               // status: examType === 'active' ? null : examType,
                // type: filterTypes !== 'all' ? filterTypes : undefined,
                pagination: {
                   page: pagination.pageIndex + 1,
@@ -125,9 +142,48 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
    return (
       <div>
          <BreadCrumb pathList={breadcrumbs} />
-         {/* {userData.roles} */}
-         {/* <h1 onClick={()=>toast.success(`heheheh`)}>alert render</h1> */}
-         <Header
+         <div className="flex items-center gap-2 justify-between mb-2">
+            <AnimatedTabs
+               items={[
+                  {
+                     labelRender: (
+                        <div className="flex items-center gap-2">
+                           <span className="relative flex size-2">
+                              {examType === 'active' && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-80"></span>}
+                              <span className={cn('relative inline-flex size-2 rounded-full bg-gray-500', examType === 'active' && 'bg-green-500')}></span>
+                           </span>
+                           Идэвхитэй шалгалтууд
+                        </div>
+                     ),
+                     key: 'active',
+                  },
+                  {
+                     labelRender: (
+                        <div className="flex items-center gap-2">
+                           <LuArchive /> Архив
+                        </div>
+                     ),
+                     key: 'archive',
+                  },
+               ]}
+               activeKey={searchAsObject?.archive ? 'archive' : 'active'}
+               onChange={(value) => {
+                  if (value === 'archive') {
+                     setSearchParam({ archive: 'true' });
+                     return;
+                  }
+                  setSearchParam({});
+               }}
+            />
+
+            {isCompAdmin ? null : examType === 'active' ? (
+               <Button size="sm" onClick={() => setAction({ isOpen: true, type: 'add' })} className="rounded-full">
+                  <MdOutlineAdd className="text-base" /> Шалгалт үүсгэх
+               </Button>
+            ) : null}
+         </div>
+
+         {/* <Header
             title={breadcrumbs.find((item) => item.isActive)?.label}
             action={
                isCompAdmin ? null : (
@@ -136,33 +192,7 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                   </Button>
                )
             }
-         />
-
-         {/* <div className="wrapper p-6 pt-3 mb-4 flex gap-10 relative">
-            <div className="flex w-1/2 gap-5">
-               <CategorySelect
-                  control={control}
-                  name="category_id"
-                  current="main_category"
-                  label="Үндсэн ангилал"
-                  triggerClassName="rounded-full h-8"
-                  onChange={() => {
-                     setValue('sub_category_id', '');
-                  }}
-               />
-               <CategorySelect
-                  triggerClassName="rounded-full h-8"
-                  control={control}
-                  disabled={!watch('category_id')}
-                  idKey={watch('category_id')}
-                  name="sub_category_id"
-                  current="sub_category"
-                  label="Дэд ангилал"
-               />
-            </div>
-
-            <div className="h-[1.1rem] w-0.5 bg-primary/40 absolute top-full left-10" />
-         </div> */}
+         /> */}
 
          <DataTable
             hideAction={isCompAdmin}
@@ -181,7 +211,7 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
                   cell: ({ row }) => (
                      <div
                         // to={row.original?.id ?? '/'}
-                        onClick={() => setAction({ isOpen:true, type:'edit', data:row.original })}
+                        onClick={() => setAction({ isOpen: true, type: 'edit', data: row.original })}
                         className="w-full leading-11 h-11 text-[11px] font-medium text-primary/90 flex items-center gap-1 hover:decoration-primary hover:underline"
                      >
                         Тохиргоо <IoSettingsOutline />
@@ -240,6 +270,32 @@ const Exams = ({ breadcrumbs }: { breadcrumbs: TBreadCrumb[] }) => {
             //         }
             // }
          />
+
+         {/* <div className="wrapper p-6 pt-3 mb-4 flex gap-10 relative">
+            <div className="flex w-1/2 gap-5">
+               <CategorySelect
+                  control={control}
+                  name="category_id"
+                  current="main_category"
+                  label="Үндсэн ангилал"
+                  triggerClassName="rounded-full h-8"
+                  onChange={() => {
+                     setValue('sub_category_id', '');
+                  }}
+               />
+               <CategorySelect
+                  triggerClassName="rounded-full h-8"
+                  control={control}
+                  disabled={!watch('category_id')}
+                  idKey={watch('category_id')}
+                  name="sub_category_id"
+                  current="sub_category"
+                  label="Дэд ангилал"
+               />
+            </div>
+
+            <div className="h-[1.1rem] w-0.5 bg-primary/40 absolute top-full left-10" />
+         </div> */}
 
          <Drawer
             open={action.isOpen}
